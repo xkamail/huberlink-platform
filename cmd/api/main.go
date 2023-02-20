@@ -1,8 +1,11 @@
 package main
 
 import (
+	"context"
 	"log"
+	"os"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/xkamail/dotconfig"
 )
 
@@ -21,5 +24,10 @@ func run() error {
 	if err := dotconfig.Load(&cfg, "./.env"); err != nil {
 		return err
 	}
+	conn, err := pgx.Connect(context.Background(), os.Getenv("DATABASE_URL"))
+	if err != nil {
+		return err
+	}
+	defer conn.Close(context.Background())
 	return nil
 }
