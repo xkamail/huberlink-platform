@@ -7,8 +7,9 @@ const LandingNavbar = () => {
       <div className="container mx-auto h-16 flex items-center">
         <div>
           <a href="/" className="">
-            <span className="text-indigo-500 text-lg font-bold">HuberLink</span>{' '}
-            <span className="text-slate-800">Platform</span>
+            <span className="text-indigo-500 text-lg font-bold hover:text-indigo-600 transition-colors">
+              HuberLink
+            </span>{' '}
           </a>
         </div>
         <div className="flex-end ml-auto">

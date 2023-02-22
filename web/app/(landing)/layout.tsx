@@ -8,7 +8,7 @@ export default function LandingLayouyt({
   return (
     <div className="">
       <LandingNavbar />
-      <div className="container mx-auto">{children}</div>
+      {children}
     </div>
   )
 }
