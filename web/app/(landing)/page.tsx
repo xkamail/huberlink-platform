@@ -27,8 +27,7 @@ export default function Home() {
             </div>
             <div className="flex flex-col p-8 justify-between items-center">
               <div className="w-[234px] rounded-[2rem] h-[507px] bg-slate-100 bg-gradient-to-t border-[10px] border-slate-800 flex items-center justify-center flex-col relative">
-                <span className="border border-slate-900 bg-slate-900 w-16 h-4 mt-2 rounded-full absolute top-0 mr-[10px]"></span>
-                <span className="border border-slate-900 bg-slate-900 w-4 h-4 mt-2 rounded-full absolute top-0 mr-[-85px]"></span>
+                <span className="border border-slate-900 bg-slate-900 w-16 h-4 mt-2 rounded-full absolute top-0"></span>
 
                 <div>
                   <Network className="h-10 w-10 text-slate-600" />
