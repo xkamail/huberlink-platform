@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "concurrently \"pnpm next dev\" \"pnpm tailwindcss -i ./styles/global.scss -o ./styles/output.css --watch\"",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
@@ -27,6 +27,7 @@
   },
   "devDependencies": {
     "autoprefixer": "^10.4.13",
+    "concurrently": "^7.6.0",
     "postcss": "^8.4.21",
     "tailwindcss": "^3.2.7"
   }
