@@ -27,4 +27,4 @@ go.work
 .DS_Store
 .vercel
 
-.node_modules/
+node_modules/
