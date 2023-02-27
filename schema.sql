@@ -4,8 +4,9 @@ create table users
     name       varchar(255),
     email      varchar(255),
     password   varchar(255),
-    created_at timestamptz,
-    updated_at timestamptz
+    discord_id bigint not null,
+    created_at timestamptz default now(),
+    updated_at timestamptz default now()
 );
 
 create table users_refresh_tokens
