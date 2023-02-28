@@ -51,21 +51,32 @@ func (s Service) SignInWithDiscord(ctx context.Context, code string) (*TokenResp
 	if err := s.db.QueryRow(ctx, `select exists(select id from users where discord_id = $1)`, profile.ID).Scan(&exists); err != nil {
 		return nil, err
 	}
-	// create a new account
-	if !exists {
-		// TODO
+
+	tx, err := s.db.Begin(ctx)
+	defer tx.Rollback(ctx)
+	if err != nil {
+		return nil, err
 	}
 	var userID int64
+	// create a new account
+	if !exists {
+		now := time.Now()
+		err = tx.QueryRow(ctx, `insert into users (id, name, email, password, discord_id, created_at, updated_at) values ($1,$2,$3,$4,$5,$6) returning id`,
+			snowid.Gen(),
+			profile.Username,
+			"",
+			profile.ID,
+			now,
+			now,
+		).Scan(&userID)
+		if err != nil {
+			return nil, err
+		}
+	}
 	if err := s.db.QueryRow(ctx, `select id from users where discord_id = $1`, profile.ID).Scan(&userID); err != nil {
 		return nil, err
 	}
 	jwtToken, err := jwtGenerate(userID, time.Hour*3, s.jwtSecret)
-	if err != nil {
-		return nil, err
-	}
-
-	tx, err := s.db.Begin(ctx)
-	defer tx.Rollback(ctx)
 	if err != nil {
 		return nil, err
 	}
