@@ -11,6 +11,7 @@ require (
 	github.com/stretchr/testify v1.8.1
 	github.com/xkamail/dotconfig v1.4.4
 	github.com/xkamail/snowflake v0.3.0
+	golang.org/x/crypto v0.6.0
 	golang.org/x/exp v0.0.0-20230224173230-c95f2b4c22f2
 )
 
@@ -25,7 +26,6 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rogpeppe/go-internal v1.9.0 // indirect
 	go.uber.org/atomic v1.7.0 // indirect
-	golang.org/x/crypto v0.6.0 // indirect
 	golang.org/x/sync v0.1.0 // indirect
 	golang.org/x/text v0.7.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
