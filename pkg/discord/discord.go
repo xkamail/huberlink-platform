@@ -3,6 +3,8 @@ package discord
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"log"
 	"net/http"
 	"net/url"
 	"strings"
@@ -34,6 +36,14 @@ type Profile struct {
 	Discriminator string  `json:"discriminator"`
 	Email         string  `json:"email"`
 }
+
+func (p Profile) AvatarURL() string {
+	if p.Avatar == nil {
+		return ""
+	}
+	return fmt.Sprintf(`https://cdn.discordapp.com/avatars/%s/%s.webp`, p.ID, *p.Avatar)
+}
+
 type Response struct {
 	ErrorDescription string `json:"error_description"`
 }
@@ -72,6 +82,7 @@ func (c client) GetAccessToken(ctx context.Context, code string) (string, error)
 		"code":          {code},
 		"redirect_uri":  {c.redirectUri},
 	}
+	log.Print(q.Encode())
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, baseURL+`/oauth2/token`, strings.NewReader(q.Encode()))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
@@ -102,8 +113,32 @@ func (c client) GetAccessToken(ctx context.Context, code string) (string, error)
 }
 
 func (c client) GetProfile(ctx context.Context, accessToken string) (*Profile, error) {
-	//TODO implement me
-	panic("implement me")
+	// https://discord.com/developers/docs/resources/user#get-current-user
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, baseURL+`/users/@me`, nil)
+	req.Header.Set("Authorization", "Bearer "+accessToken)
+	if err != nil {
+		return nil, err
+	}
+	res, err := httpClient.Do(req)
+	if err != nil {
+		slog.Error("discord: http client get profile", err)
+		return nil, err
+	}
+	if res.StatusCode != http.StatusOK {
+		var disErr Error
+		if err := json.NewDecoder(res.Body).Decode(&disErr); err != nil {
+			slog.Error("discord: decode profile response", err)
+			return nil, err
+		}
+		return nil, disErr
+
+	}
+	var profile Profile
+	if err := json.NewDecoder(res.Body).Decode(&profile); err != nil {
+		slog.Error("discord: decode profile response", err)
+		return nil, err
+	}
+	return &profile, nil
 }
 
 var _ Client = (*client)(nil)

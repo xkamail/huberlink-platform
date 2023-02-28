@@ -22,7 +22,7 @@ type Validator interface {
 func Handlers() http.Handler {
 	cfg := config.Load()
 
-	discordClient := discord.NewClient(cfg.DiscordClientID, cfg.DiscordClientSecret, cfg.DiscordRedirectURI)
+	discordClient := discord.NewClient(cfg.DiscordClientID, cfg.DiscordClientSecret, cfg.DiscordRedirectUri)
 
 	router := chi.NewRouter()
 	router.NotFound(func(w http.ResponseWriter, r *http.Request) {

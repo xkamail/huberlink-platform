@@ -5,12 +5,12 @@ import (
 )
 
 type Config struct {
-	Port                string `env:"PORT" required:"true"`
-	DatabaseURL         string `env:"DATABASE_URL" required:"true"`
-	JWTSecret           string `env:"JWT_SECRET" required:"true"`
-	DiscordClientID     string `env:"DISCORD_CLIENT_ID"`
-	DiscordClientSecret string `env:"DISCORD_CLIENT_SECRET"`
-	DiscordRedirectURI  string `env:"DISCORD_CLIENT_REDIRECT_URI"`
+	Port                string `envconfig:"PORT" required:"true"`
+	DatabaseURL         string `envconfig:"DATABASE_URL" required:"true"`
+	JWTSecret           string `envconfig:"JWT_SECRET" required:"true"`
+	DiscordClientID     string `envconfig:"DISCORD_CLIENT_ID"`
+	DiscordClientSecret string `envconfig:"DISCORD_CLIENT_SECRET"`
+	DiscordRedirectUri  string `envconfig:"DISCORD_CLIENT_REDIRECT_URI" required:"true"`
 }
 
 var cfg Config

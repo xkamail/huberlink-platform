@@ -72,11 +72,13 @@ func SignInWithDiscord(ctx context.Context, discord discord.Client, p *SignInWit
 	// create a new account
 	if userID == 0 {
 		now := time.Now()
-		err = tx.QueryRow(ctx, `insert into users (id, username, email, password, discord_id, created_at, updated_at) values ($1,$2,$3,$4,$5,$6) returning id`,
+		err = tx.QueryRow(ctx, `insert into users (id, username, email, password, discord_id, avatar_url, created_at, updated_at) values ($1,$2,$3,$4,$5,$6,$7,$8) returning id`,
 			snowid.Gen(),
 			profile.Username,
+			profile.Email,
 			"",
 			profile.ID,
+			profile.AvatarURL(),
 			now,
 			now,
 		).Scan(&userID)
