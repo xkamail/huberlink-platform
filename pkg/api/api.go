@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 
 	"github.com/xkamail/huberlink-platform/pkg/uierr"
@@ -17,11 +16,12 @@ type Format struct {
 }
 
 func WriteError(w http.ResponseWriter, err error) {
+	w.Header().Set("Content-Type", "application/json")
+
 	message := err.Error()
 	errs := make([]any, 0)
 	var errCode uierr.Code
 	if uiErr, ok := err.(uierr.Error); ok {
-		log.Printf("uierr: %+v", uiErr)
 		errCode = uiErr.Code
 		message = uiErr.Message
 
@@ -40,7 +40,7 @@ func WriteError(w http.ResponseWriter, err error) {
 }
 
 func Write[T any](w http.ResponseWriter, d T) {
-
+	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(&Format{
 		Success: true,
 		Data:    d,

@@ -4,12 +4,10 @@ import (
 	"context"
 	"log"
 	"net"
-	"os"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/moonrhythm/parapet"
 	"github.com/moonrhythm/parapet/pkg/cors"
-	"golang.org/x/exp/slog"
 
 	"github.com/xkamail/huberlink-platform/iot"
 	"github.com/xkamail/huberlink-platform/pkg/config"
@@ -27,8 +25,8 @@ func run() error {
 	if err := config.Init(); err != nil {
 		return err
 	}
-
-	conn, err := pgxpool.New(context.Background(), os.Getenv("DATABASE_URL"))
+	cfg := config.Load()
+	conn, err := pgxpool.New(context.Background(), cfg.DatabaseURL)
 	if err != nil {
 		return err
 	}
@@ -40,7 +38,7 @@ func run() error {
 	srv.Use(parapet.MiddlewareFunc(pgctx.Middleware(conn)))
 	srv.Use(cors.New())
 	srv.Handler = iot.Handlers()
-	srv.Addr = net.JoinHostPort("", config.Load().Port)
-	slog.Info("serving http api on ", "addr", srv.Addr)
+	srv.Addr = net.JoinHostPort("", cfg.Port)
+	log.Printf("serve http api on %s\n", srv.Addr)
 	return srv.ListenAndServe()
 }
