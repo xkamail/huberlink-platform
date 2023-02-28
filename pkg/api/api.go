@@ -16,9 +16,29 @@ type Format struct {
 }
 
 func WriteError(w http.ResponseWriter, err error) {
-	json.NewEncoder(w).Encode()
+	message := err.Error()
+	errs := make([]any, 0)
+	var errCode uierr.Code
+	if uiErr, ok := err.(uierr.Error); ok {
+		errCode = uiErr.Code()
+		errs = append(errs, uiErr)
+		message = uiErr.Message()
+	}
+	_ = json.NewEncoder(w).Encode(&Format{
+		Success: false,
+		Data:    nil,
+		Errors:  errs,
+		Message: message,
+		Code:    errCode,
+	})
 }
 
 func Write[T any](w http.ResponseWriter, d T) {
-	json.NewEncoder(w).Encode()
+
+	_ = json.NewEncoder(w).Encode(&Format{
+		Success: true,
+		Data:    d,
+		Errors:  nil,
+		Message: "Success",
+	})
 }
