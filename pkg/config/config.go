@@ -1,7 +1,11 @@
 package config
 
+import (
+	"github.com/xkamail/dotconfig"
+)
+
 type Config struct {
-	Port                string `env:"PORT"`
+	Port                string `env:"PORT" required:"true"`
 	DatabaseURL         string `env:"DATABASE_URL"`
 	JWTSecret           string `env:"JWT_SECRET"`
 	DiscordClientID     string `env:"DISCORD_CLIENT_ID"`
@@ -11,8 +15,11 @@ type Config struct {
 
 var cfg Config
 
-func Init() {
-
+func Init() error {
+	if err := dotconfig.Load(&cfg, ".env"); err != nil {
+		return err
+	}
+	return nil
 }
 
 func Load() *Config {

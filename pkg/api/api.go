@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 
 	"github.com/xkamail/huberlink-platform/pkg/uierr"
@@ -20,6 +21,7 @@ func WriteError(w http.ResponseWriter, err error) {
 	errs := make([]any, 0)
 	var errCode uierr.Code
 	if uiErr, ok := err.(uierr.Error); ok {
+		log.Printf("uierr: %+v", uiErr)
 		errCode = uiErr.Code()
 		errs = append(errs, uiErr)
 		message = uiErr.Message()
