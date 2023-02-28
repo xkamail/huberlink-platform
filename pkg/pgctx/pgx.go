@@ -38,5 +38,5 @@ func Begin(ctx context.Context) (pgx.Tx, error) {
 }
 
 func BeginTx(ctx context.Context, txOptions pgx.TxOptions) (pgx.Tx, error) {
-	return q(ctx).BeginTx(ctx)
+	return q(ctx).BeginTx(ctx, txOptions)
 }
