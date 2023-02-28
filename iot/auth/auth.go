@@ -33,13 +33,20 @@ type TokenResponse struct {
 	Token        string `json:"token"`
 	RefreshToken string `json:"refreshToken"`
 }
+type SignInWithDiscordParam struct {
+	Code string `json:"code" validate:"required"`
+}
 
-func SignInWithDiscord(ctx context.Context, discord discord.Client, code string) (*TokenResponse, error) {
-	code = strings.TrimSpace(code)
-	if code == "" {
-		return nil, uierr.BadInput("code", "code is required")
+func (p *SignInWithDiscordParam) Valid() error {
+	p.Code = strings.TrimSpace(p.Code)
+	if p.Code == "" {
+		return uierr.Invalid("code", "code is required")
 	}
-	accessToken, err := discord.GetAccessToken(ctx, code)
+	return nil
+}
+
+func SignInWithDiscord(ctx context.Context, discord discord.Client, p *SignInWithDiscordParam) (*TokenResponse, error) {
+	accessToken, err := discord.GetAccessToken(ctx, p.Code)
 	if err != nil {
 		return nil, err
 	}

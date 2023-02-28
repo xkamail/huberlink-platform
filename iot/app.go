@@ -2,6 +2,7 @@ package iot
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -13,6 +14,10 @@ import (
 	"github.com/xkamail/huberlink-platform/pkg/discord"
 	"github.com/xkamail/huberlink-platform/pkg/uierr"
 )
+
+type Validator interface {
+	Valid() error
+}
 
 func Handlers() http.Handler {
 	cfg := config.Load()
@@ -26,9 +31,11 @@ func Handlers() http.Handler {
 	// auth
 	{
 		router.Post("/auth/sign-in", h(func(ctx context.Context, r *http.Request) (any, error) {
-
-			code := r.URL.Query().Get("code")
-			return auth.SignInWithDiscord(ctx, discordClient, code)
+			var p auth.SignInWithDiscordParam
+			if err := mustBind(r, &p); err != nil {
+				return nil, err
+			}
+			return auth.SignInWithDiscord(ctx, discordClient, &p)
 		}))
 		router.Post("/auth/refresh-token", h(func(ctx context.Context, r *http.Request) (any, error) {
 
@@ -36,7 +43,7 @@ func Handlers() http.Handler {
 			return auth.InvokeRefreshToken(ctx, code)
 		}))
 		router.With(auth.SignInMiddleware).Get("/auth/me", h(func(ctx context.Context, r *http.Request) (any, error) {
-
+			
 			return account.FromContext(ctx)
 		}))
 	}
@@ -72,4 +79,15 @@ func h[T any](fn func(ctx context.Context, r *http.Request) (T, error)) http.Han
 		}
 		api.Write(w, res)
 	}
+}
+
+// mustBind a json to a struct
+// return error when invalid
+func mustBind(r *http.Request, v any) error {
+	if vv, ok := v.(interface{ Valid() error }); ok {
+		if err := vv.Valid(); err != nil {
+			return err
+		}
+	}
+	return json.NewDecoder(r.Body).Decode(v)
 }

@@ -22,9 +22,13 @@ func WriteError(w http.ResponseWriter, err error) {
 	var errCode uierr.Code
 	if uiErr, ok := err.(uierr.Error); ok {
 		log.Printf("uierr: %+v", uiErr)
-		errCode = uiErr.Code()
-		errs = append(errs, uiErr)
-		message = uiErr.Message()
+		errCode = uiErr.Code
+		message = uiErr.Message
+
+		if uiErr.Details != nil {
+			errs = append(errs, uiErr.Details)
+		}
+
 	}
 	_ = json.NewEncoder(w).Encode(&Format{
 		Success: false,

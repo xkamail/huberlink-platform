@@ -1,9 +1,9 @@
 package uierr
 
 type Error struct {
-	code    Code
-	message string
-	details interface{}
+	Code    Code        `json:"code"`
+	Message string      `json:"message"`
+	Details interface{} `json:"details"`
 }
 
 type ValidationField struct {
@@ -12,14 +12,7 @@ type ValidationField struct {
 }
 
 func (e Error) Error() string {
-	return e.message
-}
-func (e Error) Code() Code {
-	return e.code
-}
-
-func (e Error) Message() string {
-	return e.message
+	return e.Message
 }
 
 type Code uint
@@ -37,30 +30,35 @@ const (
 )
 
 func New(code Code, message string) Error {
-	return Error{code: code, message: message}
+	return Error{code, message, nil}
 }
 
 func Alert(message string) Error {
 	return Error{
-		code:    CodeBadRequest,
-		message: message}
+		CodeBadRequest,
+		message,
+		nil,
+	}
 }
 
 func NotFound(message string) Error {
-	return Error{code: CodeResourceNotFound, message: message}
+	return Error{
+		Code:    CodeResourceNotFound,
+		Message: message,
+	}
 }
 func UnAuthorization(message string) Error {
 	return Error{
-		code:    CodeUnAuthorization,
-		message: message,
+		Code:    CodeUnAuthorization,
+		Message: message,
 	}
 }
 
 func BadInput(field, reason string) Error {
 	return Error{
-		code:    CodeInvalidRequest,
-		message: reason,
-		details: []ValidationField{
+		Code:    CodeInvalidRequest,
+		Message: reason,
+		Details: []ValidationField{
 			{
 				field,
 				reason,
@@ -69,9 +67,13 @@ func BadInput(field, reason string) Error {
 	}
 }
 
+func Invalid(field, reason string) Error {
+	return BadInput(field, reason)
+}
+
 func AlreadyExist(reason string) error {
 	return Error{
-		code:    CodeAlreadyExists,
-		message: reason,
+		Code:    CodeAlreadyExists,
+		Message: reason,
 	}
 }
