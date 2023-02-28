@@ -2,6 +2,8 @@ package account
 
 import (
 	"context"
+	"errors"
+	"time"
 
 	"github.com/jackc/pgx/v5"
 
@@ -14,18 +16,27 @@ var (
 )
 
 type User struct {
-	ID       int64
-	Username string
-	Password string
-	Email    string
+	ID        int64     `json:"id"`
+	Username  string    `json:"username"`
+	Email     string    `json:"email"`
+	Password  string    `json:"-"`
+	DiscordID int64     `json:"discordId"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 }
 
 // Find user by id
 func Find(ctx context.Context, userID int64) (*User, error) {
-	rows, err := pgctx.Query(ctx, ``)
+	rows, err := pgctx.Query(ctx, `select id, username, email, password, discord_id, created_at, updated_at from users where id = $1`, userID)
 	if err != nil {
 		return nil, err
 	}
-	pgx.CollectOneRow(rows, pgx.RowToStructByPos[User])
-
+	user, err := pgx.CollectOneRow(rows, pgx.RowToStructByPos[User])
+	if errors.Is(err, pgx.ErrNoRows) {
+		return nil, ErrNotFound
+	}
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
 }
