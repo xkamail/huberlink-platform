@@ -28,3 +28,4 @@ go.work
 .vercel
 
 node_modules/
+.env
