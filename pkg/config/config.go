@@ -6,8 +6,8 @@ import (
 
 type Config struct {
 	Port                string `env:"PORT" required:"true"`
-	DatabaseURL         string `env:"DATABASE_URL"`
-	JWTSecret           string `env:"JWT_SECRET"`
+	DatabaseURL         string `env:"DATABASE_URL" required:"true"`
+	JWTSecret           string `env:"JWT_SECRET" required:"true"`
 	DiscordClientID     string `env:"DISCORD_CLIENT_ID"`
 	DiscordClientSecret string `env:"DISCORD_CLIENT_SECRET"`
 	DiscordRedirectURI  string `env:"DISCORD_CLIENT_REDIRECT_URI"`

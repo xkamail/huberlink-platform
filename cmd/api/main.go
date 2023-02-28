@@ -33,7 +33,9 @@ func run() error {
 		return err
 	}
 	defer conn.Close()
-
+	if err := conn.Ping(context.Background()); err != nil {
+		return err
+	}
 	srv := parapet.NewBackend()
 	srv.Use(parapet.MiddlewareFunc(pgctx.Middleware(conn)))
 	srv.Use(cors.New())
