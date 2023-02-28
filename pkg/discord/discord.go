@@ -20,11 +20,11 @@ var httpClient = &http.Client{Timeout: 2 * time.Second}
 type Error struct {
 	Code    int         `json:"code"`
 	Errors  interface{} `json:"errors"`
-	Message string      `json:"message"`
+	Message string      `json:"error_description"`
 }
 
 func (e Error) Error() string {
-	return e.Message
+	return "discord: " + e.Message
 }
 
 type Profile struct {
@@ -72,11 +72,12 @@ func (c client) GetAccessToken(ctx context.Context, code string) (string, error)
 		"code":          {code},
 		"redirect_uri":  {c.redirectUri},
 	}
+
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, baseURL+`/oauth2/token`, strings.NewReader(q.Encode()))
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	if err != nil {
 		return "", err
 	}
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
 	res, err := httpClient.Do(req)
 	if err != nil {

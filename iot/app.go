@@ -43,7 +43,7 @@ func Handlers() http.Handler {
 			return auth.InvokeRefreshToken(ctx, code)
 		}))
 		router.With(auth.SignInMiddleware).Get("/auth/me", h(func(ctx context.Context, r *http.Request) (any, error) {
-			
+
 			return account.FromContext(ctx)
 		}))
 	}
@@ -84,10 +84,13 @@ func h[T any](fn func(ctx context.Context, r *http.Request) (T, error)) http.Han
 // mustBind a json to a struct
 // return error when invalid
 func mustBind(r *http.Request, v any) error {
+	if err := json.NewDecoder(r.Body).Decode(v); err != nil {
+		return err
+	}
 	if vv, ok := v.(interface{ Valid() error }); ok {
 		if err := vv.Valid(); err != nil {
 			return err
 		}
 	}
-	return json.NewDecoder(r.Body).Decode(v)
+	return nil
 }
