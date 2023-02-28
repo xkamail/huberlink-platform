@@ -10,4 +10,6 @@ var (
 	ErrJwtInvalidToken              = uierr.Alert("JWT invalid token")
 	ErrRefreshTokenNotFound         = uierr.NotFound("Refresh token not found")
 	ErrUsernameAndPasswordIncorrect = uierr.Alert("Username or password is incorrect")
+	ErrNoJWTToken                   = uierr.UnAuthorization("no authorization token")
+	ErrInvalidJWTSchema             = uierr.BadInput("jwt", "invalid jwt schema")
 )

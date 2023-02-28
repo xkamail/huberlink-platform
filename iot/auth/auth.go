@@ -3,12 +3,15 @@ package auth
 import (
 	"context"
 	"errors"
+	"net/http"
 	"strings"
 	"time"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
+	"github.com/xkamail/huberlink-platform/iot/account"
+	"github.com/xkamail/huberlink-platform/pkg/api"
 	"github.com/xkamail/huberlink-platform/pkg/discord"
 	"github.com/xkamail/huberlink-platform/pkg/rand"
 	"github.com/xkamail/huberlink-platform/pkg/snowid"
@@ -135,4 +138,34 @@ func (s Service) createRefreshToken(ctx context.Context, tx pgx.Tx, userID int64
 		now,
 	)
 	return refreshToken, err
+}
+
+// Middleware SignIn
+func (s Service) Middleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		raw := r.Header.Get("Authorization")
+		if len(raw) == 0 {
+			api.WriteError(w, ErrNoJWTToken)
+			return
+		}
+		if len(raw) < len("Bearer ") {
+			api.WriteError(w, ErrNoJWTToken)
+			return
+		}
+		var jwtToken string
+		if len(raw) > len("Bearer ") {
+			jwtToken = raw[len("Bearer "):]
+		}
+		claims, err := jwtVerify(jwtToken, s.jwtSecret)
+		if err != nil {
+			api.WriteError(w, err)
+			return
+		}
+		acc, err := account.Find(r.Context(), claims.UserID)
+		if err != nil {
+			api.WriteError(w, err)
+			return
+		}
+		next.ServeHTTP(w, r.WithContext(account.NewContext(r.Context(), acc)))
+	})
 }
