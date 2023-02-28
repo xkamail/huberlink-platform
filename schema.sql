@@ -43,24 +43,54 @@ create table home_members
     updated_at timestamptz
 );
 
-create table rooms
-(
-    id         bigint primary key,
-    name       varchar(255),
-    home_id    bigint references home (id),
-    created_at timestamptz,
-    updated_at timestamptz
-);
-
 create table devices
 (
     id                  bigint primary key,
-    name                varchar(255),
-    home_id             bigint references home (id)  default null,
-    room_id             bigint references rooms (id) default null,
-    device_kind         smallint,
-    latest_heartbeat_at timestamptz,
-    created_at          timestamptz,
-    updated_at          timestamptz
+    name                text not null,
+    icon                text not null,
+    model               text        default '',
+    kind                smallint,
+    home_id             bigint references home (id),
+    user_id             bigint references users (id),
+    token               text not null,
+    ip_address          text,
+    location            text,
+    latest_heartbeat_at timestamptz default null,
+    created_at          timestamptz default now(),
+    updated_at          timestamptz default now()
 );
 
+
+
+create table device_ir_remotes
+(
+    id         bigint primary key,
+    device_id  bigint references devices (id),
+    name       text not null,
+    home_id    bigint references home (id) default null,
+    created_at timestamptz                 default now(),
+    updated_at timestamptz                 default now()
+);
+
+create table device_ir_remote_virtual_keys
+(
+    id         bigint primary key,
+    remote_id  bigint references device_ir_remotes (id),
+    name       text not null,
+    kind       text not null,
+    icon       text not null,
+    created_at timestamptz default now(),
+    updated_at timestamptz default now()
+);
+
+create table device_ir_remote_commands
+(
+    id         bigint primary key, -- command id
+    remote_id  bigint references device_ir_remotes (id),
+    virtual_id bigint references device_ir_remote_virtual_keys (id),
+    name       text    not null,
+    code       text    not null,
+    frequency  integer not null,
+    created_at timestamptz default now(),
+    updated_at timestamptz default now()
+);
