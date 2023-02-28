@@ -9,6 +9,8 @@ create table users
     updated_at timestamptz default now()
 );
 
+create unique index users_email_unique on users (email);
+
 create table users_refresh_tokens
 (
     id         bigint primary key,

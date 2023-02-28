@@ -2,6 +2,7 @@ package pgctx
 
 import (
 	"context"
+	"net/http"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
@@ -13,6 +14,14 @@ type ctxKey struct {
 
 func NewContext(ctx context.Context, pool *pgxpool.Pool) context.Context {
 	return context.WithValue(ctx, ctxKey{}, pool)
+}
+
+func Middleware(db *pgxpool.Pool) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			next.ServeHTTP(w, r.WithContext(NewContext(r.Context(), db)))
+		})
+	}
 }
 
 func q(ctx context.Context) *pgxpool.Pool {

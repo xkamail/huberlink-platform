@@ -18,16 +18,22 @@ func (e Error) Code() Code {
 	return e.code
 }
 
+func (e Error) Message() string {
+	return e.message
+}
+
 type Code uint
 
 const (
-	CodeUnknown = iota
+	CodeSuccess = iota
 	CodeBadRequest
 	CodeResourceNotFound
 	CodeInternalServerError
 	CodeUnAuthorization
 	CodeTokenExpired
 	CodeInvalidRequest
+
+	CodeAlreadyExists
 )
 
 func New(code Code, message string) Error {
@@ -60,5 +66,12 @@ func BadInput(field, reason string) Error {
 				reason,
 			},
 		},
+	}
+}
+
+func AlreadyExist(reason string) error {
+	return Error{
+		code:    CodeAlreadyExists,
+		message: reason,
 	}
 }

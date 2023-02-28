@@ -1,6 +1,7 @@
 package api
 
 import (
+	"encoding/json"
 	"net/http"
 
 	"github.com/xkamail/huberlink-platform/pkg/uierr"
@@ -15,9 +16,9 @@ type Format struct {
 }
 
 func WriteError(w http.ResponseWriter, err error) {
-	
+	json.NewEncoder(w).Encode()
 }
 
 func Write[T any](w http.ResponseWriter, d T) {
-
+	json.NewEncoder(w).Encode()
 }

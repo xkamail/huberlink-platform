@@ -12,7 +12,9 @@ import (
 
 	"github.com/xkamail/huberlink-platform/iot/account"
 	"github.com/xkamail/huberlink-platform/pkg/api"
+	"github.com/xkamail/huberlink-platform/pkg/config"
 	"github.com/xkamail/huberlink-platform/pkg/discord"
+	"github.com/xkamail/huberlink-platform/pkg/pgctx"
 	"github.com/xkamail/huberlink-platform/pkg/rand"
 	"github.com/xkamail/huberlink-platform/pkg/snowid"
 	"github.com/xkamail/huberlink-platform/pkg/uierr"
@@ -27,44 +29,43 @@ type Service struct {
 	discord   discord.Client
 }
 
-func NewService(db *pgxpool.Pool, jwtSecret string, discordClient discord.Client) *Service {
-	return &Service{db, jwtSecret, discordClient}
-}
-
 type TokenResponse struct {
 	Token        string `json:"token"`
 	RefreshToken string `json:"refreshToken"`
 }
 
-func (s Service) SignInWithDiscord(ctx context.Context, code string) (*TokenResponse, error) {
+func SignInWithDiscord(ctx context.Context, discord discord.Client, code string) (*TokenResponse, error) {
 	code = strings.TrimSpace(code)
 	if code == "" {
 		return nil, uierr.BadInput("code", "code is required")
 	}
-	accessToken, err := s.discord.GetAccessToken(ctx, code)
+	accessToken, err := discord.GetAccessToken(ctx, code)
 	if err != nil {
 		return nil, err
 	}
-	profile, err := s.discord.GetProfile(ctx, accessToken)
+	profile, err := discord.GetProfile(ctx, accessToken)
 	if err != nil {
-		return nil, err
-	}
-	exists := false
-	// language=SQL
-	if err := s.db.QueryRow(ctx, `select exists(select id from users where discord_id = $1)`, profile.ID).Scan(&exists); err != nil {
 		return nil, err
 	}
 
-	tx, err := s.db.Begin(ctx)
+	var (
+		userID int64
+	)
+	err = pgctx.QueryRow(ctx, `select id from users where discord_id = $1`, profile.ID).Scan(&userID)
+	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
+		return nil, err
+	}
+
+	tx, err := pgctx.Begin(ctx)
 	defer tx.Rollback(ctx)
 	if err != nil {
 		return nil, err
 	}
-	var userID int64
+
 	// create a new account
-	if !exists {
+	if userID == 0 {
 		now := time.Now()
-		err = tx.QueryRow(ctx, `insert into users (id, name, email, password, discord_id, created_at, updated_at) values ($1,$2,$3,$4,$5,$6) returning id`,
+		err = tx.QueryRow(ctx, `insert into users (id, username, email, password, discord_id, created_at, updated_at) values ($1,$2,$3,$4,$5,$6) returning id`,
 			snowid.Gen(),
 			profile.Username,
 			"",
@@ -72,19 +73,20 @@ func (s Service) SignInWithDiscord(ctx context.Context, code string) (*TokenResp
 			now,
 			now,
 		).Scan(&userID)
+		if pgctx.UniqueViolation(err, "users_email_unique") {
+			return nil, ErrEmailAlreadyExists
+		}
 		if err != nil {
 			return nil, err
 		}
 	}
-	if err := s.db.QueryRow(ctx, `select id from users where discord_id = $1`, profile.ID).Scan(&userID); err != nil {
-		return nil, err
-	}
-	jwtToken, err := jwtGenerate(userID, time.Hour*3, s.jwtSecret)
+	cfg := config.Load()
+	jwtToken, err := jwtGenerate(userID, time.Hour*3, cfg.JWTSecret)
 	if err != nil {
 		return nil, err
 	}
 
-	refreshToken, err := s.createRefreshToken(ctx, tx, userID)
+	refreshToken, err := createRefreshToken(ctx, tx, userID)
 	if err != nil {
 
 		return nil, err
@@ -103,12 +105,17 @@ func (s Service) SignInWithDiscord(ctx context.Context, code string) (*TokenResp
 	}, nil
 }
 
-func (s Service) InvokeRefreshToken(ctx context.Context, refreshToken string) (*TokenResponse, error) {
+func InvokeRefreshToken(ctx context.Context, refreshToken string) (*TokenResponse, error) {
 	var (
 		userID    int64
 		expiredAt time.Time
 	)
-	err := s.db.QueryRow(ctx, `select user_id, expired_at from users_refresh_tokens where token = $1`, refreshToken).Scan(&userID, &expiredAt)
+	err := pgctx.QueryRow(ctx, `select user_id, expired_at from users_refresh_tokens where token = $1`,
+		refreshToken,
+	).Scan(
+		&userID,
+		&expiredAt,
+	)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, ErrRefreshTokenNotFound
 	}
@@ -120,7 +127,7 @@ func (s Service) InvokeRefreshToken(ctx context.Context, refreshToken string) (*
 	return nil, nil
 }
 
-func (s Service) createRefreshToken(ctx context.Context, tx pgx.Tx, userID int64) (string, error) {
+func createRefreshToken(ctx context.Context, tx pgx.Tx, userID int64) (string, error) {
 	refreshToken, err := rand.String(300)
 	if err != nil {
 		return "", err
@@ -140,8 +147,7 @@ func (s Service) createRefreshToken(ctx context.Context, tx pgx.Tx, userID int64
 	return refreshToken, err
 }
 
-// Middleware SignIn
-func (s Service) Middleware(next http.Handler) http.Handler {
+func SignInMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		raw := r.Header.Get("Authorization")
 		if len(raw) == 0 {
@@ -156,7 +162,7 @@ func (s Service) Middleware(next http.Handler) http.Handler {
 		if len(raw) > len("Bearer ") {
 			jwtToken = raw[len("Bearer "):]
 		}
-		claims, err := jwtVerify(jwtToken, s.jwtSecret)
+		claims, err := jwtVerify(jwtToken)
 		if err != nil {
 			api.WriteError(w, err)
 			return

@@ -5,6 +5,8 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt"
+
+	"github.com/xkamail/huberlink-platform/pkg/config"
 )
 
 type JWTClaims struct {
@@ -26,9 +28,11 @@ func jwtGenerate(userID int64, expiredAt time.Duration, secret string) (string, 
 	return s, nil
 }
 
-func jwtVerify(token string, secret string) (*JWTClaims, error) {
+func jwtVerify(token string) (*JWTClaims, error) {
+	cfg := config.Load()
+
 	p, err := jwt.ParseWithClaims(token, &JWTClaims{}, func(token *jwt.Token) (interface{}, error) {
-		return []byte(secret), nil
+		return []byte(cfg.JWTSecret), nil
 	})
 	if err != nil {
 		var jwtErr *jwt.ValidationError

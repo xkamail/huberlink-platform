@@ -12,4 +12,5 @@ var (
 	ErrUsernameAndPasswordIncorrect = uierr.Alert("Username or password is incorrect")
 	ErrNoJWTToken                   = uierr.UnAuthorization("no authorization token")
 	ErrInvalidJWTSchema             = uierr.BadInput("jwt", "invalid jwt schema")
+	ErrEmailAlreadyExists           = uierr.AlreadyExist("email address already exists")
 )
