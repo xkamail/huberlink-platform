@@ -110,7 +110,7 @@ func SignInWithDiscord(ctx context.Context, discord discord.Client, p *SignInWit
 	if err := tx.Commit(ctx); err != nil {
 		return nil, err
 	}
-	
+
 	return &TokenResponse{
 		jwtToken,
 		refreshToken,
@@ -156,6 +156,13 @@ func InvokeRefreshToken(ctx context.Context, refreshToken string) (*TokenRespons
 
 	newRefreshToken, err := createRefreshToken(ctx, tx, userID)
 	if err != nil {
+		return nil, err
+	}
+	_, err = tx.Exec(ctx, `update users set updated_at = $1 where id = $2`, time.Now(), userID)
+	if err != nil {
+		return nil, err
+	}
+	if err := tx.Commit(ctx); err != nil {
 		return nil, err
 	}
 	return &TokenResponse{
