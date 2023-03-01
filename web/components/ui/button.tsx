@@ -41,15 +41,19 @@ export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
   to?: string
+  block?: boolean
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, to, ...props }, ref) => {
+  ({ className, variant, size, to, block, ...props }, ref) => {
     if (to) {
       return (
         <Link
           href={to}
-          className={cn(buttonVariants({ variant, size, className }))}
+          className={cn(
+            buttonVariants({ variant, size, className }),
+            block && 'w-full'
+          )}
         >
           {props.children}
         </Link>
@@ -57,7 +61,10 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     }
     return (
       <button
-        className={cn(buttonVariants({ variant, size, className }))}
+        className={cn(
+          buttonVariants({ variant, size, className }),
+          block && 'w-full'
+        )}
         ref={ref}
         {...props}
       />
