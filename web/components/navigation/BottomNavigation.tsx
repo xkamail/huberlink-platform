@@ -14,7 +14,7 @@ const BottomNavigation = () => {
   const path = usePathname()
   console.log('path', path)
 
-  const currentHome = ''
+  const currentHome = '121'
 
   return (
     <div
