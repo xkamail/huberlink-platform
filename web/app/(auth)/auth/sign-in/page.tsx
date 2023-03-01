@@ -6,7 +6,7 @@ import { Separator } from '@/components/ui/sperator'
 
 const SignUpPage = () => {
   return (
-    <div className="container mx-auto py-10 h-screen bg-slate-100 shadow">
+    <div className=" w-full py-10 h-screen bg-slate-100 shadow">
       <div className="rounded-lg text-center bg-white p-4 max-w-2xl mx-auto">
         <div className="w-80 mx-auto">
           <h1 className="mb-6">
