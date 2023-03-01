@@ -14,6 +14,5 @@ RUN go build -trimpath -o .build/main -ldflags "-w -s -extldflags "-static"" ./c
 FROM gcr.io/distroless/base
 
 COPY --from=0 /workspace/.build/ /
-COPY --from=0 /workspace/locales/ /locales
 
 ENTRYPOINT ["/main"]
