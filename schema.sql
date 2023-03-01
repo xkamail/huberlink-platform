@@ -5,6 +5,7 @@ create table users
     email      varchar(255),
     password   varchar(255),
     discord_id bigint not null,
+    avatar_url text        default null,
     created_at timestamptz default now(),
     updated_at timestamptz default now()
 );
