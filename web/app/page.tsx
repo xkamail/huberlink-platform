@@ -1,10 +1,11 @@
-'use client'
+import LandingNavbar from '@/components/landing/navbar'
 import { Button } from '@/components/ui/button'
 import { Network } from 'lucide-react'
 
 export default function Home() {
   return (
     <>
+      <LandingNavbar />
       <div className="container mx-auto">
         <section className="py-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -39,7 +40,6 @@ export default function Home() {
           </div>
         </section>
       </div>
-
       <section className="w-full bg-slate-100 p-8">
         <div className="container mx-auto">
           <h1 className="text-center text-2xl font-bold ">

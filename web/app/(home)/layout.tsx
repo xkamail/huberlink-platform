@@ -1,5 +1,4 @@
 import BottomNavigation from '@/components/navigation/BottomNavigation'
-import React from 'react'
 
 export default function HomeLayout({
   children,
