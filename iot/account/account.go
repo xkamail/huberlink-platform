@@ -8,6 +8,7 @@ import (
 	"github.com/jackc/pgx/v5"
 
 	"github.com/xkamail/huberlink-platform/pkg/pgctx"
+	"github.com/xkamail/huberlink-platform/pkg/snowid"
 	"github.com/xkamail/huberlink-platform/pkg/uierr"
 )
 
@@ -16,11 +17,11 @@ var (
 )
 
 type User struct {
-	ID        int64     `json:"id"`
+	ID        snowid.ID `json:"id"`
 	Username  string    `json:"username"`
 	Email     string    `json:"email"`
 	Password  string    `json:"-"`
-	DiscordID int64     `json:"discordId"`
+	DiscordID snowid.ID `json:"discordId"`
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
 }
