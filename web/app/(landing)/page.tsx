@@ -1,6 +1,6 @@
+'use client'
 import { Button } from '@/components/ui/button'
 import { Network } from 'lucide-react'
-import SetToken from './token'
 
 export default function Home() {
   return (
@@ -47,7 +47,6 @@ export default function Home() {
           </h1>
         </div>
       </section>
-      <SetToken />
     </>
   )
 }
