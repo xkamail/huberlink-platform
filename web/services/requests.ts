@@ -1,18 +1,26 @@
-import axios, {AxiosResponse} from "axios"
-
+import axios from 'axios'
+import nookies from 'nookies'
 const apiURL = process.env.NEXT_PUBLIC_API_URL
 
-const instance = axios.create({
-    baseURL: apiURL,
-    timeout: 10 * 1000,
+export const fetcher = axios.create({
+  baseURL: apiURL,
+  timeout: 10 * 1000,
 })
 
-instance.interceptors.request.use(config => {
-    return config
+fetcher.interceptors.request.use((config) => {
+  const accessToken = nookies.get(null, 'accessToken').accessToken
+  if (accessToken && config.headers.Authorization === undefined) {
+    config.headers.Authorization = `Bearer ${accessToken}`
+  }
+  console.log('auth', config.headers.Authorization)
+  return config
 })
 
-instance.interceptors.response.use((f: AxiosResponse) => {
+fetcher.interceptors.response.use(
+  (f) => {
     return f
-}, (error) => {
+  },
+  (error) => {
     return Promise.reject(error)
-})
+  }
+)

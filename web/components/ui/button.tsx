@@ -9,6 +9,7 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
+        discord: 'bg-[#7289da] text-white hover:bg-[#5f73bc]',
         primary:
           'bg-indigo-500 text-white hover:bg-indigo-600 dark:bg-indigo-600 dark:hover:bg-indigo-700',
         default:

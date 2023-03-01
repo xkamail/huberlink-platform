@@ -1,3 +1,4 @@
+import { Toaster } from '@/components/ui/toaster'
 import { cn } from '@/lib/utils'
 import '@/styles/output.css'
 import { Inter } from '@next/font/google'
@@ -22,6 +23,7 @@ export default function RootLayout({
         className={cn`min-h-screen text-slate-900 antialiased dark:bg-slate-900 dark:text-slate-50 ${inter.className}`}
       >
         <div className="flex min-h-screen flex-col">{children}</div>
+        <Toaster />
       </body>
     </html>
   )
