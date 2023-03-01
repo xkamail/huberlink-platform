@@ -15,6 +15,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/lib/pq"
 
+	"github.com/xkamail/huberlink-platform/pkg/pgctx"
 	"github.com/xkamail/huberlink-platform/pkg/rand"
 )
 
@@ -97,6 +98,7 @@ func New(t *testing.T, migrationPath string) (*TestMigration, error) {
 		masterDB:      masterDB,
 		migrationPath: migratePath,
 		m:             m,
+		dbName:        dbName,
 	}, nil
 }
 
@@ -107,6 +109,7 @@ type TestMigration struct {
 	pool          *pgxpool.Pool
 	migrationPath string
 	m             *migrate.Migrate
+	dbName        string
 }
 
 func (t TestMigration) CreateTable() error {
@@ -119,9 +122,20 @@ func (t TestMigration) CreateTable() error {
 func (t TestMigration) PgxPool() *pgxpool.Pool {
 	return t.pool
 }
+func (t TestMigration) Ctx() context.Context {
+	return pgctx.NewContext(context.Background(), t.pool)
+}
+func (t TestMigration) Cleanup() {
+	// language=TEXT
+	t.db.Exec("drop database " + pq.QuoteIdentifier(t.dbName))
+	t.pool.Close()
+	t.db.Close()
+	t.masterDB.Close()
+}
 
 func createDatabase(db *sql.DB, dbName string) error {
 	var exists bool
+	// language=TEXT
 	err := db.QueryRow(`
 			select exists(select datname from pg_database where datname = $1)`,
 		dbName,
