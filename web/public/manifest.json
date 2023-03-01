@@ -1,6 +1,6 @@
 {
-  "name": "Next PWA demo",
-  "short_name": "Next PWA",
+  "name": "HuberLink",
+  "short_name": "Huber",
   "icons": [
     {
       "src": "/icon.png",
@@ -16,7 +16,7 @@
   ],
   "theme_color": "#FFFFFF",
   "background_color": "#FFFFFF",
-  "start_url": "/",
+  "start_url": "/h",
   "display": "standalone",
   "orientation": "portrait"
 }
