@@ -29,9 +29,9 @@ jobs:
           context: .
           file: ./cmd/api/Dockerfile
           push: true
-          tags: asia-southeast1-docker.pkg.dev/scamo-group/huberlink/api:latest
+          tags: asia-southeast1-docker.pkg.dev/scamo-group/xkamail/huberlink-api:latest
     outputs:
-      image: asia-southeast1-docker.pkg.dev/scamo-group/huberlink/api@${{ steps.docker_build.outputs.digest }}
+      image: asia-southeast1-docker.pkg.dev/scamo-group/xkamail/huberlink-api@${{ steps.docker_build.outputs.digest }}
   deploy:
     needs: build
     runs-on: ubuntu-latest
