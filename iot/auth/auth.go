@@ -3,6 +3,7 @@ package auth
 import (
 	"context"
 	"errors"
+	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -54,20 +55,21 @@ func SignInWithDiscord(ctx context.Context, discord discord.Client, p *SignInWit
 	if err != nil {
 		return nil, err
 	}
-
 	var (
 		userID int64
 	)
 	err = pgctx.QueryRow(ctx, `select id from users where discord_id = $1`, profile.ID).Scan(&userID)
 	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
+		log.Printf("query row: %v", err)
 		return nil, err
 	}
 
 	tx, err := pgctx.Begin(ctx)
-	defer tx.Rollback(ctx)
 	if err != nil {
 		return nil, err
 	}
+	defer tx.Rollback(ctx)
+	log.Printf("begin tx: %v", err)
 
 	// create a new account
 	if userID == 0 {
@@ -100,7 +102,7 @@ func SignInWithDiscord(ctx context.Context, discord discord.Client, p *SignInWit
 
 		return nil, err
 	}
-	_, err = tx.Exec(ctx, `update users set updated_at = now() where id = $2`, time.Now(), userID)
+	_, err = tx.Exec(ctx, `update users set updated_at = $1 where id = $2`, time.Now(), userID)
 	if err != nil {
 		return nil, err
 	}
@@ -108,6 +110,7 @@ func SignInWithDiscord(ctx context.Context, discord discord.Client, p *SignInWit
 	if err := tx.Commit(ctx); err != nil {
 		return nil, err
 	}
+	
 	return &TokenResponse{
 		jwtToken,
 		refreshToken,

@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"net/url"
 	"strings"
@@ -82,8 +81,6 @@ func (c client) GetAccessToken(ctx context.Context, code string) (string, error)
 		"code":          {code},
 		"redirect_uri":  {c.redirectUri},
 	}
-	log.Print(q.Encode())
-
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, baseURL+`/oauth2/token`, strings.NewReader(q.Encode()))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	if err != nil {
