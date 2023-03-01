@@ -13,4 +13,5 @@ var (
 	ErrNoJWTToken                   = uierr.UnAuthorization("no authorization token")
 	ErrInvalidJWTSchema             = uierr.BadInput("jwt", "invalid jwt schema")
 	ErrEmailAlreadyExists           = uierr.AlreadyExist("email address already exists")
+	ErrRefreshTokenExpired          = uierr.Alert("refresh token expired")
 )

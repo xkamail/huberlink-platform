@@ -132,8 +132,33 @@ func InvokeRefreshToken(ctx context.Context, refreshToken string) (*TokenRespons
 		return nil, err
 	}
 	// do generate jwt
+	if expiredAt.Before(time.Now()) {
+		return nil, ErrRefreshTokenExpired
+	}
+	cfg := config.Load()
+	jwtToken, err := jwtGenerate(userID, time.Hour*3, cfg.JWTSecret)
+	if err != nil {
+		return nil, err
+	}
 
-	return nil, nil
+	tx, err := pgctx.Begin(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback(ctx)
+	_, err = tx.Exec(ctx, `delete from users_refresh_tokens where token = $1`, refreshToken)
+	if err != nil {
+		return nil, err
+	}
+
+	newRefreshToken, err := createRefreshToken(ctx, tx, userID)
+	if err != nil {
+		return nil, err
+	}
+	return &TokenResponse{
+		jwtToken,
+		newRefreshToken,
+	}, nil
 }
 
 func createRefreshToken(ctx context.Context, tx pgx.Tx, userID int64) (string, error) {
@@ -164,7 +189,7 @@ func SignInMiddleware(next http.Handler) http.Handler {
 			return
 		}
 		if len(raw) < len("Bearer ") {
-			api.WriteError(w, ErrNoJWTToken)
+			api.WriteError(w, ErrInvalidJWTSchema)
 			return
 		}
 		var jwtToken string
