@@ -16,7 +16,7 @@ export default function Home() {
                 Lorem ipsum dolor sit amet consectetur adipisicing elit.
                 Quisquam
               </p>
-              <div className="mt-10 space-x-2">
+              <div className="mt-10 gap-2 flex flex-col lg:flex-row">
                 <Button to="/auth/sign-up" variant="primary" size="lg">
                   <span className="text-sm uppercase">Try now</span>
                 </Button>
