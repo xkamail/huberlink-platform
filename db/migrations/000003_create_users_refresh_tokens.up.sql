@@ -2,7 +2,7 @@ create table users_refresh_tokens
 (
     id         bigint primary key,
     user_id    bigint      not null,
-    token      varchar(255),
+    token      text        not null,
     expired_at timestamptz not null,
     issued_at  timestamptz not null,
     created_at timestamptz default now(),

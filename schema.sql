@@ -1,9 +1,9 @@
 create table users
 (
     id         bigint primary key,
-    username   varchar(255),
-    email      varchar(255),
-    password   varchar(255),
+    username   text   not null,
+    email      text   not null,
+    password   text        default '',
     discord_id bigint not null,
     avatar_url text        default null,
     created_at timestamptz default now(),
@@ -16,7 +16,7 @@ create table users_refresh_tokens
 (
     id         bigint primary key,
     user_id    bigint      not null,
-    token      varchar(255),
+    token      text        not null,
     expired_at timestamptz not null,
     issued_at  timestamptz not null,
     created_at timestamptz default now(),
