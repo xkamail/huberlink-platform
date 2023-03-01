@@ -102,7 +102,19 @@ func SignInWithDiscord(ctx context.Context, discord discord.Client, p *SignInWit
 
 		return nil, err
 	}
-	_, err = tx.Exec(ctx, `update users set updated_at = $1 where id = $2`, time.Now(), userID)
+
+	// update latest discord profile
+	_, err = tx.Exec(ctx, `
+			update users 
+			set updated_at = $1,
+			    email = $3,
+			    avatar_url = $4
+			where id = $2`,
+		time.Now(),
+		userID,
+		profile.Email,
+		profile.AvatarURL(),
+	)
 	if err != nil {
 		return nil, err
 	}
