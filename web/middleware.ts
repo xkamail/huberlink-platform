@@ -21,7 +21,17 @@ export async function middleware(req: NextRequest) {
     },
   }).then((r) => r.json()) // <--- This is the problem
   if (!res.success) {
-    console.log('Not logged in', res)
+    const refreshToken = req.cookies.get('refreshToken')?.value
+    if (res.code === 5 && refreshToken) {
+      console.log('refreshing token')
+      const res2 = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/auth/refresh-token?refreshToken=${refreshToken}`
+      ).then((r) => r.json())
+      if (res2.success) {
+        req.cookies.set('accessToken', res2.token)
+        req.cookies.set('refreshToken', res2.refreshToken)
+      }
+    }
 
     return NextResponse.redirect(
       new URL('/auth/sign-in?redirect=' + req.nextUrl.pathname, baseURL)
