@@ -1,16 +1,7 @@
-import Card from '@/components/ui/card'
+import { redirect } from 'next/navigation'
 
 const PreHomePage = () => {
-  return (
-    <div className="grid md:grid-cols-12 grid-cols-6 gap-4">
-      <div className="col-span-6">
-        <Card />
-      </div>
-      <div className="col-span-6">
-        <Card />
-      </div>
-    </div>
-  )
+  redirect('/h/1')
 }
 
 export default PreHomePage
