@@ -38,6 +38,7 @@ func TestCreate(t *testing.T) {
 		})
 		assert.NoError(t, err)
 		assert.NotNil(t, result)
+		assert.NotEqualf(t, 0, *result, "ID is 0")
 	})
 	t.Run("length too short", func(t *testing.T) {
 
