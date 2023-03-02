@@ -39,14 +39,14 @@ func Find(ctx context.Context, userID int64) (*User, error) {
 	if err != nil {
 		return nil, err
 	}
-	user, err := pgx.CollectOneRow(rows, pgx.RowToStructByPos[User])
+	user, err := pgx.CollectOneRow(rows, pgx.RowToAddrOfStructByPos[User])
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, ErrNotFound
 	}
 	if err != nil {
 		return nil, err
 	}
-	return &user, nil
+	return user, nil
 }
 
 func FindByUsername(ctx context.Context, username string) (*User, error) {
@@ -54,14 +54,14 @@ func FindByUsername(ctx context.Context, username string) (*User, error) {
 	if err != nil {
 		return nil, err
 	}
-	user, err := pgx.CollectOneRow(rows, pgx.RowToStructByPos[User])
+	user, err := pgx.CollectOneRow(rows, pgx.RowToAddrOfStructByPos[User])
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, ErrNotFound
 	}
 	if err != nil {
 		return nil, err
 	}
-	return &user, nil
+	return user, nil
 }
 
 func FindByEmail(ctx context.Context, email string) (*User, error) {
@@ -69,14 +69,14 @@ func FindByEmail(ctx context.Context, email string) (*User, error) {
 	if err != nil {
 		return nil, err
 	}
-	user, err := pgx.CollectOneRow(rows, pgx.RowToStructByPos[User])
+	user, err := pgx.CollectOneRow(rows, pgx.RowToAddrOfStructByPos[User])
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, ErrNotFound
 	}
 	if err != nil {
 		return nil, err
 	}
-	return &user, nil
+	return user, nil
 }
 
 func Create(ctx context.Context, user *User) (snowid.ID, error) {

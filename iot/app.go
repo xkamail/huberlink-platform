@@ -9,6 +9,7 @@ import (
 
 	"github.com/xkamail/huberlink-platform/iot/account"
 	"github.com/xkamail/huberlink-platform/iot/auth"
+	"github.com/xkamail/huberlink-platform/iot/home"
 	"github.com/xkamail/huberlink-platform/pkg/api"
 	"github.com/xkamail/huberlink-platform/pkg/config"
 	"github.com/xkamail/huberlink-platform/pkg/discord"
@@ -28,6 +29,8 @@ func Handlers() http.Handler {
 	router.NotFound(func(w http.ResponseWriter, r *http.Request) {
 		api.WriteError(w, uierr.NotFound("api entry not found"))
 	})
+	authRouter := router.With(auth.SignInMiddleware) // auth middleware
+
 	// auth
 	{
 		router.Post("/auth/sign-in", h(func(ctx context.Context, r *http.Request) (any, error) {
@@ -42,35 +45,48 @@ func Handlers() http.Handler {
 			code := r.URL.Query().Get("refreshToken")
 			return auth.InvokeRefreshToken(ctx, code)
 		}))
-		router.With(auth.SignInMiddleware).Get("/auth/me", h(func(ctx context.Context, r *http.Request) (any, error) {
+		authRouter.Get("/auth/me", h(func(ctx context.Context, r *http.Request) (any, error) {
 
 			return account.FromContext(ctx)
 		}))
 	}
 	// user
 	{
-		router.Get("/user/me", nil)
+		authRouter.Get("/user/me", nil)
 	}
 	// home
 	{
 		// list my home
-		router.Get("/home", nil)
+		authRouter.Get("/home", h(func(ctx context.Context, r *http.Request) (any, error) {
+			acc, err := account.FromContext(ctx)
+			if err != nil {
+				return nil, err
+			}
+			return home.List(ctx, acc.ID)
+		}))
 		// create home
+		authRouter.Post("/home", h(func(ctx context.Context, r *http.Request) (any, error) {
+			var p home.CreateParam
+			if err := mustBind(r, &p); err != nil {
+				return nil, err
+			}
+			return home.Create(ctx, &p)
+		}))
 
 		// join home
 	}
 	// device
 	{
-		router.Get("/devices/all", nil)
-		router.Post("/devices", nil)
-		router.Get("/devices/{id}", nil)
-		router.Delete("/devices/{id}", nil)
-		router.Patch("/devices/{id}", nil)
+		authRouter.Get("/home/{home_id}/devices/all", nil)
+		authRouter.Post("/home/{home_id}/devices", nil)
+		authRouter.Get("/home/{home_id}/devices/{id}", nil)
+		authRouter.Delete("/home/{home_id}/devices/{id}", nil)
+		authRouter.Patch("/home/{home_id}/devices/{id}", nil)
 	}
 	return router
 }
 
-func h[T any](fn func(ctx context.Context, r *http.Request) (T, error)) http.HandlerFunc {
+func h(fn func(ctx context.Context, r *http.Request) (any, error)) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		res, err := fn(r.Context(), r)
 		if err != nil {

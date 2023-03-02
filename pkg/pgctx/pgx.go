@@ -41,7 +41,7 @@ func Collect[T any](ctx context.Context, sql string, args ...any) ([]*T, error) 
 	if err != nil {
 		return nil, err
 	}
-	result, err := pgx.CollectRows(rows, pgx.RowToStructByPos[*T])
+	result, err := pgx.CollectRows(rows, pgx.RowToAddrOfStructByPos[T])
 	if err != nil {
 		// create empty array
 		return make([]*T, 0), err
