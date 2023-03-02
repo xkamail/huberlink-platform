@@ -2,8 +2,11 @@ package home
 
 import (
 	"context"
+	"errors"
 	"strings"
 	"time"
+
+	"github.com/jackc/pgx/v5"
 
 	"github.com/xkamail/huberlink-platform/iot/account"
 	"github.com/xkamail/huberlink-platform/pkg/pgctx"
@@ -13,6 +16,7 @@ import (
 
 var (
 	ErrReachLimitHome = uierr.Alert("home: reach limit home per user")
+	ErrNotFound       = uierr.NotFound("home: not found")
 )
 
 const MaxHomePerUser = 5
@@ -32,6 +36,29 @@ func List(ctx context.Context, userID snowid.ID) ([]*Home, error) {
 		return nil, err
 	}
 	return homes, nil
+}
+
+func GetFromIDAndUserID(ctx context.Context, homeID, userID snowid.ID) (*Home, error) {
+	rows, err := pgctx.Query(ctx, `
+		select h.id, h.name, h.user_id, h.background_url, h.created_at, h.updated_at 
+		from home h 
+		inner join home_members hm 
+		on h.id = hm.home_id 
+		where hm.user_id = $1 and hm.home_id = $2`,
+		userID,
+		homeID,
+	)
+	if err != nil {
+		return nil, err
+	}
+	h, err := pgx.CollectOneRow(rows, pgx.RowToAddrOfStructByPos[Home])
+	if errors.Is(err, pgx.ErrNoRows) {
+		return nil, ErrNotFound
+	}
+	if err != nil {
+		return nil, err
+	}
+	return h, nil
 }
 
 type CreateParam struct {

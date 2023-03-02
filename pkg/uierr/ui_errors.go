@@ -27,6 +27,8 @@ const (
 	CodeInvalidRequest
 
 	CodeAlreadyExists
+
+	CodeInternal = 999
 )
 
 func New(code Code, message string) Error {
@@ -75,5 +77,12 @@ func AlreadyExist(reason string) error {
 	return Error{
 		Code:    CodeAlreadyExists,
 		Message: reason,
+	}
+}
+
+func InternalServer() error {
+	return Error{
+		Code:    CodeInternal,
+		Message: "internal server error",
 	}
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
+	"strconv"
 
 	"github.com/go-chi/chi/v5"
 
@@ -13,6 +14,7 @@ import (
 	"github.com/xkamail/huberlink-platform/pkg/api"
 	"github.com/xkamail/huberlink-platform/pkg/config"
 	"github.com/xkamail/huberlink-platform/pkg/discord"
+	"github.com/xkamail/huberlink-platform/pkg/snowid"
 	"github.com/xkamail/huberlink-platform/pkg/uierr"
 )
 
@@ -73,6 +75,56 @@ func Handlers() http.Handler {
 			return home.Create(ctx, &p)
 		}))
 
+		r := authRouter.With(func(next http.Handler) http.Handler {
+			return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				acc, err := account.FromContext(r.Context())
+				if err != nil {
+					api.WriteError(w, err)
+					return
+				}
+				homeID, err := URLParamID(r, "home_id")
+				if err != nil {
+					api.WriteError(w, err)
+					return
+				}
+				h, err := home.GetFromIDAndUserID(r.Context(), homeID, acc.ID)
+				if err != nil {
+					api.WriteError(w, err)
+					return
+				}
+				next.ServeHTTP(w, r.WithContext(newHomeContext(r.Context(), h)))
+			})
+		})
+		// get detail home
+		r.Get("/home/{home_id}", h(func(ctx context.Context, r *http.Request) (any, error) {
+			h, err := homeFromCtx(ctx)
+			if err != nil {
+				return nil, err
+			}
+			var result struct {
+				Home    *home.Home     `json:"home"`
+				Members []*home.Member `json:"members"`
+			}
+			result.Home = h
+
+			member, err := home.ListMember(ctx, h.ID)
+			if err != nil {
+				return nil, err
+			}
+			result.Members = member
+			
+			return result, nil
+		}))
+		// edit home info
+		r.Put("/home/{id}", h(func(ctx context.Context, r *http.Request) (any, error) {
+			h, err := homeFromCtx(ctx)
+			if err != nil {
+				return nil, err
+			}
+			_ = h
+			panic("not implemented")
+			// TODO: implement
+		}))
 		// join home
 	}
 	// device
@@ -109,4 +161,29 @@ func mustBind(r *http.Request, v any) error {
 		}
 	}
 	return nil
+}
+
+func URLParamID(r *http.Request, key string) (snowid.ID, error) {
+	id := chi.URLParam(r, key)
+	i, err := strconv.ParseInt(id, 10, 64)
+	if err != nil {
+		return snowid.Zero, uierr.Invalid("id", "invalid id parameter")
+	}
+	return snowid.ID(i), nil
+}
+
+// context key use on home detail api route
+type homeDetailCtx struct {
+}
+
+func newHomeContext(ctx context.Context, h *home.Home) context.Context {
+	return context.WithValue(ctx, homeDetailCtx{}, h)
+}
+
+func homeFromCtx(ctx context.Context) (*home.Home, error) {
+	h, ok := ctx.Value(homeDetailCtx{}).(*home.Home)
+	if !ok {
+		return nil, uierr.UnAuthorization("home: home not found")
+	}
+	return h, nil
 }
