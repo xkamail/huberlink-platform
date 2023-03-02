@@ -6,7 +6,7 @@ type IProps = {
   leftContent?: React.ReactNode
 }
 const TopNavigation = ({ title, leftContent }: IProps) => {
-  const loading = useHomeSelector((s) => s.isLoading)
+  const loading = useHomeSelector((s) => s?.isLoading || false)
   return (
     <div className="rounded-lg shadow bg-white p-4 mb-4">
       <div className="flex justify-between items-center">
