@@ -21,4 +21,10 @@ func TestGen(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, ran, a)
 	})
+	t.Run("marshal correct", func(t *testing.T) {
+		ran := Gen()
+		b, err := json.Marshal(ran)
+		assert.NoError(t, err)
+		assert.Equal(t, fmt.Sprintf(`%v`, ran), string(b))
+	})
 }

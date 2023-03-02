@@ -23,7 +23,7 @@ func (i *ID) UnmarshalJSON(b []byte) error {
 }
 
 func (i *ID) MarshalJSON() ([]byte, error) {
-	return json.Marshal(fmt.Sprint(i))
+	return json.Marshal(fmt.Sprint(i.Int()))
 }
 
 func (i *ID) Int() int64 {
