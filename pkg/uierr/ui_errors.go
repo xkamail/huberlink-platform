@@ -1,9 +1,9 @@
 package uierr
 
 type Error struct {
-	Code    Code        `json:"code"`
-	Message string      `json:"message"`
-	Details interface{} `json:"details"`
+	Code    Code          `json:"code"`
+	Message string        `json:"message"`
+	Details []interface{} `json:"details"`
 }
 
 type ValidationField struct {

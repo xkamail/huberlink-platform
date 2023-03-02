@@ -27,14 +27,14 @@ func WriteError(w http.ResponseWriter, err error) {
 	w.Header().Set("Content-Type", "application/json")
 
 	message := err.Error()
-	errs := make([]any, 0)
+	var errs []interface{}
 	var errCode uierr.Code
 	if uiErr, ok := err.(uierr.Error); ok {
 		errCode = uiErr.Code
 		message = uiErr.Message
 
 		if uiErr.Details != nil {
-			errs = append(errs, uiErr.Details)
+			errs = uiErr.Details
 		}
 
 	}
