@@ -16,13 +16,14 @@ const PreHomePage = () => {
       router.push('/h/create')
     }
   }
+  if (cookies.currentHome) {
+    router.push(`/h/${cookies.currentHome}`)
+  }
   useEffect(() => {
-    if (cookies.currentHome) {
-      router.push(`/h/${cookies.currentHome}`)
-    } else {
+    if (!cookies.currentHome) {
       findFirstHome()
     }
-  }, [])
+  }, [cookies])
   return (
     <div className="mt-4">
       <div className="bg-slate-200 duration-1000 animate-pulse rounded-lg w-full h-16"></div>
