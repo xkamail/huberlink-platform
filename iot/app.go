@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
-	"strconv"
 
 	"github.com/go-chi/chi/v5"
 
@@ -16,6 +15,7 @@ import (
 	"github.com/xkamail/huberlink-platform/pkg/discord"
 	"github.com/xkamail/huberlink-platform/pkg/snowid"
 	"github.com/xkamail/huberlink-platform/pkg/uierr"
+	"github.com/xkamail/snowflake"
 )
 
 type Validator interface {
@@ -172,7 +172,7 @@ func mustBind(r *http.Request, v any) error {
 
 func URLParamID(r *http.Request, key string) (snowid.ID, error) {
 	id := chi.URLParam(r, key)
-	i, err := strconv.ParseInt(id, 10, 64)
+	i, err := snowflake.ParseString(id)
 	if err != nil {
 		return snowid.Zero, uierr.Invalid("id", "invalid id parameter")
 	}
