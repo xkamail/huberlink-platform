@@ -29,7 +29,7 @@ func WriteError(w http.ResponseWriter, err error) {
 	message := err.Error()
 	var errs []interface{}
 	var errCode uierr.Code
-	if uiErr, ok := err.(uierr.Error); ok {
+	if uiErr, ok := err.(*uierr.Error); ok {
 		errCode = uiErr.Code
 		message = uiErr.Message
 

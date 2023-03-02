@@ -11,7 +11,7 @@ type ValidationField struct {
 	Reason    string `json:"reason"`
 }
 
-func (e Error) Error() string {
+func (e *Error) Error() string {
 	return e.Message
 }
 
@@ -31,33 +31,33 @@ const (
 	CodeInternal = 999
 )
 
-func New(code Code, message string) Error {
-	return Error{code, message, nil}
+func New(code Code, message string) *Error {
+	return &Error{code, message, nil}
 }
 
-func Alert(message string) Error {
-	return Error{
+func Alert(message string) error {
+	return &Error{
 		CodeBadRequest,
 		message,
 		nil,
 	}
 }
 
-func NotFound(message string) Error {
-	return Error{
+func NotFound(message string) error {
+	return &Error{
 		Code:    CodeResourceNotFound,
 		Message: message,
 	}
 }
-func UnAuthorization(message string) Error {
-	return Error{
+func UnAuthorization(message string) error {
+	return &Error{
 		Code:    CodeUnAuthorization,
 		Message: message,
 	}
 }
 
-func BadInput(field, reason string) Error {
-	return Error{
+func BadInput(field, reason string) error {
+	return &Error{
 		Code:    CodeInvalidRequest,
 		Message: reason,
 		Details: []any{
@@ -69,19 +69,19 @@ func BadInput(field, reason string) Error {
 	}
 }
 
-func Invalid(field, reason string) Error {
+func Invalid(field, reason string) error {
 	return BadInput(field, reason)
 }
 
 func AlreadyExist(reason string) error {
-	return Error{
+	return &Error{
 		Code:    CodeAlreadyExists,
 		Message: reason,
 	}
 }
 
 func InternalServer() error {
-	return Error{
+	return &Error{
 		Code:    CodeInternal,
 		Message: "internal server error",
 	}
