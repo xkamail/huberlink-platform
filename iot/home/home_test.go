@@ -9,6 +9,7 @@ import (
 	"github.com/xkamail/huberlink-platform/iot/home"
 	"github.com/xkamail/huberlink-platform/pkg/rand"
 	"github.com/xkamail/huberlink-platform/pkg/tm"
+	"github.com/xkamail/huberlink-platform/pkg/uierr"
 )
 
 func TestCreate(t *testing.T) {
@@ -40,7 +41,18 @@ func TestCreate(t *testing.T) {
 		assert.NoError(t, err)
 		assert.NotNil(t, result)
 		assert.NotEqualf(t, 0, *result, "ID is 0")
+
+		t.Run("duplicate", func(t *testing.T) {
+			_, err := home.Create(ctxAuth, &home.CreateParam{
+				Name: "test",
+			})
+			assert.Error(t, err)
+			var uiErr uierr.Error
+			assert.ErrorAs(t, err, &uiErr)
+			assert.Equal(t, uierr.CodeAlreadyExists, uiErr.Code)
+		})
 	})
+
 	t.Run("length too short", func(t *testing.T) {
 		_, err := home.Create(ctxAuth, &home.CreateParam{
 			Name: "t",

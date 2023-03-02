@@ -65,7 +65,7 @@ func Create(ctx context.Context, p *CreateParam) (*snowid.ID, error) {
 		now,
 	).Scan(&home.ID)
 	if pgctx.UniqueViolation(err, "home_name_user_id_unique") {
-		return nil, uierr.Invalid("name", "home: name is already exist")
+		return nil, uierr.AlreadyExist("home: name is already exist")
 	}
 	if err != nil {
 		return nil, err
