@@ -21,7 +21,7 @@ const BottomNavigation = () => {
       <div className="flex justify-between  container mx-auto">
         <Link
           href={currentHome ? `/h/${currentHome}` : `/h/create`}
-          className={menuClass(false)}
+          className={menuClass(path === `/h/${currentHome}`)}
         >
           <>
             <Icons.home className="w-5 h-4 mx-auto" />

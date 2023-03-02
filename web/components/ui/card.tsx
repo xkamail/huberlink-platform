@@ -1,6 +1,8 @@
+import { Button } from './button'
+
 const Card = () => {
   return (
-    <div className="rounded-lg bg-white p-4">
+    <div className="rounded-lg shadow bg-white p-4">
       <div className="flex items-center">
         <div className="flex-shrink-0">
           <img
@@ -19,6 +21,11 @@ const Card = () => {
           industry. Lorem Ipsum has been the standard dummy text ever since the
           1500s, when an unknown printer took a galley of type and scrambled it
           to make a type specimen book.
+        </div>
+        <div className="flex justify-end">
+          <Button variant="primary" size="sm">
+            <span>Read more</span>
+          </Button>
         </div>
       </div>
     </div>

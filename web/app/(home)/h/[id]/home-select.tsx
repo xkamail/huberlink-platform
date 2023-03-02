@@ -37,7 +37,7 @@ const HomeSelector = () => {
       leftContent={
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <ListIcon className="cursor-pointer hover:text-slate-200 transition-colors h-8 w-8" />
+            <ListIcon className="cursor-pointer hover:text-slate-500 transition-colors h-8 w-8" />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start">
             <DropdownMenuLabel>Select home</DropdownMenuLabel>

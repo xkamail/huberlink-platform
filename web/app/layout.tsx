@@ -1,9 +1,12 @@
 import { Toaster } from '@/components/ui/toaster'
 import { cn } from '@/lib/utils'
 import '@/styles/output.css'
-import { Inter } from '@next/font/google'
+import { Sarabun } from '@next/font/google'
 
-const inter = Inter({ subsets: ['latin'] })
+const inter = Sarabun({
+  weight: ['100', '200', '300', '400', '500', '600', '700', '800'],
+  subsets: ['latin-ext'],
+})
 
 export default function RootLayout({
   children,

@@ -1,4 +1,5 @@
 import { useHomeSelector } from '@/lib/contexts/HomeContext'
+import { Icons } from '../icons'
 
 type IProps = {
   title: string
@@ -10,8 +11,9 @@ const TopNavigation = ({ title, leftContent }: IProps) => {
     <div className="rounded-lg shadow bg-white p-4 mb-4">
       <div className="flex justify-between items-center">
         <div>{leftContent}</div>
-        <h1 className="text-xl md:text-2xl font-bold text-right ">
+        <h1 className="text-xl md:text-2xl font-bold text-right text-slate-900 ">
           {!loading && title}
+          <Icons.settings className="cursor-pointer inline ml-2 w-6 h-6 text-slate-500 hover:text-slate-600 transition-colrs" />
         </h1>
       </div>
     </div>
