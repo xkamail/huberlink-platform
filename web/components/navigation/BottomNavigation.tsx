@@ -3,6 +3,7 @@ import { Icons } from '@/components/icons'
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import nookies from 'nookies'
 
 const menuClass = (active: boolean) =>
   cn(
@@ -12,20 +13,23 @@ const menuClass = (active: boolean) =>
 
 const BottomNavigation = () => {
   const path = usePathname()
-  const currentHome = '121'
+  const currentHome = nookies.get(null)?.currentHome || null
   return (
     <div
       className={cn`block fixed inset-x-0 bottom-0 z-10 bg-white shadow border-t mb-0 p-safe`}
     >
       <div className="flex justify-between  container mx-auto">
-        <Link href={`/h/${currentHome}`} className={menuClass(false)}>
+        <Link
+          href={currentHome ? `/h/${currentHome}` : `/h/create`}
+          className={menuClass(false)}
+        >
           <>
             <Icons.home className="w-5 h-4 mx-auto" />
             <span className="block text-xs">Home</span>
           </>
         </Link>
         <Link
-          href={`/h/${currentHome}/automation`}
+          href={currentHome ? `/h/${currentHome}/automation` : `/h/create`}
           className={menuClass(false)}
         >
           <>
@@ -33,7 +37,10 @@ const BottomNavigation = () => {
             <span className="block text-xs">Automation</span>
           </>
         </Link>
-        <Link href={`/h/${currentHome}/devices`} className={menuClass(false)}>
+        <Link
+          href={currentHome ? `/h/${currentHome}/devices` : `/h/create`}
+          className={menuClass(false)}
+        >
           <>
             <Icons.network className="w-5 h-4 mx-auto" />
             <span className="block text-xs">Devices</span>

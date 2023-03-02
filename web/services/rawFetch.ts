@@ -10,37 +10,46 @@ export const fetchy = {
     options?: any
   ): Promise<IResponse<T>> => {
     const token = req.cookies.get('accessToken')?.value
-    console.log('[INFO] Fetching', `Bearer ${token}`)
+    console.log('[INFO] Fetching', `${apiURL}${url}`)
 
     const res = (await fetch(`${apiURL}${url}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
       method: 'GET',
-    }).then(async (r) => {
-      if (r.status !== 200) {
-        throw new Error('Failed to fetch')
-      }
-
-      const res = (await r.json()) as IResponse<any>
-      if (res.code === ResponseCode.TokenExpired) {
-        const result = await doRefreshToken(req)
-        if (!result) {
-          return {
-            success: false,
-            code: ResponseCode.InvalidInput,
-            message: 'invalid token',
-            data: null,
-          }
+    })
+      .then(async (r) => {
+        if (r.status !== 200) {
+          throw new Error('Failed to fetch')
         }
-        req.cookies.set('accessToken', result.token)
-        req.cookies.set('refreshToken', result.refreshToken)
-        // retry request
-        return fetchy.get(req, url, options)
-      }
 
-      return res
-    })) as IResponse<T>
+        const res = (await r.json()) as IResponse<any>
+        console.log(res)
+
+        if (res.code === ResponseCode.TokenExpired) {
+          const result = await doRefreshToken(req)
+          if (!result) {
+            return {
+              success: false,
+              code: ResponseCode.InvalidInput,
+              message: 'invalid token',
+              data: null,
+            }
+          }
+          req.cookies.set('accessToken', result.token)
+          req.cookies.set('refreshToken', result.refreshToken)
+          // retry request
+          return fetchy.get(req, url, options)
+        }
+
+        return res
+      })
+      .catch((e) => {
+        console.log(e)
+        return {
+          success: false,
+        }
+      })) as IResponse<T>
     return res
   },
   post: async (req: NextRequest, url: string, data: any, options?: any) => {},

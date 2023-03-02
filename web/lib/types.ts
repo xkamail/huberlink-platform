@@ -7,7 +7,7 @@ export interface IResponse<T extends any> {
 }
 export enum ResponseCode {
   Success = 0,
-
+  ResourceNotFound = 2,
   TokenExpired = 5,
   InvalidInput,
   InvalidToken,
