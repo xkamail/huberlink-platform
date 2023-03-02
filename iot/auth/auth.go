@@ -14,6 +14,7 @@ import (
 	"github.com/xkamail/huberlink-platform/pkg/api"
 	"github.com/xkamail/huberlink-platform/pkg/config"
 	"github.com/xkamail/huberlink-platform/pkg/discord"
+	"github.com/xkamail/huberlink-platform/pkg/passhash"
 	"github.com/xkamail/huberlink-platform/pkg/pgctx"
 	"github.com/xkamail/huberlink-platform/pkg/rand"
 	"github.com/xkamail/huberlink-platform/pkg/snowid"
@@ -33,6 +34,76 @@ type TokenResponse struct {
 	Token        string `json:"token"`
 	RefreshToken string `json:"refreshToken"`
 }
+
+type SignInParam struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
+func (p *SignInParam) Valid() error {
+	p.Username = strings.TrimSpace(p.Username)
+	if p.Username == "" {
+		return uierr.Invalid("username", "username is required")
+	}
+	if p.Password == "" {
+		return uierr.Invalid("password", "password is required")
+	}
+	if len(p.Password) < 6 {
+		return uierr.Invalid("password", "password must be at least 6 characters")
+	}
+	if len(p.Username) < 3 {
+		return uierr.Invalid("username", "username must be at least 3 characters")
+	}
+	return nil
+}
+
+func SignIn(ctx context.Context, p *SignInParam) (*TokenResponse, error) {
+	acc, err := account.FindByUsername(ctx, p.Username)
+	if errors.Is(err, account.ErrNotFound) {
+		return nil, ErrUsernameAndPasswordIncorrect
+	}
+	if err != nil {
+		return nil, err
+	}
+	if !passhash.CheckPasswordHash(p.Password, acc.Password) {
+		return nil, ErrUsernameAndPasswordIncorrect
+	}
+
+	tx, err := pgctx.Begin(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback(ctx)
+	cfg := config.Load()
+	userID := acc.ID.Int()
+	jwtToken, err := jwtGenerate(userID, time.Hour*3, cfg.JWTSecret)
+	if err != nil {
+		return nil, err
+	}
+	refreshToken, err := createRefreshToken(ctx, tx, userID)
+	if err != nil {
+
+		return nil, err
+	}
+
+	// update latest discord profile
+	_, err = tx.Exec(ctx, `update users set updated_at = $1 where id = $2`,
+		time.Now(),
+		userID,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		return nil, err
+	}
+	return &TokenResponse{
+		jwtToken,
+		refreshToken,
+	}, nil
+}
+
 type SignInWithDiscordParam struct {
 	Code string `json:"code" validate:"required"`
 }

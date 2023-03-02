@@ -35,6 +35,13 @@ func Handlers() http.Handler {
 
 	// auth
 	{
+		router.Post("/auth/sign-in-username", h(func(ctx context.Context, r *http.Request) (any, error) {
+			var p auth.SignInParam
+			if err := mustBind(r, &p); err != nil {
+				return nil, err
+			}
+			return auth.SignIn(ctx, &p)
+		}))
 		router.Post("/auth/sign-in", h(func(ctx context.Context, r *http.Request) (any, error) {
 			var p auth.SignInWithDiscordParam
 			if err := mustBind(r, &p); err != nil {
