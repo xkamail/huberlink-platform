@@ -17,7 +17,12 @@ const HomeService = {
   },
   findById(id: string, accessToken?: string) {
     return fetcher
-      .get<IResponse<IHome>>(`/home/${id}`, {
+      .get<
+        IResponse<{
+          home: IHome
+          member: any[]
+        }>
+      >(`/home/${id}`, {
         headers:
           (accessToken && {
             Authorization: `Bearer ${accessToken}`,

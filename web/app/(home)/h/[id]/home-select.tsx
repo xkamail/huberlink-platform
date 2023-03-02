@@ -9,21 +9,29 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { useHomeSelector } from '@/lib/contexts/HomeContext'
+import { IHome } from '@/lib/types'
+import HomeService from '@/services/HomeService'
 import { ListIcon, PlusIcon } from 'lucide-react'
 import Link from 'next/link'
+import { useCallback, useEffect, useState } from 'react'
 
 const HomeSelector = () => {
-  const homeList = [
-    {
-      id: 1,
-      name: 'Dorm',
-    },
-    {
-      id: 2,
-      name: 'Home',
-    },
-  ]
-  const homeTitle = 'Home'
+  const [homeList, setHomeList] = useState<IHome[]>([])
+  const fetchData = useCallback(async () => {
+    const r = await HomeService.list()
+    if (r.success) {
+      setHomeList(r.data)
+    } else {
+      setHomeList([])
+    }
+  }, [])
+  useEffect(() => {
+    fetchData()
+  }, [fetchData])
+
+  const homeTitle = useHomeSelector((s) => s.homeName)
+  const loading = useHomeSelector((s) => s.isLoading)
   return (
     <TopNavigation
       leftContent={
