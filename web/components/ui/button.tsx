@@ -3,6 +3,7 @@ import * as React from 'react'
 
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
+import { Icons } from '../icons'
 
 const buttonVariants = cva(
   'active:scale-95 inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 dark:hover:bg-slate-800 dark:hover:text-slate-100 disabled:opacity-50 dark:focus:ring-slate-400 disabled:pointer-events-none dark:focus:ring-offset-slate-900 data-[state=open]:bg-slate-100 dark:data-[state=open]:bg-slate-800',
@@ -42,10 +43,23 @@ export interface ButtonProps
     VariantProps<typeof buttonVariants> {
   to?: string
   block?: boolean
+  loading?: boolean
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, to, block, ...props }, ref) => {
+  (
+    {
+      className,
+      loading = false,
+      variant,
+      size,
+      to,
+      block,
+      children,
+      ...props
+    },
+    ref
+  ) => {
     if (to) {
       return (
         <Link
@@ -55,7 +69,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             block && 'w-full'
           )}
         >
-          {props.children}
+          {children}
         </Link>
       )
     }
@@ -63,11 +77,18 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       <button
         className={cn(
           buttonVariants({ variant, size, className }),
-          block && 'w-full'
+          block && 'w-full',
+          'transition-all'
         )}
         ref={ref}
         {...props}
-      />
+      >
+        {loading ? (
+          <Icons.spin className="w-4 h-4 mr-2 animate-spin" />
+        ) : (
+          children
+        )}
+      </button>
     )
   }
 )
