@@ -1,15 +1,22 @@
+'use client'
 import TopNavigation from '@/components/navigation/TopNavigation'
 import { Button } from '@/components/ui/button'
 import Form from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import {useForm} from "react-hook-form";
+import { ICreateHomeForm } from '@/lib/types'
+import HomeService from '@/services/HomeService'
+import { useEffect } from 'react'
+import { useForm } from 'react-hook-form'
 
 const HomePage = () => {
-
   const ctx = useForm()
-
-  const submit = (data: ICreateHomeForm) => {
-    console.log(data)
+  useEffect(() => {
+    HomeService.list().then((r) => {
+      console.log('r', r)
+    })
+  }, [])
+  const submit = async (data: ICreateHomeForm) => {
+    const res = await HomeService.create(data)
   }
 
   return (
@@ -27,10 +34,19 @@ const HomePage = () => {
               </p>
               <Input placeholder="Enter home name" />
               <div className="flex justify-between items-center">
-                <Button variant="destructive" type="reset" to="/h">
+                <Button
+                  onClick={() => ctx.reset()}
+                  variant="destructive"
+                  type="reset"
+                  to="/h"
+                >
                   Cancel
                 </Button>
-                <Button variant="default" type="submit">
+                <Button
+                  loading={ctx.formState.isSubmitting}
+                  variant="default"
+                  type="submit"
+                >
                   Create
                 </Button>
               </div>

@@ -15,6 +15,9 @@ const HomeService = {
   list() {
     return fetcher.get<IResponse<IHome[]>>(`/home`).then((r) => r.data)
   },
+  findById(id: string) {
+    return fetcher.get<IResponse<IHome>>(`/home/${id}`).then((r) => r.data)
+  },
 }
 
 export default HomeService

@@ -7,7 +7,10 @@ export interface IResponse<T extends any> {
 }
 export enum ResponseCode {
   Success = 0,
-  InvalidInput = 6,
+
+  TokenExpired = 5,
+  InvalidInput,
+  InvalidToken,
 }
 
 export type IUser = {
