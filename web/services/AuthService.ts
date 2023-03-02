@@ -1,8 +1,18 @@
-import { IResponse } from '@/lib/types'
+import { IResponse, ISignInForm } from '@/lib/types'
 import { IUser } from './../lib/types'
 import { fetcher } from './requests'
 
 const AuthService = {
+  signIn(form: ISignInForm) {
+    return fetcher
+      .post<
+        IResponse<{
+          token: string
+          refreshToken: string
+        }>
+      >(`/auth/sign-in-username`, form)
+      .then((r) => r.data)
+  },
   signInWithDiscord(code: string) {
     return fetcher
       .post<

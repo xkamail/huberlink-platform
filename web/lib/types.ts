@@ -15,3 +15,8 @@ export type IUser = {
   createdAt: Date
   updatedAt: Date
 }
+
+export type ISignInForm = {
+  username: string
+  password: string
+}
