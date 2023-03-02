@@ -19,12 +19,16 @@ const baseURL = `https://discord.com/api/v10`
 var httpClient = &http.Client{Timeout: 2 * time.Second}
 
 type Error struct {
-	Code    int         `json:"code"`
-	Errors  interface{} `json:"errors"`
-	Message string      `json:"error_description"`
+	Code         int         `json:"code"`
+	Errors       interface{} `json:"errors"`
+	Message      string      `json:"error_description"`
+	ErrorMessage string      `json:"error"`
 }
 
 func (e Error) Error() string {
+	if e.ErrorMessage != "" {
+		return "discord: " + e.ErrorMessage
+	}
 	return "discord: " + e.Message
 }
 
