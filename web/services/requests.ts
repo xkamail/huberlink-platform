@@ -12,7 +12,6 @@ fetcher.interceptors.request.use((config) => {
   if (accessToken && config.headers.Authorization === undefined) {
     config.headers.Authorization = `Bearer ${accessToken}`
   }
-  console.log('auth', config.headers.Authorization)
   return config
 })
 

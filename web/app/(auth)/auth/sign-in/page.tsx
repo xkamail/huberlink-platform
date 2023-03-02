@@ -1,8 +1,7 @@
 import { Icons } from '@/components/icons'
 import { Button } from '@/components/ui/button'
-import Form from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/sperator'
+import SignInForm from './SignInForm'
 
 const SignUpPage = () => {
   return (
@@ -12,13 +11,7 @@ const SignUpPage = () => {
           <h1 className="mb-6">
             <span className="text-2xl font-bold ">Sign in</span>
           </h1>
-          <Form className=" mb-5 mx-auto">
-            <Input placeholder="Username or E-mail" type="text" />
-            <Input placeholder="Password" type="password" />
-            <Button block type="submit">
-              Sign in
-            </Button>
-          </Form>
+          <SignInForm />
           <Separator />
           <Button
             className="mt-4"

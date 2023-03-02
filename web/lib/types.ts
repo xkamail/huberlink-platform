@@ -5,6 +5,10 @@ export interface IResponse<T extends any> {
   data: T
   errors: any[]
 }
+export enum ResponseCode {
+  Success = 0,
+  InvalidInput = 6,
+}
 
 export type IUser = {
   id: string
