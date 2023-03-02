@@ -112,7 +112,7 @@ func Handlers() http.Handler {
 				return nil, err
 			}
 			result.Members = member
-			
+
 			return result, nil
 		}))
 		// edit home info
