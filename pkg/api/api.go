@@ -11,7 +11,7 @@ type Format struct {
 	Code    uierr.Code  `json:"code"`
 	Success bool        `json:"success"`
 	Data    interface{} `json:"data"`
-	Errors  []any       `json:"errors"`
+	Errors  any         `json:"errors"`
 	Message string      `json:"message"`
 }
 
