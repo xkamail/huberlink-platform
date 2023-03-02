@@ -13,6 +13,8 @@ func (i ID) MarshalJSON() ([]byte, error) {
 	return json.Marshal(fmt.Sprint(i))
 }
 
+const Zero = ID(0)
+
 var _ json.Marshaler = ID(0)
 
 var node, _ = snowflake.NewNode(1)

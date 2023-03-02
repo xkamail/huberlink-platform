@@ -1,0 +1,1 @@
+create unique index users_username_unique on users (username) where username is not null;

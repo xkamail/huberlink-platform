@@ -11,6 +11,7 @@ create table users
 );
 
 create unique index users_email_unique on users (email);
+create unique index users_username_unique on users (username) where username is not null;
 
 create table users_refresh_tokens
 (
