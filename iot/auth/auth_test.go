@@ -6,10 +6,41 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
+	"github.com/xkamail/huberlink-platform/iot/account"
 	"github.com/xkamail/huberlink-platform/pkg/discord"
 	"github.com/xkamail/huberlink-platform/pkg/snowid"
 	"github.com/xkamail/huberlink-platform/pkg/tm"
 )
+
+func TestSignIn(t *testing.T) {
+	testm, err := tm.New(t, "../../db/migrations")
+	assert.NoError(t, err)
+	t.Cleanup(func() {
+		testm.Cleanup()
+	})
+	assert.NoError(t, testm.CreateTable())
+	ctx := testm.Ctx()
+	authCtx := tm.CreateUserCtx(t, ctx)
+	user, _ := account.FromContext(authCtx)
+	t.Parallel()
+	t.Run("should return incorrect when username is not exist", func(t *testing.T) {
+		result, err := SignIn(ctx, &SignInParam{
+			Username: "not found",
+		})
+		assert.Error(t, err)
+		assert.ErrorIs(t, err, ErrUsernameAndPasswordIncorrect)
+		assert.Nil(t, result)
+	})
+	t.Run("username correct", func(t *testing.T) {
+		result, err := SignIn(ctx, &SignInParam{
+			Username: user.Username,
+			Password: "i dont known",
+		})
+		assert.Error(t, err)
+		assert.ErrorIs(t, err, ErrUsernameAndPasswordIncorrect)
+		assert.Nil(t, result)
+	})
+}
 
 func TestSignInWithDiscord(t *testing.T) {
 	testm, err := tm.New(t, "../../db/migrations")
