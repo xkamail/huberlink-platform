@@ -38,6 +38,8 @@ func (p *CreateParam) Valid() error {
 	return nil
 }
 
+// Create  a new home and add to member
+// need auth
 func Create(ctx context.Context, p *CreateParam) (*snowid.ID, error) {
 	if err := p.Valid(); err != nil {
 		return nil, err
@@ -70,7 +72,7 @@ func Create(ctx context.Context, p *CreateParam) (*snowid.ID, error) {
 	}
 
 	// add member
-	_, err = tx.Exec(ctx, `insert into home_members (id, home_id, user_id, permission, created_at, updated_at) values ($1, $2, $3, $4, $4)`,
+	_, err = tx.Exec(ctx, `insert into home_members (id, home_id, user_id, permission, created_at, updated_at) values ($1, $2, $3, $4, $5,$5)`,
 		snowid.Gen(),
 		home.ID,
 		user.ID,
