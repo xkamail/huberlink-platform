@@ -38,7 +38,7 @@ func (p *CreateParam) Valid() error {
 	return nil
 }
 
-func Create(ctx context.Context, p *CreateParam) (*Home, error) {
+func Create(ctx context.Context, p *CreateParam) (*snowid.ID, error) {
 	if err := p.Valid(); err != nil {
 		return nil, err
 	}
@@ -47,6 +47,13 @@ func Create(ctx context.Context, p *CreateParam) (*Home, error) {
 		return nil, err
 	}
 	now := time.Now()
+
+	tx, err := pgctx.Begin(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback(ctx)
+
 	var home Home
 	err = pgctx.QueryRow(ctx, `insert into home (id, name, user_id, background_url, created_at, updated_at) values ($1, $2, $3, $4, $5, $5) returning id`,
 		snowid.Gen(),
@@ -61,5 +68,22 @@ func Create(ctx context.Context, p *CreateParam) (*Home, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &home, nil
+
+	// add member
+	_, err = tx.Exec(ctx, `insert into home_members (id, home_id, user_id, permission, created_at, updated_at) values ($1, $2, $3, $4, $4)`,
+		snowid.Gen(),
+		home.ID,
+		user.ID,
+		MemberPermissionOwner, // owner
+		now,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	// commit the transaction
+	if err := tx.Commit(ctx); err != nil {
+		return nil, err
+	}
+	return &home.ID, nil
 }
