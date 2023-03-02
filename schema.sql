@@ -34,6 +34,8 @@ create table home
     updated_at     timestamptz
 );
 
+create unique index home_name_user_id_unique on home (name, user_id);
+
 
 create table home_members
 (
