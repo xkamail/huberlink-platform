@@ -11,6 +11,7 @@ import (
 
 	"golang.org/x/exp/slog"
 
+	"github.com/xkamail/huberlink-platform/pkg/snowid"
 	"github.com/xkamail/huberlink-platform/pkg/uierr"
 )
 
@@ -33,18 +34,18 @@ func (e Error) Error() string {
 }
 
 type Profile struct {
-	ID            string  `json:"id"`
-	Username      string  `json:"username"`
-	Avatar        *string `json:"avatar"`
-	Discriminator string  `json:"discriminator"`
-	Email         string  `json:"email"`
+	ID            snowid.ID `json:"id"`
+	Username      string    `json:"username"`
+	Avatar        *string   `json:"avatar"`
+	Discriminator string    `json:"discriminator"`
+	Email         string    `json:"email"`
 }
 
 func (p Profile) AvatarURL() string {
 	if p.Avatar == nil {
 		return ""
 	}
-	return fmt.Sprintf(`https://cdn.discordapp.com/avatars/%s/%s.webp`, p.ID, *p.Avatar)
+	return fmt.Sprintf(`https://cdn.discordapp.com/avatars/%d/%s.webp`, p.ID, *p.Avatar)
 }
 
 type Response struct {

@@ -7,6 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/xkamail/huberlink-platform/pkg/discord"
+	"github.com/xkamail/huberlink-platform/pkg/snowid"
 	"github.com/xkamail/huberlink-platform/pkg/tm"
 )
 
@@ -17,7 +18,7 @@ func TestSignInWithDiscord(t *testing.T) {
 	assert.NoError(t, testm.CreateTable())
 	ctx := testm.Ctx()
 	mockProfile := discord.Profile{
-		ID:            "395561779368951811",
+		ID:            snowid.Gen(),
 		Username:      "xKamaiL",
 		Avatar:        nil,
 		Discriminator: "4882",

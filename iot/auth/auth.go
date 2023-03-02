@@ -3,7 +3,6 @@ package auth
 import (
 	"context"
 	"errors"
-	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -58,9 +57,14 @@ func SignInWithDiscord(ctx context.Context, discord discord.Client, p *SignInWit
 	var (
 		userID int64
 	)
-	err = pgctx.QueryRow(ctx, `select id from users where discord_id = $1`, profile.ID).Scan(&userID)
+	err = pgctx.QueryRow(ctx, `
+			select id from users where (discord_id = $1 or email = $2)`,
+		profile.ID,
+		profile.Email,
+	).Scan(
+		&userID,
+	)
 	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
-		log.Printf("query row: %v", err)
 		return nil, err
 	}
 
@@ -69,27 +73,21 @@ func SignInWithDiscord(ctx context.Context, discord discord.Client, p *SignInWit
 		return nil, err
 	}
 	defer tx.Rollback(ctx)
-	log.Printf("begin tx: %v", err)
 
 	// create a new account
 	if userID == 0 {
-		now := time.Now()
-		err = tx.QueryRow(ctx, `insert into users (id, username, email, password, discord_id, avatar_url, created_at, updated_at) values ($1,$2,$3,$4,$5,$6,$7,$8) returning id`,
-			snowid.Gen(),
-			profile.Username,
-			profile.Email,
-			"",
-			profile.ID,
-			profile.AvatarURL(),
-			now,
-			now,
-		).Scan(&userID)
-		if pgctx.UniqueViolation(err, "users_email_unique") {
-			return nil, ErrEmailAlreadyExists
-		}
+		newID, err := account.Create(ctx, &account.User{
+			Username:  profile.Username,
+			Email:     profile.Email,
+			Password:  "",
+			DiscordID: profile.ID,
+		})
 		if err != nil {
 			return nil, err
 		}
+
+		userID = newID.Int()
+
 	}
 	cfg := config.Load()
 	jwtToken, err := jwtGenerate(userID, time.Hour*3, cfg.JWTSecret)
