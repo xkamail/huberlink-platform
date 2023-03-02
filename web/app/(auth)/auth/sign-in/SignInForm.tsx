@@ -40,12 +40,6 @@ const SignInForm = () => {
         placeholder="Username or E-mail"
         type="text"
       />
-      {JSON.stringify(ctx.formState.errors)}
-      {ctx.formState.errors['username']?.message && (
-        <p className="text-red-400 text-xs italic">
-          {ctx.formState.errors['username']?.message}
-        </p>
-      )}
       <Input
         {...ctx.register('password')}
         name="password"
