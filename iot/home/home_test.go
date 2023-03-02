@@ -5,7 +5,6 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/xkamail/huberlink-platform/iot/account"
 	"github.com/xkamail/huberlink-platform/iot/home"
 	"github.com/xkamail/huberlink-platform/pkg/rand"
 	"github.com/xkamail/huberlink-platform/pkg/tm"
@@ -19,18 +18,7 @@ func TestCreate(t *testing.T) {
 	assert.NoError(t, testmicro.CreateTable())
 	ctx := testmicro.Ctx()
 
-	// setup user authentication
-	userID, err := account.Create(ctx, &account.User{
-		Username:  "robert",
-		Email:     "some@email.com",
-		Password:  "",
-		DiscordID: 0,
-	})
-	assert.NoError(t, err)
-	user, err := account.Find(ctx, int64(userID))
-	assert.NoError(t, err)
-	ctxAuth := account.NewContext(ctx, user)
-	assert.NotNilf(t, ctxAuth, "ctxAuth is nil")
+	ctxAuth := tm.CreateUserCtx(t, ctx)
 
 	t.Parallel()
 	t.Run("success", func(t *testing.T) {
@@ -50,6 +38,15 @@ func TestCreate(t *testing.T) {
 			var uiErr uierr.Error
 			assert.ErrorAs(t, err, &uiErr)
 			assert.Equal(t, uierr.CodeAlreadyExists, uiErr.Code)
+		})
+		t.Run("another should not be duplicate", func(t *testing.T) {
+			ctxAuth2 := tm.CreateUserCtx(t, ctx)
+			result, err := home.Create(ctxAuth2, &home.CreateParam{
+				Name: "test",
+			})
+			assert.NoError(t, err)
+			assert.NotNil(t, result)
+			assert.NotEqualf(t, 0, *result, "ID is 0")
 		})
 	})
 
