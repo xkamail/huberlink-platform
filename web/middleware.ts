@@ -10,12 +10,15 @@ export async function middleware(req: NextRequest) {
     const hasHome = req.cookies.has('currentHome')
     if (hasHome) {
       const currentHome = req.cookies.get('currentHome')?.value
+      return NextResponse.redirect(new URL('/h/' + currentHome, req.url))
     }
     const res = await fetchy.get<IHome[]>(req, '/home')
     if (res.success && res.data.length > 0) {
-      console.log(typeof res.data[0].id)
-      req.cookies.set('currentHome', res.data[0].id)
-      return NextResponse.redirect(new URL('/h/' + res.data[0].id, req.url))
+      const response = NextResponse.redirect(
+        new URL('/h/' + res.data[0].id, req.url)
+      )
+      response.cookies.set('currentHome', res.data[0].id)
+      return response
     }
     return NextResponse.redirect(new URL('/h/create', req.url))
   }
