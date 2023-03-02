@@ -11,6 +11,12 @@ import (
 	"github.com/xkamail/huberlink-platform/pkg/uierr"
 )
 
+var (
+	ErrReachLimitHome = uierr.Alert("home: reach limit home per user")
+)
+
+const MaxHomePerUser = 5
+
 type Home struct {
 	ID            snowid.ID `json:"id"`
 	Name          string    `json:"name"`
@@ -18,6 +24,14 @@ type Home struct {
 	BackgroundURL string    `json:"backgroundUrl"`
 	CreatedAt     time.Time `json:"createdAt"`
 	UpdatedAt     time.Time `json:"updatedAt"`
+}
+
+func List(ctx context.Context, userID snowid.ID) ([]*Home, error) {
+	homes, err := pgctx.Collect[Home](ctx, `select id, name, user_id, background_url, created_at, updated_at from home where user_id = $1`, userID)
+	if err != nil {
+		return nil, err
+	}
+	return homes, nil
 }
 
 type CreateParam struct {
@@ -39,7 +53,7 @@ func (p *CreateParam) Valid() error {
 }
 
 // Create  a new home and add to member
-// need auth
+// need auth limit 5 home per users
 func Create(ctx context.Context, p *CreateParam) (*snowid.ID, error) {
 	if err := p.Valid(); err != nil {
 		return nil, err
@@ -49,6 +63,15 @@ func Create(ctx context.Context, p *CreateParam) (*snowid.ID, error) {
 		return nil, err
 	}
 	now := time.Now()
+
+	var count int
+	err = pgctx.QueryRow(ctx, `select count(*) from home where user_id = $1`, user.ID).Scan(&count)
+	if err != nil {
+		return nil, err
+	}
+	if count >= MaxHomePerUser {
+		return nil, ErrReachLimitHome
+	}
 
 	tx, err := pgctx.Begin(ctx)
 	if err != nil {

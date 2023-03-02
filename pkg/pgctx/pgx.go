@@ -35,6 +35,20 @@ func Query(ctx context.Context, sql string, args ...any) (pgx.Rows, error) {
 	return q(ctx).Query(ctx, sql, args...)
 }
 
+func Collect[T any](ctx context.Context, sql string, args ...any) ([]*T, error) {
+	db := q(ctx)
+	rows, err := db.Query(ctx, sql, args...)
+	if err != nil {
+		return nil, err
+	}
+	result, err := pgx.CollectRows(rows, pgx.RowToStructByPos[*T])
+	if err != nil {
+		// create empty array
+		return make([]*T, 0), err
+	}
+	return result, nil
+}
+
 func QueryRow(ctx context.Context, sql string, args ...any) pgx.Row {
 	return q(ctx).QueryRow(ctx, sql, args...)
 }

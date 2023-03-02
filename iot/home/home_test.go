@@ -1,16 +1,50 @@
 package home_test
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 
+	"github.com/xkamail/huberlink-platform/iot/account"
 	"github.com/xkamail/huberlink-platform/iot/home"
 	"github.com/xkamail/huberlink-platform/pkg/rand"
+	"github.com/xkamail/huberlink-platform/pkg/snowid"
 	"github.com/xkamail/huberlink-platform/pkg/tm"
 	"github.com/xkamail/huberlink-platform/pkg/uierr"
 )
 
+func TestList(t *testing.T) {
+	testmicro, err := tm.New(t, "../../db/migrations")
+	assert.NoError(t, err)
+	defer testmicro.Cleanup()
+	assert.NoError(t, testmicro.CreateTable())
+	ctx := testmicro.Ctx()
+	ctxAuth := tm.CreateUserCtx(t, ctx)
+
+	user, err := account.FromContext(ctxAuth)
+	assert.NoError(t, err)
+
+	for i := 0; i < home.MaxHomePerUser; i++ {
+		_, err := home.Create(ctxAuth, &home.CreateParam{
+			Name: fmt.Sprintf("home 00%d", i),
+		})
+		assert.NoError(t, err)
+	}
+
+	t.Parallel()
+	t.Run("list 10", func(t *testing.T) {
+		homes, err := home.List(ctxAuth, user.ID)
+		assert.NoError(t, err)
+		assert.Equal(t, home.MaxHomePerUser, len(homes))
+	})
+	t.Run("list user not found", func(t *testing.T) {
+		homes, err := home.List(ctxAuth, snowid.Gen())
+		assert.Nil(t, err)
+		assert.Len(t, homes, 0)
+	})
+
+}
 func TestCreate(t *testing.T) {
 	testmicro, err := tm.New(t, "../../db/migrations")
 	assert.NoError(t, err)
