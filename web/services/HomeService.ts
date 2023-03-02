@@ -15,8 +15,16 @@ const HomeService = {
   list() {
     return fetcher.get<IResponse<IHome[]>>(`/home`).then((r) => r.data)
   },
-  findById(id: string) {
-    return fetcher.get<IResponse<IHome>>(`/home/${id}`).then((r) => r.data)
+  findById(id: string, accessToken?: string) {
+    return fetcher
+      .get<IResponse<IHome>>(`/home/${id}`, {
+        headers:
+          (accessToken && {
+            Authorization: `Bearer ${accessToken}`,
+          }) ||
+          {},
+      })
+      .then((r) => r.data)
   },
 }
 
