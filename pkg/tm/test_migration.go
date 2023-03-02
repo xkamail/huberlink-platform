@@ -45,6 +45,21 @@ func New(t *testing.T, migrationPath string) (*TestMigration, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	// setup database if not exists
+	masterDB, err := sql.Open("postgres", fmt.Sprintf(`user=%s password=%s host=%s port=%s dbname=postgres sslmode=disable`,
+		user,
+		password,
+		host,
+		port,
+	))
+	if err != nil {
+		return nil, err
+	}
+	if err = createDatabase(masterDB, dbName); err != nil {
+		return nil, err
+	}
+
 	dsn := fmt.Sprintf(`user=%s password=%s host=%s port=%s dbname=%s sslmode=disable`,
 		user,
 		password,
@@ -53,20 +68,6 @@ func New(t *testing.T, migrationPath string) (*TestMigration, error) {
 		dbName,
 	)
 
-	// setup database if not exists
-	masterDB, err := sql.Open("postgres", fmt.Sprintf(`user=%s password=%s host=%s port=%s dbname=%s sslmode=disable`,
-		user,
-		password,
-		host,
-		port,
-		"postgres",
-	))
-	if err != nil {
-		return nil, err
-	}
-	if err = createDatabase(masterDB, dbName); err != nil {
-		return nil, err
-	}
 	ctx := context.Background()
 	pool, err := pgxpool.New(ctx, dsn)
 	if err != nil {
@@ -126,10 +127,11 @@ func (t TestMigration) Ctx() context.Context {
 	return pgctx.NewContext(context.Background(), t.pool)
 }
 func (t TestMigration) Cleanup() {
-	// language=TEXT
-	t.db.Exec("drop database " + pq.QuoteIdentifier(t.dbName))
+	t.m.Close()
 	t.pool.Close()
 	t.db.Close()
+	// language=TEXT
+	t.masterDB.Exec("drop database " + pq.QuoteIdentifier(t.dbName))
 	t.masterDB.Close()
 }
 
