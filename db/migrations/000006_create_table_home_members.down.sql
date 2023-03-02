@@ -1,0 +1,2 @@
+drop index home_members_home_id_user_id_unique;
+drop table home_members;

@@ -15,6 +15,14 @@ type Format struct {
 	Message string      `json:"message"`
 }
 
+type Pagination[T any] struct {
+	Data       []T `json:"data"`
+	TotalItems int `json:"totalItems"`
+	TotalPages int `json:"totalPages"`
+	Page       int `json:"page"`
+	PerPage    int `json:"perPage"`
+}
+
 func WriteError(w http.ResponseWriter, err error) {
 	w.Header().Set("Content-Type", "application/json")
 
