@@ -1,9 +1,9 @@
 package uierr
 
 type Error struct {
-	Code    Code          `json:"code"`
-	Message string        `json:"message"`
-	Details []interface{} `json:"details"`
+	Code    Code   `json:"code"`
+	Message string `json:"message"`
+	Details []any  `json:"details"`
 }
 
 type ValidationField struct {
@@ -60,8 +60,8 @@ func BadInput(field, reason string) Error {
 	return Error{
 		Code:    CodeInvalidRequest,
 		Message: reason,
-		Details: []ValidationField{
-			{
+		Details: []any{
+			ValidationField{
 				field,
 				reason,
 			},
