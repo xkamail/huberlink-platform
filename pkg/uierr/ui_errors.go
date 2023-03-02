@@ -18,7 +18,7 @@ func (e Error) Error() string {
 type Code uint
 
 const (
-	CodeSuccess = iota
+	CodeSuccess Code = iota
 	CodeBadRequest
 	CodeResourceNotFound
 	CodeInternalServerError

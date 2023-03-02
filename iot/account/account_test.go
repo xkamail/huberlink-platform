@@ -8,6 +8,7 @@ import (
 	"github.com/xkamail/huberlink-platform/iot/account"
 	"github.com/xkamail/huberlink-platform/pkg/snowid"
 	"github.com/xkamail/huberlink-platform/pkg/tm"
+	"github.com/xkamail/huberlink-platform/pkg/uierr"
 )
 
 func TestCreate(t *testing.T) {
@@ -17,6 +18,28 @@ func TestCreate(t *testing.T) {
 	assert.NoError(t, testmicro.CreateTable())
 	t.Parallel()
 	ctx := testmicro.Ctx()
+	t.Run("username too short", func(t *testing.T) {
+		id, err := account.Create(ctx, &account.User{
+			ID:       0,
+			Username: "1234",
+			Email:    "",
+		})
+		assert.Error(t, err)
+		assert.ErrorAsf(t, err, &uierr.Error{}, "must be ErrUsernameTooShort")
+		assert.Equalf(t, snowid.Zero, id, "id must be zero")
+	})
+	t.Run("invalid email address", func(t *testing.T) {
+		id, err := account.Create(ctx, &account.User{
+			ID:       0,
+			Username: "123456",
+			Email:    "xxx",
+		})
+		assert.Error(t, err)
+		var uiErr uierr.Error
+		assert.ErrorAsf(t, err, &uiErr, "must be ErrUsernameTooShort")
+		assert.Equal(t, uierr.CodeInvalidRequest, uiErr.Code)
+		assert.Equalf(t, snowid.Zero, id, "id must be zero")
+	})
 	t.Run("create success", func(t *testing.T) {
 		id, err := account.Create(ctx, &account.User{
 			ID:        0,
