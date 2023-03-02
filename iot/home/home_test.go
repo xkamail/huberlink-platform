@@ -7,6 +7,7 @@ import (
 
 	"github.com/xkamail/huberlink-platform/iot/account"
 	"github.com/xkamail/huberlink-platform/iot/home"
+	"github.com/xkamail/huberlink-platform/pkg/rand"
 	"github.com/xkamail/huberlink-platform/pkg/tm"
 )
 
@@ -16,7 +17,6 @@ func TestCreate(t *testing.T) {
 	defer testmicro.Cleanup()
 	assert.NoError(t, testmicro.CreateTable())
 	ctx := testmicro.Ctx()
-	t.Parallel()
 
 	// setup user authentication
 	userID, err := account.Create(ctx, &account.User{
@@ -31,6 +31,7 @@ func TestCreate(t *testing.T) {
 	ctxAuth := account.NewContext(ctx, user)
 	assert.NotNilf(t, ctxAuth, "ctxAuth is nil")
 
+	t.Parallel()
 	t.Run("success", func(t *testing.T) {
 
 		result, err := home.Create(ctxAuth, &home.CreateParam{
@@ -41,9 +42,16 @@ func TestCreate(t *testing.T) {
 		assert.NotEqualf(t, 0, *result, "ID is 0")
 	})
 	t.Run("length too short", func(t *testing.T) {
-
+		_, err := home.Create(ctxAuth, &home.CreateParam{
+			Name: "t",
+		})
+		assert.Error(t, err)
 	})
 	t.Run("length too long", func(t *testing.T) {
-
+		name, _ := rand.String(101)
+		_, err := home.Create(ctxAuth, &home.CreateParam{
+			Name: name,
+		})
+		assert.Error(t, err)
 	})
 }
