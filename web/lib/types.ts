@@ -24,3 +24,13 @@ export type ISignInForm = {
   username: string
   password: string
 }
+
+export type ICreateHomeForm = {
+  name: string
+}
+
+export type IHome = {
+  id: string
+  name: string
+  userId: string
+}
