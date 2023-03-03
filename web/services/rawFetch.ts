@@ -10,7 +10,7 @@ export const fetchy = {
     options?: any
   ): Promise<IResponse<T>> => {
     const token = req.cookies.get('accessToken')?.value
-    console.log('[INFO] Fetching', `${apiURL}${url}`, token)
+    console.log('[INFO] Fetching', `${apiURL}${url}`)
 
     const res = (await fetch(`${apiURL}${url}`, {
       headers: {

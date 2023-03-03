@@ -1,13 +1,18 @@
 'use client'
 import Card from '@/components/ui/card'
+import { useHomeSelector } from '@/lib/contexts/HomeContext'
 import { cn } from '@/lib/utils'
 import HomeService from '@/services/HomeService'
 import { FanIcon, LampIcon } from 'lucide-react'
+import SkeletonDisplay from './skeleton'
 const fetchData = async (id: string) => {
   return await HomeService.findById(id)
 }
 
 const HomePage = ({ params }: { params: { id: string } }) => {
+  const loading = useHomeSelector((s) => s.isLoading)
+  // const home = useHomeSelector((s) => s.home)
+  if (loading) return <SkeletonDisplay />
   return (
     <div className="grid grid-cols-12 gap-4">
       <div className="col-span-12">
