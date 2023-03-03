@@ -11,7 +11,11 @@ export function cn(...inputs: ClassValue[]) {
 export function formError(ctx: UseFormReturn<any>, res: IResponse<any>) {
   console.log(res)
 
-  if (res.code === ResponseCode.InvalidInput && res.errors.length > 0) {
+  if (
+    !res.success &&
+    res.code === ResponseCode.InvalidInput &&
+    res.errors.length > 0
+  ) {
     res.errors.map((err) => {
       if (!err.fieldName) return
       ctx.setError(err.fieldName!, {
