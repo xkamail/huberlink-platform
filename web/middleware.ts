@@ -1,8 +1,7 @@
+import { NextResponse } from 'next/server'
 // middleware.ts
 import type { NextRequest } from 'next/server'
-import { NextResponse } from 'next/server'
-import { ResponseCode } from './lib/types'
-import { doRefreshToken } from './services/rawFetch'
+import { fetchy } from './services/rawFetch'
 
 // This function can be marked `async` if using `await` inside
 export async function middleware(req: NextRequest) {
@@ -13,31 +12,23 @@ export async function middleware(req: NextRequest) {
       new URL('/auth/sign-in?redirect=' + req.nextUrl.pathname, baseURL)
     )
   }
-
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, {
-    headers: {
-      Authorization: `Bearer ${accessToken.value}`,
-    },
-  }).then((r) => r.json()) // <--- This is the problem
+  const res = await fetchy.get(req, `/auth/me`) // <--- This is the problem
   if (!res.success) {
-    if (res.code === ResponseCode.TokenExpired) {
-      console.log('[INFO] Refreshing token')
-      const refreshResult = await doRefreshToken(req)
-      if (refreshResult) {
-        console.log('[INFO] Refresh token success')
-        req.cookies.set('accessToken', refreshResult.token)
-        req.cookies.set('refreshToken', refreshResult.refreshToken)
-        return
-      }
-      console.log('[INFO] Refresh token failed', {
-        refreshResult,
-      })
-    }
-
     return NextResponse.redirect(
       new URL('/auth/sign-in?redirect=' + req.nextUrl.pathname, baseURL)
     )
   }
+  const r = NextResponse.next()
+  const _accessToken = req.cookies.get('accessToken')?.value
+  if (_accessToken) {
+    r.cookies.set('accessToken', _accessToken)
+  }
+
+  const _refreshToken = req.cookies.get('refreshToken')?.value
+  if (_refreshToken) {
+    r.cookies.set('refreshToken', _refreshToken)
+  }
+  return r
 }
 
 // See "Matching Paths" below to learn more

@@ -1,16 +1,24 @@
-export interface IResponse<T extends any> {
-  success: boolean
-  code: number
-  message: string
-  data: T
-  errors: any[]
-}
+export type IResponse<T> =
+  | {
+      success: true
+      code: number
+      message: string
+      data: T
+    }
+  | {
+      success: false
+      code: number
+      message: string
+      errors: any[]
+    }
 export enum ResponseCode {
   Success = 0,
   ResourceNotFound = 2,
   TokenExpired = 5,
   InvalidInput,
   InvalidToken,
+
+  ClientError = 777,
 }
 
 export type IUser = {

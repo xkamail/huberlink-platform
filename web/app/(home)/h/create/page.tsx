@@ -3,20 +3,29 @@ import TopNavigation from '@/components/navigation/TopNavigation'
 import { Button } from '@/components/ui/button'
 import Form from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { useToast } from '@/hooks/use-toast'
 import { ICreateHomeForm } from '@/lib/types'
 import HomeService from '@/services/HomeService'
-import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 
 const HomePage = () => {
-  const ctx = useForm()
-  useEffect(() => {
-    HomeService.list().then((r) => {
-      console.log('r', r)
-    })
-  }, [])
+  const router = useRouter()
+  const { toast } = useToast()
+  const ctx = useForm({
+    defaultValues: {
+      name: '',
+    },
+  })
+
   const submit = async (data: ICreateHomeForm) => {
     const res = await HomeService.create(data)
+    if (!res.success) {
+      toast.error(res.message)
+      return
+    }
+    toast.succes(`Home ${data.name} created!`)
+    router.push(`/h/${res.data.id}`)
   }
 
   return (
@@ -32,7 +41,7 @@ const HomePage = () => {
                 came to him with a problem: the kingdom was running out of
                 money.
               </p>
-              <Input placeholder="Enter home name" />
+              <Input {...ctx.register('name')} placeholder="Enter home name" />
               <div className="flex justify-between items-center">
                 <Button
                   onClick={() => ctx.reset()}

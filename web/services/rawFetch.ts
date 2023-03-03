@@ -10,13 +10,14 @@ export const fetchy = {
     options?: any
   ): Promise<IResponse<T>> => {
     const token = req.cookies.get('accessToken')?.value
-    console.log('[INFO] Fetching', `${apiURL}${url}`)
+    console.log('[INFO] Fetching', `${apiURL}${url}`, token)
 
     const res = (await fetch(`${apiURL}${url}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
       method: 'GET',
+      ...options,
     })
       .then(async (r) => {
         if (r.status !== 200) {
@@ -65,6 +66,7 @@ export const doRefreshToken = async (
 
   const refreshToken = req.cookies.get('refreshToken')?.value
   if (!refreshToken) {
+    console.log('[INFO] No refresh token')
     return null
   }
   const res = (await fetch(
@@ -77,7 +79,9 @@ export const doRefreshToken = async (
     refreshToken: string
   }>
   if (res.success) {
+    console.log(`[INFO] Refreshed token: ${res.data.token}`)
     return res.data
   }
+  console.log('[INFO] Failed to refresh token', res.message, refreshToken)
   return null
 }

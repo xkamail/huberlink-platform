@@ -39,6 +39,16 @@ const AuthService = {
       )
       .then((r) => r.data)
   },
+  invokeRefreshToken(refreshToken: string) {
+    return fetcher
+      .post<
+        IResponse<{
+          token: string
+          refreshToken: string
+        }>
+      >('/auth/refresh-token?refreshToken=' + refreshToken)
+      .then((r) => r.data)
+  },
 }
 
 export default AuthService
