@@ -7,8 +7,8 @@ import nookies from 'nookies'
 
 const menuClass = (active: boolean) =>
   cn(
-    `w-full focus:text-primary hover:primary justify-center inline-block text-center pt-2 pb-1 text-base`,
-    active ? 'text-indigo-500' : 'text-slate-900'
+    `w-full focus:text-primary hover:primary justify-center inline-block text-center pt-2 pb-1 text-base transition-all hover:text-indigo-600`,
+    active ? 'text-indigo-600' : 'text-slate-900'
   )
 
 const BottomNavigation = () => {
@@ -30,7 +30,7 @@ const BottomNavigation = () => {
         </Link>
         <Link
           href={currentHome ? `/h/${currentHome}/automation` : `/h/create`}
-          className={menuClass(false)}
+          className={menuClass(path.startsWith(`/h/${currentHome}/automation`))}
         >
           <>
             <Icons.bot className="w-5 h-5 mx-auto" />
@@ -39,7 +39,7 @@ const BottomNavigation = () => {
         </Link>
         <Link
           href={currentHome ? `/h/${currentHome}/devices` : `/h/create`}
-          className={menuClass(false)}
+          className={menuClass(path.startsWith(`/h/${currentHome}/devices`))}
         >
           <>
             <Icons.network className="w-5 h-4 mx-auto" />
