@@ -1,4 +1,4 @@
-import { Button } from '@/components/ui/button'
+import GoHomeButton from '@/app/go-home-button'
 import { cn } from '@/lib/utils'
 
 const LandingNavbar = () => {
@@ -18,9 +18,7 @@ const LandingNavbar = () => {
         </div>
         <div className="flex-end ml-auto">
           <div className="space-x-2">
-            <Button variant="primary" to={'/h'}>
-              <span className="text-sm uppercase">Open HOME</span>
-            </Button>
+            <GoHomeButton />
           </div>
         </div>
       </div>
