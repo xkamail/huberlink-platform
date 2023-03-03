@@ -1,7 +1,6 @@
 import LandingNavbar from '@/components/landing/navbar'
 import { Button } from '@/components/ui/button'
 import { Network } from 'lucide-react'
-import TokenTest from './token'
 
 export default function Home() {
   return (
@@ -26,7 +25,6 @@ export default function Home() {
                 <Button to="/documentation" variant="subtle" size="lg">
                   <span className="text-sm uppercase">Documentation</span>
                 </Button>
-                <TokenTest />
               </div>
             </div>
             <div className="flex flex-col p-8 justify-between items-center">
