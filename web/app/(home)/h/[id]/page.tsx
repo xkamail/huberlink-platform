@@ -15,7 +15,7 @@ const HomePage = ({ params }: { params: { id: string } }) => {
           {[...Array(4)].map((_, i) => (
             <div
               className={cn(
-                `transition-colors hover:bg-indigo-600 hover:text-slate-100 col-span-2 cursor-pointer rounded-lg p-2 border text-indigo-600 border-indigo-600 group`,
+                `transition-colors hover:bg-indigo-600 hover:text-slate-100 col-span-4 lg:col-span-2 cursor-pointer rounded-lg p-2 border text-indigo-600 border-indigo-600 group`,
                 i == 2 && 'bg-indigo-600 text-slate-100'
               )}
               key={i}
