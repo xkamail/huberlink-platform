@@ -52,6 +52,43 @@ export type IDeviceCard = {
   icon: string
 }
 
+export enum DeviceKindEnum {
+  Unknown,
+  IRRemote,
+  Sensor,
+  Switch,
+  Lamp,
+}
+
+export const DEVICE_CATEGORY = [
+  {
+    name: 'Unknown',
+    description: '',
+    icon: 'unknown',
+    kind: DeviceKindEnum.Unknown,
+  },
+  {
+    name: 'IR Remote',
+    description: 'Universal Remote Control',
+    icon: 'remote',
+    kind: DeviceKindEnum.IRRemote,
+  },
+  {
+    name: 'Sensor',
+    description: 'Generic Sensor',
+    icon: 'sensor',
+    kind: DeviceKindEnum.Sensor,
+  },
+  {
+    name: 'Switch',
+    description: 'Generic Switch',
+    icon: 'switch',
+    kind: DeviceKindEnum.Switch,
+  },
+]
 export type ICreateDeviceForm = {
   name: string
+  kind: DeviceKindEnum
+  icon?: string
+  model?: string
 }
