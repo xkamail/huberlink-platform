@@ -12,7 +12,7 @@ export type IUserActions =
   | { type: 'close-dialog' }
   | { type: 'logout' }
 
-type IStatus = 'idle' | 'loading' | 'error' | 'success'
+type IStatus = 'idle' | 'loading' | 'success'
 
 export const [UserContextProvider, useUserDispatch, useUserSelector] =
   createProvider(() => {
@@ -37,17 +37,16 @@ export const [UserContextProvider, useUserDispatch, useUserSelector] =
             .then((r) => {
               if (!r.success) {
                 setUserData(null)
-                setStatus('error')
                 return
               }
               setUserData(r.data)
-              setStatus('success')
             })
             .catch((err) => {
               setUserData(null)
-              setStatus('error')
             })
-            .finally(() => {})
+            .finally(() => {
+              setStatus('success')
+            })
           return
       }
     }
@@ -55,6 +54,7 @@ export const [UserContextProvider, useUserDispatch, useUserSelector] =
     const state = {
       profile: userData,
       isLoggedIn,
+      status,
     }
     return [state, dispatch]
   })
