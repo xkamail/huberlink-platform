@@ -7,15 +7,17 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
+	"github.com/xkamail/snowflake"
+
 	"github.com/xkamail/huberlink-platform/iot/account"
 	"github.com/xkamail/huberlink-platform/iot/auth"
+	"github.com/xkamail/huberlink-platform/iot/device"
 	"github.com/xkamail/huberlink-platform/iot/home"
 	"github.com/xkamail/huberlink-platform/pkg/api"
 	"github.com/xkamail/huberlink-platform/pkg/config"
 	"github.com/xkamail/huberlink-platform/pkg/discord"
 	"github.com/xkamail/huberlink-platform/pkg/snowid"
 	"github.com/xkamail/huberlink-platform/pkg/uierr"
-	"github.com/xkamail/snowflake"
 )
 
 type Validator interface {
@@ -81,7 +83,9 @@ func Handlers() http.Handler {
 			}
 			return home.Create(ctx, &p)
 		}))
-
+		
+		// middleware get home from url param
+		// and validate user is member of home
 		r := authRouter.With(func(next http.Handler) http.Handler {
 			return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				acc, err := account.FromContext(r.Context())
@@ -133,14 +137,37 @@ func Handlers() http.Handler {
 			// TODO: implement
 		}))
 		// join home
-	}
-	// device
-	{
-		authRouter.Get("/home/{home_id}/devices/all", nil)
-		authRouter.Post("/home/{home_id}/devices", nil)
-		authRouter.Get("/home/{home_id}/devices/{id}", nil)
-		authRouter.Delete("/home/{home_id}/devices/{id}", nil)
-		authRouter.Patch("/home/{home_id}/devices/{id}", nil)
+		// device
+		r.Get("/home/{home_id}/devices/all", h(func(ctx context.Context, r *http.Request) (any, error) {
+			h, err := homeFromCtx(ctx)
+			if err != nil {
+				return nil, err
+			}
+			return device.List(ctx, h.ID)
+		}))
+		r.Post("/home/{home_id}/devices", h(func(ctx context.Context, r *http.Request) (any, error) {
+			h, err := homeFromCtx(ctx)
+			if err != nil {
+				return nil, err
+			}
+			var p device.CreateParam
+			if err := mustBind(r, &p); err != nil {
+				return nil, err
+			}
+			p.HomeID = h.ID
+			return device.Create(ctx, &p)
+		}))
+		r.Get("/home/{home_id}/devices/{device_id}", h(func(ctx context.Context, r *http.Request) (any, error) {
+			deviceID, err := URLParamID(r, "device_id")
+			if err != nil {
+				return nil, err
+			}
+			return device.Find(ctx, deviceID)
+		}))
+		r.Delete("/home/{home_id}/devices/{id}", nil)
+		r.Patch("/home/{home_id}/devices/{id}", nil)
+		// ir-remote service
+		r.Get("/home/{home_id}/devices/{devices_id}/ir-remote", h(nil))
 	}
 	return router
 }
