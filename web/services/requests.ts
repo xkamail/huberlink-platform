@@ -1,10 +1,10 @@
 import { IResponse } from '@/lib/types'
 import axios, { AxiosResponse } from 'axios'
-import nookies, { destroyCookie, parseCookies, setCookie } from 'nookies'
+import * as jsCookie from 'js-cookie'
+import nookies, { parseCookies } from 'nookies'
 import { ResponseCode } from './../lib/types'
 import AuthService from './AuthService'
 const apiURL = process.env.NEXT_PUBLIC_API_URL
-
 export const fetcher = axios.create({
   baseURL: apiURL,
   timeout: 10 * 1000,
@@ -46,12 +46,9 @@ fetcher.interceptors.response.use(
           cookie.refreshToken
         )
         if (refreshRes.success) {
+          jsCookie.set('accessToken', refreshRes.data.token)
+          jsCookie.set('refreshToken', refreshRes.data.refreshToken)
           console.log('[Interceptor] Refresh token success')
-
-          destroyCookie(null, 'accessToken')
-          destroyCookie(null, 'refreshToken')
-          setCookie(null, 'accessToken', refreshRes.data.token)
-          setCookie(null, 'refreshToken', refreshRes.data.refreshToken)
           originalRequest.headers.Authorization = `Bearer ${refreshRes.data.token}`
           return fetcher(originalRequest)
         }
