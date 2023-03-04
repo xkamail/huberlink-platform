@@ -69,7 +69,7 @@ func TestCreate(t *testing.T) {
 				Name: "test",
 			})
 			assert.Error(t, err)
-			var uiErr uierr.Error
+			var uiErr *uierr.Error
 			assert.ErrorAs(t, err, &uiErr)
 			assert.Equal(t, uierr.CodeAlreadyExists, uiErr.Code)
 		})

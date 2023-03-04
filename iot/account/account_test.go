@@ -25,7 +25,8 @@ func TestCreate(t *testing.T) {
 			Email:    "",
 		})
 		assert.Error(t, err)
-		assert.ErrorAsf(t, err, &uierr.Error{}, "must be ErrUsernameTooShort")
+		var uiErr *uierr.Error
+		assert.ErrorAsf(t, err, &uiErr, "must be ErrUsernameTooShort")
 		assert.Equalf(t, snowid.Zero, id, "id must be zero")
 	})
 	t.Run("invalid email address", func(t *testing.T) {
@@ -35,7 +36,7 @@ func TestCreate(t *testing.T) {
 			Email:    "xxx",
 		})
 		assert.Error(t, err)
-		var uiErr uierr.Error
+		var uiErr *uierr.Error
 		assert.ErrorAsf(t, err, &uiErr, "must be ErrUsernameTooShort")
 		assert.Equal(t, uierr.CodeInvalidRequest, uiErr.Code)
 		assert.Equalf(t, snowid.Zero, id, "id must be zero")

@@ -45,9 +45,19 @@ type VirtualKey struct {
 }
 
 func Find(ctx context.Context, deviceID snowid.ID) (*IRRemote, error) {
+	// TODO: implement
 	panic("not implemented")
 }
 
 func ListVirtual(ctx context.Context, deviceID snowid.ID) ([]*VirtualKey, error) {
+	// TODO: implement
+	panic("not implemented")
+}
+
+type CreateVirtualKeyParam struct {
+}
+
+func CreateVirtual(ctx context.Context, p *CreateVirtualKeyParam) (*VirtualKey, error) {
+	// TODO: implement
 	panic("not implemented")
 }
