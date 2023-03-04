@@ -84,11 +84,10 @@ func Create(ctx context.Context, p *CreateParam) (*snowid.ID, error) {
 	case KindIRRemote:
 		_, err = tx.Exec(ctx, `
 			insert into device_ir_remotes 
-				(id, device_id, name, home_id, created_at, updated_at) 
-			values ($1,$2,$3,$4,$5,$5)`,
+				(id, device_id, home_id, created_at, updated_at) 
+			values ($1,$2,$3,$4,$4)`,
 			snowid.Gen(), // id
 			id,           // device_id
-			p.Name,       // name
 			h.ID,         // home_id
 			time.Now(),   // created_at, updated_at
 		)

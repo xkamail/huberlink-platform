@@ -74,7 +74,6 @@ create table device_ir_remotes
 (
     id         bigint primary key,
     device_id  bigint references devices (id),
-    name       text not null,
     home_id    bigint references home (id) default null,
     created_at timestamptz                 default now(),
     updated_at timestamptz                 default now()
