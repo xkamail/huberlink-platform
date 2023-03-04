@@ -1,6 +1,7 @@
 'use client'
 import Card from '@/components/ui/card'
 import { useHomeSelector } from '@/lib/contexts/HomeContext'
+import { useUser } from '@/lib/hooks'
 import { cn } from '@/lib/utils'
 import HomeService from '@/services/HomeService'
 import { FanIcon, LampIcon } from 'lucide-react'
@@ -10,9 +11,10 @@ const fetchData = async (id: string) => {
 }
 
 const HomePage = ({ params }: { params: { id: string } }) => {
+  const { profile } = useUser()
   const loading = useHomeSelector((s) => s.isLoading)
-  // const home = useHomeSelector((s) => s.home)
   if (loading) return <SkeletonDisplay />
+
   return (
     <div className="grid grid-cols-12 gap-4">
       <div className="col-span-12">
@@ -62,7 +64,7 @@ const HomePage = ({ params }: { params: { id: string } }) => {
             </div>
           </div>
           <div className="mt-4">
-            <div className="text-base font-medium ">Pakorn Sangpeth</div>
+            <div className="text-base font-medium ">{profile.email}</div>
             <div>
               Lorem Ipsum is simply dummy text of the printing and typesetting
               industry. Lorem Ipsum has been the standard dummy text ever since
