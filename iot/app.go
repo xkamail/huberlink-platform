@@ -83,7 +83,7 @@ func Handlers() http.Handler {
 			}
 			return home.Create(ctx, &p)
 		}))
-		
+
 		// middleware get home from url param
 		// and validate user is member of home
 		r := authRouter.With(func(next http.Handler) http.Handler {
