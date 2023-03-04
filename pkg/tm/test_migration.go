@@ -120,6 +120,13 @@ func (t TestMigration) CreateTable() error {
 	}
 	return err
 }
+func (t TestMigration) Up() error {
+	return t.CreateTable()
+}
+
+func (t TestMigration) Close() {
+	t.Cleanup()
+}
 func (t TestMigration) PgxPool() *pgxpool.Pool {
 	return t.pool
 }

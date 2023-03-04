@@ -1,0 +1,1 @@
+drop table device_ir_remotes;
