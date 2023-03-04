@@ -1,4 +1,5 @@
 import { Toaster } from '@/components/ui/toaster'
+import { UserContextProvider } from '@/lib/contexts/UserContext'
 import { cn } from '@/lib/utils'
 import '@/styles/output.css'
 import { Sarabun } from '@next/font/google'
@@ -25,7 +26,9 @@ export default function RootLayout({
       <body
         className={cn`min-h-screen text-slate-900 antialiased dark:bg-slate-900 dark:text-slate-50 ${inter.className}`}
       >
-        <div className="flex min-h-screen flex-col">{children}</div>
+        <div className="flex min-h-screen flex-col">
+          <UserContextProvider>{children}</UserContextProvider>
+        </div>
         <Toaster />
       </body>
     </html>

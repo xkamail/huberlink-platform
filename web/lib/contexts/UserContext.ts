@@ -1,6 +1,6 @@
 'use client'
 import AuthService from '@/services/AuthService'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { IUser } from '../types'
 import { createProvider } from './index'
 
@@ -12,9 +12,18 @@ export type IUserActions =
   | { type: 'close-dialog' }
   | { type: 'logout' }
 
+type IStatus = 'idle' | 'loading' | 'error' | 'success'
+
 export const [UserContextProvider, useUserDispatch, useUserSelector] =
-  createProvider((props: { profile: IUser | null }) => {
-    const [userData, setUserData] = useState<IUser | null>(props.profile)
+  createProvider(() => {
+    const [userData, setUserData] = useState<IUser | null>(null)
+    const [status, setStatus] = useState<IStatus>('idle')
+
+    useEffect(() => {
+      if (status === 'idle') {
+        dispatch({ type: 'fetch-user' })
+      }
+    }, [status])
 
     const dispatch = async (action: IUserActions) => {
       switch (action.type) {
@@ -22,20 +31,23 @@ export const [UserContextProvider, useUserDispatch, useUserSelector] =
           setUserData(null)
           return
 
-          return
         case 'fetch-user':
+          setStatus('loading')
           await AuthService.me()
             .then((r) => {
               if (!r.success) {
                 setUserData(null)
+                setStatus('error')
                 return
               }
               setUserData(r.data)
+              setStatus('success')
             })
             .catch((err) => {
-              console.log(err)
               setUserData(null)
+              setStatus('error')
             })
+            .finally(() => {})
           return
       }
     }
