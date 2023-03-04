@@ -11,6 +11,15 @@ import (
 	"github.com/xkamail/huberlink-platform/pkg/snowid"
 )
 
+// Handler is a global interface for all device handler
+// that will be used to control device
+type Handler interface {
+	GetStatus() (string, error)
+	Alive() bool
+	Metadata() (map[string]interface{}, error)
+	// TODO: design this interface
+}
+
 type Device struct {
 	ID                snowid.ID  `json:"id"`
 	Name              string     `json:"name"`

@@ -79,6 +79,9 @@ create table device_ir_remotes
     updated_at timestamptz                 default now()
 );
 
+-- 1:1 devices:device_ir_remotes
+create unique index device_ir_remotes_device_id_unique on device_ir_remotes (device_id);
+
 create table device_ir_remote_virtual_keys
 (
     id         bigint primary key,

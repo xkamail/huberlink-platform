@@ -8,6 +8,7 @@ import (
 
 var ErrInvalidKind = uierr.Invalid("kind", "invalid kind")
 
+// Kind is a type that represents a device kind
 type Kind uint
 
 func (k *Kind) UnmarshalJSON(b []byte) error {
