@@ -7,6 +7,7 @@ import (
 
 	"github.com/xkamail/huberlink-platform/iot/device"
 	"github.com/xkamail/huberlink-platform/iot/home"
+	"github.com/xkamail/huberlink-platform/pkg/snowid"
 	"github.com/xkamail/huberlink-platform/pkg/tm"
 )
 
@@ -39,6 +40,20 @@ func TestCreate(t *testing.T) {
 		assert.NoError(t, err)
 		assert.NotNil(t, dev)
 		t.Log(*dev)
+		list, err := device.List(authCtx, *homeID)
+		assert.NoError(t, err)
+		assert.NotNil(t, list)
+		assert.Len(t, list, 1)
 	})
-
+	t.Run("invalid home id", func(t *testing.T) {
+		dev, err := device.Create(authCtx, &device.CreateParam{
+			Name:   "ir-remote-1",
+			Model:  "ZA117",
+			Kind:   device.KindIRRemote,
+			HomeID: snowid.Gen(),
+		})
+		assert.Error(t, err)
+		assert.Nil(t, dev)
+	})
+	
 }

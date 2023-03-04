@@ -23,8 +23,20 @@ type Device struct {
 	IpAddress         *string    `json:"ipAddress"`
 	Location          *string    `json:"location"`
 	LatestHeartbeatAt *time.Time `json:"latestHeartbeatAt"`
-	CreatedAt         string     `json:"createdAt"`
-	UpdatedAt         string     `json:"updatedAt"`
+	CreatedAt         time.Time  `json:"createdAt"`
+	UpdatedAt         time.Time  `json:"updatedAt"`
+}
+
+func List(ctx context.Context, homeID snowid.ID) ([]*Device, error) {
+	return pgctx.Collect[Device](ctx, `
+		select id, name, icon, model, kind, home_id, user_id, token, ip_address, location, latest_heartbeat_at, created_at, updated_at 
+		from devices where home_id = $1`,
+		homeID,
+	)
+}
+
+func Find(ctx context.Context, deviceID snowid.ID) (*Device, error) {
+	panic("not implemented")
 }
 
 type CreateParam struct {
