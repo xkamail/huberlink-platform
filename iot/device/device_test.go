@@ -55,5 +55,5 @@ func TestCreate(t *testing.T) {
 		assert.Error(t, err)
 		assert.Nil(t, dev)
 	})
-	
+
 }
