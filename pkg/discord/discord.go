@@ -97,7 +97,7 @@ func (c client) GetAccessToken(ctx context.Context, code string) (string, error)
 		slog.Error("discord: http client get access token", err)
 		return "", err
 	}
-
+	defer res.Body.Close()
 	if res.StatusCode != http.StatusOK {
 		var disErr Error
 		if err := json.NewDecoder(res.Body).Decode(&disErr); err != nil {
@@ -126,6 +126,7 @@ func (c client) GetProfile(ctx context.Context, accessToken string) (*Profile, e
 		slog.Error("discord: http client get profile", err)
 		return nil, err
 	}
+	defer res.Body.Close()
 	if res.StatusCode != http.StatusOK {
 		var disErr Error
 		if err := json.NewDecoder(res.Body).Decode(&disErr); err != nil {
