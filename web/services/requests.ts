@@ -1,6 +1,6 @@
 import { IResponse } from '@/lib/types'
 import axios, { AxiosResponse } from 'axios'
-import nookies, { parseCookies, setCookie } from 'nookies'
+import nookies, { destroyCookie, parseCookies, setCookie } from 'nookies'
 import { ResponseCode } from './../lib/types'
 import AuthService from './AuthService'
 const apiURL = process.env.NEXT_PUBLIC_API_URL
@@ -32,13 +32,24 @@ fetcher.interceptors.response.use(
       }
     }
     const originalRequest = f.config
-    if (!f.data.success && f.data.code === ResponseCode.TokenExpired) {
+    if (
+      !f.data.success &&
+      f.data.code === ResponseCode.TokenExpired &&
+      // @ts-ignore
+      !originalRequest._retry
+    ) {
       const cookie = parseCookies(null)
       if (cookie['refreshToken']) {
+        // @ts-ignore
+        originalRequest._retry = true
         const refreshRes = await AuthService.invokeRefreshToken(
           cookie.refreshToken
         )
         if (refreshRes.success) {
+          console.log('[Interceptor] Refresh token success')
+
+          destroyCookie(null, 'accessToken')
+          destroyCookie(null, 'refreshToken')
           setCookie(null, 'accessToken', refreshRes.data.token)
           setCookie(null, 'refreshToken', refreshRes.data.refreshToken)
           originalRequest.headers.Authorization = `Bearer ${refreshRes.data.token}`

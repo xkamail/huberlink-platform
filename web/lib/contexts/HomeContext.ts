@@ -1,3 +1,4 @@
+'use client'
 import { ResponseCode } from '@/lib/types'
 import HomeService from '@/services/HomeService'
 import { useCallback, useEffect, useState } from 'react'

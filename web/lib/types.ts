@@ -45,3 +45,13 @@ export type IHome = {
   name: string
   userId: string
 }
+
+export type IDeviceCard = {
+  id: string
+  name: string
+  icon: string
+}
+
+export type ICreateDeviceForm = {
+  name: string
+}

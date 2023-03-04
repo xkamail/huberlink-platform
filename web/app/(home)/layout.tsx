@@ -35,7 +35,7 @@ const SkeletonAuth = () => {
   return (
     <div className="bg-slate-100 h-[100vh] pb-[48px] mb-10">
       <div className="mt-2 md:container mx-4 md:mx-auto">
-        <div className="bg-white rounded-lg shadow p-4">
+        <div className="rounded-lg p-4">
           <div className="animate-pulse flex space-x-4">
             <div className="flex-1 space-y-4 py-1">
               <div className="h-4 bg-slate-200 rounded w-3/4"></div>
