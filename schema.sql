@@ -66,6 +66,8 @@ create table devices
     updated_at          timestamptz default now()
 );
 
+create unique index devices_home_id_name_unique on devices (home_id, name);
+
 
 
 create table device_ir_remotes
