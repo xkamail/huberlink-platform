@@ -32,7 +32,7 @@ func run() error {
 	}
 	err = thing.Execute(context.Background(), snowid.Gen(), &thing.ExecuteMessage{
 		Time: time.Now().Unix(),
-		Data: &irremote.Cmd{
+		Data: &irremote.MQTTCmd{
 			Code:      "0x123",
 			Frequency: 38,
 		},

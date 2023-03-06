@@ -8,7 +8,10 @@ import (
 	"time"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
+	"golang.org/x/exp/slog"
 
+	"github.com/xkamail/huberlink-platform/iot/device"
+	"github.com/xkamail/huberlink-platform/iot/irremote"
 	"github.com/xkamail/huberlink-platform/pkg/snowid"
 )
 
@@ -54,24 +57,41 @@ func Execute(ctx context.Context, deviceId snowid.ID, m *ExecuteMessage) error {
 	}
 }
 
-type Report struct {
+type ReportFormat[T any] struct {
 	Time int64 `json:"time"`
-	Data any   `json:"data"`
+	Data T     `json:"data"`
 }
 
-func SubReport() mqtt.MessageHandler {
-	return func(client mqtt.Client, msg mqtt.Message) {
+func SubReport(ctx context.Context) mqtt.MessageHandler {
+	fn := func(client mqtt.Client, msg mqtt.Message) error {
 		topic := msg.Topic()
 		deviceId, err := deviceIDFromTopic(topic)
 		if err != nil {
-			return
+			return err
 		}
-		var r Report
-		if err := json.Unmarshal(msg.Payload(), &r); err != nil {
-			return
+		fmt.Printf("device %s ", deviceId.String())
+		d, err := device.Find(ctx, deviceId)
+		if err != nil {
+			return err
 		}
-		fmt.Printf("device %s report %v", deviceId.String(), r)
+		switch d.Kind {
+		case device.KindIRRemote:
+			var d ReportFormat[irremote.MQTTReport]
+			if err := json.Unmarshal(msg.Payload(), &d); err != nil {
+				return err
+			}
 
+			msg.Ack()
+
+		default:
+			return fmt.Errorf("invalid device kind %d", d.Kind)
+		}
+		return nil
+	}
+	return func(client mqtt.Client, msg mqtt.Message) {
+		if err := fn(client, msg); err != nil {
+			slog.Error("report error", err)
+		}
 	}
 }
 
