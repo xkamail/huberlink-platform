@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
@@ -51,4 +52,36 @@ func Execute(ctx context.Context, deviceId snowid.ID, m *ExecuteMessage) error {
 			WaitTimeout(2 * time.Second)
 		return nil
 	}
+}
+
+type Report struct {
+	Time int64 `json:"time"`
+	Data any   `json:"data"`
+}
+
+func SubReport() mqtt.MessageHandler {
+	return func(client mqtt.Client, msg mqtt.Message) {
+		topic := msg.Topic()
+		deviceId, err := deviceIDFromTopic(topic)
+		if err != nil {
+			return
+		}
+		var r Report
+		if err := json.Unmarshal(msg.Payload(), &r); err != nil {
+			return
+		}
+		fmt.Printf("device %s report %v", deviceId.String(), r)
+
+	}
+}
+
+func deviceIDFromTopic(topic string) (snowid.ID, error) {
+	if !strings.HasPrefix(topic, "huberlink/") {
+		return snowid.Zero, fmt.Errorf("invalid topic %s", topic)
+	}
+	s := strings.Split(topic, "/")
+	if len(s) < 2 {
+		return snowid.Zero, fmt.Errorf("invalid topic %s", topic)
+	}
+	return snowid.Parse(s[1])
 }
