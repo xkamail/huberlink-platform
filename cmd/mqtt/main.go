@@ -1,10 +1,16 @@
 package main
 
 import (
+	"context"
 	"fmt"
+	"log"
 	"time"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
+
+	"github.com/xkamail/huberlink-platform/iot/irremote"
+	"github.com/xkamail/huberlink-platform/pkg/snowid"
+	"github.com/xkamail/huberlink-platform/pkg/thing"
 )
 
 var f mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) {
@@ -14,28 +20,31 @@ var f mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) {
 
 func main() {
 	if err := run(); err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 }
 
 // run MQTT server
 func run() error {
-	// create MQTT server
-	opts := mqtt.NewClientOptions().
-		AddBroker("tcp://mc.xkamail.me:1883").
-		SetClientID("huberlink").
-		SetPassword("huberlink").
-		SetUsername("huberlink")
-
-	opts.SetKeepAlive(60 * time.Second)
-	// Set the message callback handler
-	opts.SetDefaultPublishHandler(f)
-	opts.SetPingTimeout(1 * time.Second)
-
-	c := mqtt.NewClient(opts)
-	if token := c.Connect(); token.Wait() && token.Error() != nil {
-		return token.Error()
+	c, err := thing.New()
+	if err != nil {
+		return err
 	}
-
+	err = thing.Execute(context.Background(), snowid.Gen(), &thing.ExecuteMessage{
+		Time: time.Now().Unix(),
+		Data: &irremote.Cmd{
+			Code:      "0x123",
+			Frequency: 38,
+		},
+	})
+	if err != nil {
+		return err
+	}
+	c.IsConnected()
+	log.Printf("server is running %v\n", c.IsConnected())
 	select {}
 }
+
+/*
+ tylink/${deviceId}/thing/property/report
+*/

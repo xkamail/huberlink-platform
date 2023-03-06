@@ -30,6 +30,10 @@ func (i *ID) Int() int64 {
 	return int64(*i)
 }
 
+func (i *ID) String() string {
+	return fmt.Sprint(*i)
+}
+
 const Zero = ID(0)
 
 var node, _ = snowflake.NewNode(1)
