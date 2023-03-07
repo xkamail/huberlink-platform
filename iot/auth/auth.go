@@ -230,10 +230,13 @@ func InvokeRefreshToken(ctx context.Context, refreshToken string) (*TokenRespons
 		return nil, err
 	}
 	defer tx.Rollback(ctx)
-	_, err = tx.Exec(ctx, `delete from users_refresh_tokens where token = $1`, refreshToken)
-	if err != nil {
-		return nil, err
-	}
+
+	// we don't need to delete refresh token
+	// because we will race condition
+	//_, err = tx.Exec(ctx, `delete from users_refresh_tokens where expired_at = `, refreshToken)
+	//if err != nil {
+	//	return nil, err
+	//}
 
 	newRefreshToken, err := createRefreshToken(ctx, tx, userID)
 	if err != nil {
