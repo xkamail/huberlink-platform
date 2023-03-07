@@ -21,7 +21,7 @@ const CreateDevicePage = () => {
     defaultValues: {
       name: '',
       model: '',
-      kind: DeviceKindEnum.Unknown,
+      kind: DeviceKindEnum.IRRemote,
     },
   })
   const loading = ctx.formState.isSubmitting
@@ -49,7 +49,7 @@ const CreateDevicePage = () => {
             }}
           />
           <FormInput
-            label="Model"
+            label="Model (optional)"
             name="model"
             options={
               {
