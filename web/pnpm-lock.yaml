@@ -7,7 +7,6 @@ specifiers:
   '@radix-ui/react-select': ^1.2.0
   '@radix-ui/react-separator': ^1.0.1
   '@radix-ui/react-toast': ^1.1.2
-  '@types/js-cookie': ^3.0.3
   '@types/node': 18.13.0
   '@types/react': 18.0.28
   '@types/react-dom': 18.0.10
@@ -18,7 +17,6 @@ specifiers:
   concurrently: ^7.6.0
   eslint: 8.34.0
   eslint-config-next: 13.1.6
-  js-cookie: ^3.0.1
   lucide-react: ^0.115.0
   next: 13.2.2
   next-pwa: ^5.6.0
@@ -50,7 +48,6 @@ dependencies:
   clsx: 1.2.1
   eslint: 8.34.0
   eslint-config-next: 13.1.6_7kw3g6rralp5ps6mg3uyzz6azm
-  js-cookie: 3.0.1
   lucide-react: 0.115.0_react@18.2.0
   next: 13.2.2_biqbaboplfbrettd7655fr4n2y
   next-pwa: 5.6.0_next@13.2.2
@@ -66,7 +63,6 @@ dependencies:
   use-context-selector: 1.4.1_biqbaboplfbrettd7655fr4n2y
 
 devDependencies:
-  '@types/js-cookie': 3.0.3
   autoprefixer: 10.4.13_postcss@8.4.21
   concurrently: 7.6.0
   postcss: 8.4.21
@@ -2013,10 +2009,6 @@ packages:
       '@types/node': 18.13.0
     dev: false
 
-  /@types/js-cookie/3.0.3:
-    resolution: {integrity: sha512-Xe7IImK09HP1sv2M/aI+48a20VX+TdRJucfq4vfRVy6nWN8PYPOEnlMRSgxJAgYQIXJVL8dZ4/ilAM7dWNaOww==}
-    dev: true
-
   /@types/json-schema/7.0.11:
     resolution: {integrity: sha512-wOuvG1SN4Us4rez+tylwwwCV1psiNVOkJeM3AUWUNWg/jDQY2+HE/444y5gc+jBmRqASOm2Oeh5c1axHobwRKQ==}
     dev: false
@@ -3811,11 +3803,6 @@ packages:
       '@types/node': 18.13.0
       merge-stream: 2.0.0
       supports-color: 8.1.1
-    dev: false
-
-  /js-cookie/3.0.1:
-    resolution: {integrity: sha512-+0rgsUXZu4ncpPxRL+lNEptWMOWl9etvPHc/koSRp6MPwpRYAhmk0dUG00J4bxVV3r9uUzfo24wW0knS07SKSw==}
-    engines: {node: '>=12'}
     dev: false
 
   /js-sdsl/4.3.0:
