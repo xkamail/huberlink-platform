@@ -30,7 +30,7 @@ const IRRemoteThingCard = ({}: IProps) => {
             size="circle"
             className="flex items-center"
           >
-            <PowerIcon className="w-8 h-8 cursor-pointer text-indigo-500 " />
+            <PowerIcon className="w-8 h-8 cursor-pointer text-indigo-600 " />
           </Button>
         </div>
       </Card>
