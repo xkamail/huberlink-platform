@@ -50,6 +50,8 @@ export type IDeviceCard = {
   id: string
   name: string
   icon: string
+  kind: DeviceKindEnum
+  latestHeartbeatAt: null | Date
 }
 
 export enum DeviceKindEnum {

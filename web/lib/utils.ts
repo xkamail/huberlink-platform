@@ -3,7 +3,13 @@ import { ClassValue, clsx } from 'clsx'
 import { UseFormReturn } from 'react-hook-form'
 import { twMerge } from 'tailwind-merge'
 import { ResponseCode } from './types'
-
+export function toSWR<T extends any>(f: Promise<IResponse<T>>) {
+  return () =>
+    f.then((res) => {
+      if (res.success) return res.data
+      throw res
+    })
+}
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }

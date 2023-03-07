@@ -30,6 +30,7 @@ const buttonVariants = cva(
         default: 'h-10 py-2 px-4',
         sm: 'h-9 px-2 rounded-md',
         lg: 'h-11 px-8 rounded-md',
+        circle: 'h-11 w-11 rounded-full',
       },
     },
     defaultVariants: {
@@ -45,6 +46,7 @@ export interface ButtonProps
   to?: string
   block?: boolean
   loading?: boolean
+  circle?: boolean
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
@@ -53,6 +55,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       className,
       loading = false,
       variant,
+      circle,
       size,
       to,
       block,
@@ -67,7 +70,8 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           href={to}
           className={cn(
             buttonVariants({ variant, size, className }),
-            block && 'w-full'
+            block && 'w-full',
+            circle && 'rounded-full'
           )}
         >
           {children}

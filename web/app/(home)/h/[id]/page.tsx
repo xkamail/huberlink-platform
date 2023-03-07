@@ -1,85 +1,64 @@
 'use client'
-import Card from '@/components/ui/card'
+import IRRemoteThingCard from '@/components/thing/ir-remote'
 import { useHomeSelector } from '@/lib/contexts/HomeContext'
 import { useUser } from '@/lib/hooks'
-import { cn } from '@/lib/utils'
+import { DeviceKindEnum, IDeviceCard } from '@/lib/types'
+import { toSWR } from '@/lib/utils'
+import DeviceService from '@/services/DeviceService'
 import HomeService from '@/services/HomeService'
-import { FanIcon, LampIcon } from 'lucide-react'
+import useSWR from 'swr'
+import HomeGreating from './home-greating'
+import HomeSenceList from './home-sence'
 import SkeletonDisplay from './skeleton'
 const fetchData = async (id: string) => {
   return await HomeService.findById(id)
 }
 
-const HomePage = ({ params }: { params: { id: string } }) => {
-  const { profile } = useUser()
-  const loading = useHomeSelector((s) => s.isLoading)
-  if (loading) return <SkeletonDisplay />
+const HomePage = ({ params: { id: homeId } }: { params: { id: string } }) => {
+  const x = DeviceService.list(homeId)
+  const { data: devices, error, isLoading } = useSWR(`home-devices`, toSWR(x))
 
-  return (
-    <div className="grid grid-cols-12 gap-4">
-      <div className="col-span-12">
-        <div className="grid grid-cols-12 gap-2">
-          {[...Array(4)].map((_, i) => (
-            <div
-              className={cn(
-                `transition-colors hover:bg-indigo-600 hover:text-slate-100 col-span-4 lg:col-span-2 cursor-pointer rounded-lg p-2 border text-indigo-600 border-indigo-600 group`,
-                i == 2 && 'bg-indigo-600 text-slate-100'
-              )}
-              key={i}
-            >
-              <div className="flex flex-row justify-between">
-                <div className="flex items-center">
-                  {i == 2 ? (
-                    <FanIcon className="w-6 h-6 mr-2 animate-spin duration-1000" />
-                  ) : (
-                    <LampIcon className="w-6 h-6 mr-2" />
-                  )}{' '}
-                </div>
-                <div className="text-right flex flex-col items-end">
-                  <span className="text-lg">เปิดไฟ</span>
-                  <span
-                    className={cn(
-                      `text-xs`,
-                      `font-thin`,
-                      i == 2 && 'text-slate-100'
-                    )}
-                  >
-                    on
-                  </span>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-      <div className="col-span-12">
-        <div className="rounded-lg shadow bg-indigo-600 text-slate-100 p-4">
+  const { profile } = useUser()
+  const renderDeviceCard = (d: IDeviceCard) => {
+    if (d.kind === DeviceKindEnum.IRRemote) {
+      return <IRRemoteThingCard />
+    }
+    return (
+      <div className="col-span-6 md:col-span-4" key={d.id}>
+        <div className="bg-white rounded-lg shadow p-4">
           <div className="flex items-center">
             <div className="flex-shrink-0">
               <img
                 className="h-10 w-10 rounded-full"
                 src="https://via.placeholder.com/400"
-                alt=""
+                alt="x"
               />
             </div>
           </div>
           <div className="mt-4">
-            <div className="text-base font-medium ">{profile.email}</div>
-            <div>
-              Lorem Ipsum is simply dummy text of the printing and typesetting
-              industry. Lorem Ipsum has been the standard dummy text ever since
-              the 1500s, when an unknown printer took a galley of type and
-              scrambled it to make a type specimen book.
-            </div>
+            <div className="text-base font-medium ">{d.name}</div>
+            <div>x</div>
           </div>
         </div>
       </div>
-      <div className="col-span-6">
-        <Card />
+    )
+  }
+  const loading = useHomeSelector((s) => s.isLoading)
+
+  if (loading) return <SkeletonDisplay />
+
+  return (
+    <div className="grid grid-cols-12 gap-4">
+      <div className="col-span-12">
+        <HomeSenceList />
       </div>
-      <div className="col-span-6">
-        <Card />
+      <div className="col-span-12">
+        <HomeGreating />
       </div>
+      {!error &&
+        !isLoading &&
+        devices &&
+        devices.map((d) => renderDeviceCard(d))}
     </div>
   )
 }
