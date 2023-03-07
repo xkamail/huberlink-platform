@@ -38,10 +38,10 @@ const HomeDevicesPage = () => {
           <PlusIcon className="w-4 h-4 inline-block mr-1" /> Create
         </Button>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {devices.map((_, i) => (
+      <div className=" grid gap-4">
+        {devices.map((d, i) => (
           <div
-            className="flex justify-between items-center rounded-lg p-4 bg-white shadow transition-all cursor-pointer hover:shadow-lg"
+            className="col-span-1 flex justify-between items-center rounded-lg p-4 bg-white shadow transition-all cursor-pointer hover:shadow-lg"
             key={i}
           >
             <div className="">
@@ -49,7 +49,7 @@ const HomeDevicesPage = () => {
                 <Icons.bot className="h-8 w-8 text-slate-800" />
               </div>
             </div>
-            <div className=" text-left w-full px-4">asd</div>
+            <div className=" text-left w-full px-4">{d.name}</div>
             <div className="">
               <Button variant="subtle">
                 <span>x</span>
@@ -57,7 +57,7 @@ const HomeDevicesPage = () => {
             </div>
           </div>
         ))}
-        <div className="text-center col-span-2">
+        <div className="text-center col-span-full">
           <Button variant="link">Load more</Button>
         </div>
       </div>

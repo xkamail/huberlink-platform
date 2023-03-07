@@ -4,13 +4,17 @@ import Form from '@/components/ui/form'
 import FormInput from '@/components/ui/form-input'
 import { Label } from '@/components/ui/label'
 import PageHeader from '@/components/ui/page-header'
+import { useToast } from '@/hooks/use-toast'
 import { useHomeSelector } from '@/lib/contexts/HomeContext'
 import { DeviceKindEnum, DEVICE_CATEGORY, ICreateDeviceForm } from '@/lib/types'
 import DeviceService from '@/services/DeviceService'
+import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import KindCard from './kind-card'
 
 const CreateDevicePage = () => {
+  const { toast } = useToast()
+  const router = useRouter()
   const homeId = useHomeSelector((s) => s.homeId)
 
   const ctx = useForm<ICreateDeviceForm>({
@@ -23,7 +27,13 @@ const CreateDevicePage = () => {
   const loading = ctx.formState.isSubmitting
 
   const submit = async (data: ICreateDeviceForm) => {
-    await DeviceService.create(homeId, data)
+    const res = await DeviceService.create(homeId, data)
+    if (res.success) {
+      toast.succes(`Device ${data.name} created!`)
+      router.push(`/h/${homeId}/devices`)
+      return
+    }
+    toast.error(res.message)
   }
 
   return (
@@ -62,7 +72,14 @@ const CreateDevicePage = () => {
               ))}
             </div>
           </div>
-          <div className="flex justify-end">
+          <div className="flex justify-between">
+            <Button
+              type="button"
+              variant="destructive"
+              to={`/h/${homeId}/devices`}
+            >
+              Cancel
+            </Button>
             <Button type="submit" variant="default" loading={loading}>
               Create device
             </Button>
