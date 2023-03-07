@@ -54,8 +54,10 @@ const HomeDevicesPage = () => {
               </div>
               <div className=" text-left w-full px-4">{d.name}</div>
               <div className="">
-                <Button variant="subtle">
-                  <span>x</span>
+                <Button to={`/h/${homeId}/devices/${d.id}`} variant="subtle">
+                  <span className="text-sm">
+                    <Icons.settings className="w-5 h-5" />
+                  </span>
                 </Button>
               </div>
             </div>
