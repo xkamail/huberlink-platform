@@ -2,9 +2,10 @@
 
 import { Button } from '@/components/ui/button'
 import { useToast } from '@/hooks/use-toast'
+import { useUserDispatch } from '@/lib/contexts/UserContext'
 import AuthService from '@/services/AuthService'
 import { redirect, useRouter, useSearchParams } from 'next/navigation'
-import nookies from 'nookies'
+import { parseCookies, setCookie } from 'nookies'
 import { useCallback, useEffect, useState } from 'react'
 // sign in with discord
 // callback page
@@ -14,17 +15,26 @@ const CallbackPage = () => {
   const code = params.get('code')
   const [message, setMessage] = useState('')
   const router = useRouter()
+  const userDispatch = useUserDispatch()
   const fetchData = useCallback(async () => {
     if (!code) return
     const res = await AuthService.signInWithDiscord(code)
     if (res.success) {
-      nookies.set(null, 'accessToken', res.data.token)
-      nookies.set(null, 'refreshToken', res.data.refreshToken)
+      setCookie(null, 'accessToken', res.data.token)
+      setCookie(null, 'refreshToken', res.data.refreshToken)
       toast({
         title: 'Sign in success',
       })
-      setMessage(`Welcome back!`)
-      router.push('/h')
+      // pre fetch user when login success
+      userDispatch({ type: 'fetch-user' }).then(() => {
+        setMessage(`Welcome back!`)
+        const cookies = parseCookies(null)
+        if (cookies.currentHome) {
+          router.push(`/h/${cookies.currentHome}`)
+        } else {
+          router.push(`/h`)
+        }
+      })
     } else {
       setMessage(res.message)
       toast({
