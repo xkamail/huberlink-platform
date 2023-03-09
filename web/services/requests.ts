@@ -1,6 +1,7 @@
 import { IResponse } from '@/lib/types'
+import { setAuthCookie } from '@/lib/utils'
 import axios, { AxiosResponse } from 'axios'
-import nookies, { parseCookies, setCookie } from 'nookies'
+import nookies, { parseCookies } from 'nookies'
 import { ResponseCode } from './../lib/types'
 import AuthService from './AuthService'
 const apiURL = process.env.NEXT_PUBLIC_API_URL
@@ -44,9 +45,8 @@ fetcher.interceptors.response.use(
           cookie.refreshToken
         )
         if (refreshRes.success) {
+          setAuthCookie(refreshRes)
           const accessToken = refreshRes.data.token
-          setCookie(null, 'accessToken', refreshRes.data.token)
-          setCookie(null, 'refreshToken', refreshRes.data.refreshToken)
           console.warn('[Interceptor] Refresh token success')
           fetcher.defaults.headers.common['Authorization'] =
             'Bearer ' + accessToken

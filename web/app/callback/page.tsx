@@ -3,9 +3,10 @@
 import { Button } from '@/components/ui/button'
 import { useToast } from '@/hooks/use-toast'
 import { useUserDispatch } from '@/lib/contexts/UserContext'
+import { setAuthCookie } from '@/lib/utils'
 import AuthService from '@/services/AuthService'
 import { redirect, useRouter, useSearchParams } from 'next/navigation'
-import { parseCookies, setCookie } from 'nookies'
+import { parseCookies } from 'nookies'
 import { useCallback, useEffect, useState } from 'react'
 // sign in with discord
 // callback page
@@ -20,8 +21,7 @@ const CallbackPage = () => {
     if (!code) return
     const res = await AuthService.signInWithDiscord(code)
     if (res.success) {
-      setCookie(null, 'accessToken', res.data.token)
-      setCookie(null, 'refreshToken', res.data.refreshToken)
+      setAuthCookie(res)
       toast({
         title: 'Sign in success',
       })
