@@ -44,6 +44,18 @@ type VirtualKey struct {
 	UpdatedAt time.Time       `json:"updatedAt"`
 }
 
+type Command struct {
+	ID        snowid.ID `json:"id"`
+	RemoteID  snowid.ID `json:"remoteId"`
+	VirtualID snowid.ID `json:"virtualId"`
+	Name      string    `json:"name"`
+	Code      []uint    `json:"code"`
+	Remark    *string   `json:"remark"`
+	Platform  string    `json:"platform"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
+}
+
 func Find(ctx context.Context, deviceID snowid.ID) (*IRRemote, error) {
 	// TODO: implement
 	panic("not implemented")

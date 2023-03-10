@@ -98,9 +98,9 @@ create table device_ir_remote_commands
     id         bigint primary key, -- command id
     remote_id  bigint references device_ir_remotes (id),
     virtual_id bigint references device_ir_remote_virtual_keys (id),
-    name       text    not null,
-    code       text    not null,
-    frequency  integer not null,
+    name       text  not null,
+    code       jsonb not null,
+    remark     text,
     created_at timestamptz default now(),
     updated_at timestamptz default now()
 );
