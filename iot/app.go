@@ -3,6 +3,7 @@ package iot
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -167,7 +168,52 @@ func Handlers() http.Handler {
 		r.Delete("/home/{home_id}/devices/{id}", nil)
 		r.Patch("/home/{home_id}/devices/{id}", nil)
 		// ir-remote service
-		r.Get("/home/{home_id}/devices/{devices_id}/ir-remote", h(nil))
+		r.Get("/home/{home_id}/devices/{devices_id}/ir-remote/{remote_id}", h(
+			func(ctx context.Context, r *http.Request) (any, error) {
+				// return list of virtual remote
+				return nil, errors.New("not implemented")
+			},
+		))
+		// create virtual remote
+		r.Post("/home/{home_id}/devices/{devices_id}/ir-remote/{remote_id}/virtual", h(
+			func(ctx context.Context, r *http.Request) (any, error) {
+				// define a virtual remote
+				// kind
+				return nil, errors.New("not implemented")
+			},
+		))
+		r.Get("/home/{home_id}/devices/{devices_id}/ir-remote/{remote_id}/virtual/{virtual_id}", h(
+			func(ctx context.Context, r *http.Request) (any, error) {
+				// return a list of button
+				return nil, errors.New("not implemented")
+			},
+		))
+		r.Post("/home/{home_id}/devices/{devices_id}/ir-remote/{remote_id}/virtual/{virtual_id}/start-learning", h(
+			func(ctx context.Context, r *http.Request) (any, error) {
+				// create a 30 seconds learning session
+				// when universal remote got an ir signal
+				// then will create a button
+				return nil, errors.New("not implemented")
+			},
+		))
+		r.Post("/home/{home_id}/devices/{devices_id}/ir-remote/{remote_id}/virtual/{virtual_id}/execute", h(
+			func(ctx context.Context, r *http.Request) (any, error) {
+				// execute a button
+				return nil, errors.New("not implemented")
+			},
+		))
+		r.Put("/home/{home_id}/devices/{devices_id}/ir-remote/{remote_id}/virtual/{virtual_id}/button/{button_id}", h(
+			func(ctx context.Context, r *http.Request) (any, error) {
+				// if name is empty then it has to be a new remote button
+				// which come from learning session
+				// update a button name of a virtual remote
+				return nil, errors.New("not implemented")
+			},
+		))
+		r.Delete("/home/{home_id}/devices/{devices_id}/ir-remote/{remote_id}/virtual/{virtual_id}/button/{button_id}", h(func(ctx context.Context, r *http.Request) (any, error) {
+			// delete a button and codes is gone
+			return nil, errors.New("not implemented")
+		}))
 	}
 	return router
 }
