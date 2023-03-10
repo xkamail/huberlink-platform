@@ -182,6 +182,20 @@ func Handlers() http.Handler {
 				return nil, errors.New("not implemented")
 			},
 		))
+		r.Put("/home/{home_id}/devices/{devices_id}/ir-remote/{remote_id}/virtual/{virtual_id}", h(
+			func(ctx context.Context, r *http.Request) (any, error) {
+				// update virtual remote information and kind ?
+				//
+				return nil, errors.New("not implemented")
+			},
+		))
+		r.Delete("/home/{home_id}/devices/{devices_id}/ir-remote/{remote_id}/virtual/{virtual_id}", h(
+			func(ctx context.Context, r *http.Request) (any, error) {
+				// delete cascade all button
+				// which in this virtual remote
+				return nil, errors.New("not implemented")
+			},
+		))
 		r.Get("/home/{home_id}/devices/{devices_id}/ir-remote/{remote_id}/virtual/{virtual_id}", h(
 			func(ctx context.Context, r *http.Request) (any, error) {
 				// return a list of button
