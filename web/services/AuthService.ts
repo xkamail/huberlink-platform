@@ -3,6 +3,11 @@ import { IUser } from './../lib/types'
 import { fetcher } from './requests'
 
 const AuthService = {
+  setPassword(form: { password: string }) {
+    return fetcher
+      .put<IResponse<{}>>(`/auth/set-password`, form)
+      .then((r) => r.data)
+  },
   signIn(form: ISignInForm) {
     return fetcher
       .post<

@@ -1,5 +1,6 @@
 'use client'
 
+import Card from '@/components/ui/card'
 import { TypographyH2 } from '@/components/ui/h2'
 import { Separator } from '@/components/ui/sperator'
 
@@ -12,15 +13,16 @@ const AccountPage = () => {
       </div>
       <Separator />
       <div className="">
-        Lorem Ipsum is simply dummy text of the printing and typesetting
-        industry. Lorem Ipsum has been the industry standard dummy text ever
-        since the 1500s, when an unknown printer took a galley of type and
-        scrambled it to make a type specimen book. It has survived not only five
-        centuries, but also the leap into electronic typesetting, remaining
-        essentially unchanged. It was popularised in the 1960s with the release
-        of Letraset sheets containing Lorem Ipsum passages, and more recently
-        with desktop publishing software like Aldus PageMaker including versions
-        of Lorem Ipsum.
+        <Card>
+          <div className="">
+            <div className="flex justify-between items-center">
+              <div className="">
+                <div className="text-sm text-gray-500">Name</div>
+                <div className="text-lg font-medium">John Doe</div>
+              </div>
+            </div>
+          </div>
+        </Card>
       </div>
     </div>
   )
