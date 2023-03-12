@@ -58,9 +58,7 @@ const SetPasswordForm = () => {
             message: 'Confirm password must be at least 8 characters long',
           },
           validate: (value) => {
-            if (value === ctx.getValues('confirmPassword')) {
-              return true
-            }
+            if (value === ctx.watch('password')) return true
             return 'Password do not match'
           },
           required: 'Confirm password is required',
