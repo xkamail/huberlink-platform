@@ -65,7 +65,11 @@ const SetPasswordForm = () => {
         }}
       />
       <div className="flex justiy-center md:justify-end">
-        <Button type="submit" className="ml-auto">
+        <Button
+          loading={ctx.formState.isSubmitting}
+          type="submit"
+          className="ml-auto"
+        >
           <span>Set Password</span>
         </Button>
       </div>
