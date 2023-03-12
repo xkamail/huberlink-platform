@@ -14,4 +14,5 @@ var (
 	ErrInvalidJWTSchema             = uierr.BadInput("jwt", "invalid jwt schema")
 	ErrEmailAlreadyExists           = uierr.AlreadyExist("email address already exists")
 	ErrRefreshTokenExpired          = uierr.Alert("refresh token expired")
+	ErrPasswordAlreadySet           = uierr.Alert("password already set")
 )

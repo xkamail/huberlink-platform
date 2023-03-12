@@ -48,8 +48,8 @@ func (p *SignInParam) Valid() error {
 	if p.Password == "" {
 		return uierr.Invalid("password", "password is required")
 	}
-	if len(p.Password) < 6 {
-		return uierr.Invalid("password", "password must be at least 6 characters")
+	if len(p.Password) < 8 {
+		return uierr.Invalid("password", "password must be at least 8 characters")
 	}
 	if len(p.Username) < 3 {
 		return uierr.Invalid("username", "username must be at least 3 characters")
@@ -253,6 +253,46 @@ func InvokeRefreshToken(ctx context.Context, refreshToken string) (*TokenRespons
 		jwtToken,
 		newRefreshToken,
 	}, nil
+}
+
+type SetPasswordParam struct {
+	Password string `json:"password"`
+}
+
+func (p *SetPasswordParam) Valid() error {
+	p.Password = strings.TrimSpace(p.Password)
+	if p.Password == "" {
+		return uierr.Invalid("password", "password is required")
+	}
+	if len(p.Password) < 8 {
+		return uierr.Invalid("password", "password must be at least 8 characters")
+	}
+	return nil
+}
+
+func SetPassword(ctx context.Context, p *SetPasswordParam) error {
+	if err := p.Valid(); err != nil {
+		return err
+	}
+	acc, err := account.FromContext(ctx)
+	if err != nil {
+		return err
+	}
+	if len(acc.Password) > 0 {
+		return ErrPasswordAlreadySet
+	}
+	hash, err := passhash.HashPassword(p.Password)
+	if err != nil {
+		return err
+	}
+	_, err = pgctx.Exec(ctx, `update users set password = $1 where id = $2`,
+		hash,
+		acc.ID,
+	)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func createRefreshToken(ctx context.Context, tx pgx.Tx, userID int64) (string, error) {

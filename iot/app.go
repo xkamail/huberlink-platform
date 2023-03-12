@@ -57,6 +57,18 @@ func Handlers() http.Handler {
 			code := r.URL.Query().Get("refreshToken")
 			return auth.InvokeRefreshToken(ctx, code)
 		}))
+		authRouter.Put("/auth/set-password", h(
+			func(ctx context.Context, r *http.Request) (any, error) {
+				var p auth.SetPasswordParam
+				if err := mustBind(r, &p); err != nil {
+					return nil, err
+				}
+				if err := auth.SetPassword(ctx, &p); err != nil {
+					return nil, err
+				}
+				return true, nil
+			},
+		))
 		authRouter.Get("/auth/me", h(func(ctx context.Context, r *http.Request) (any, error) {
 
 			return account.FromContext(ctx)
