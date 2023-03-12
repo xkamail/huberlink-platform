@@ -1,4 +1,5 @@
 'use client'
+import { Button } from '@/components/ui/button'
 import Form from '@/components/ui/form'
 import FormInput from '@/components/ui/form-input'
 import { useToast } from '@/hooks/use-toast'
@@ -37,32 +38,39 @@ const SetPasswordForm = () => {
         label="New Password"
         name="password"
         placeholder=""
+        type="password"
         options={{
-          validate: {
-            minLength: (value) =>
-              value.length >= 8 ||
-              'Password must be at least 8 characters long',
+          minLength: {
+            value: 8,
+            message: 'Password must be at least 8 characters long',
           },
+          required: 'Password is required',
         }}
       />
       <FormInput
         label="Confirm New Password"
         name="confirmPassword"
         placeholder=""
+        type="password"
         options={{
-          validate: {
-            minLength: (value) =>
-              value.length >= 8 ||
-              'Confirm password must be at least 8 characters long',
-            validate: (value) => {
-              if (value === ctx.getValues('confirmPassword')) {
-                return true
-              }
-              return 'Password do not match'
-            },
+          minLength: {
+            value: 8,
+            message: 'Confirm password must be at least 8 characters long',
           },
+          validate: (value) => {
+            if (value === ctx.getValues('confirmPassword')) {
+              return true
+            }
+            return 'Password do not match'
+          },
+          required: 'Confirm password is required',
         }}
       />
+      <div className="flex justiy-center md:justify-end">
+        <Button type="submit" className="ml-auto">
+          <span>Set Password</span>
+        </Button>
+      </div>
     </Form>
   )
 }
