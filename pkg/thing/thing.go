@@ -49,7 +49,7 @@ func Execute(ctx context.Context, deviceId snowid.ID, m *ExecuteMessage) error {
 			return err
 		}
 		defer c.Disconnect(250)
-		topic := fmt.Sprintf("huberlink/%s/thing/property/report", deviceId.String())
+		topic := fmt.Sprintf("huberlink/%s/thing/execute", deviceId.String())
 
 		c.Publish(topic, 1, false, string(b)).
 			WaitTimeout(2 * time.Second)

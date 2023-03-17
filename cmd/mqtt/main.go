@@ -47,4 +47,6 @@ func run() error {
 
 /*
  tylink/${deviceId}/thing/property/report
+ tylink/${deviceId}/thing/property/set
+ tylink/${deviceId}/thing/property/get
 */
