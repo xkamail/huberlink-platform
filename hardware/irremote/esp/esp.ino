@@ -23,6 +23,13 @@ WiFiClient espClient;
 SoftwareSerial uno(RX, TX);
 PubSubClient client(espClient);
 
+// Command that sent from mqtt to run the remote code
+struct Command
+{
+  int frequency;
+  unsigned int rawData;
+};
+
 const byte numChars = 32;
 char receivedChars[numChars];
 boolean newData = false;
@@ -156,6 +163,17 @@ void MQTTHandler(char *topic, byte *p, unsigned int length)
   if (topicName != "thing/execute")
     return;
   // do exuecute
+
+  // extract json from payload
+  // to Command struct
+  DynamicJsonDocument doc(1024);
+  deserializeJson(doc, jsonStr);
+  Command cmd;
+  cmd.frequency = doc["frequency"];
+  cmd.rawData = doc["rawData"];
+  //
+
+  onExecuteCommand(&cmd);
 }
 
 unsigned long latestBeat = 0;
@@ -181,4 +199,15 @@ void Publish(const char *topic, const char *payload)
   while (topic[0] == '/')
     topic++;
   client.publish(topic, payload);
+}
+
+void onExecuteCommand(Command *cmd)
+{
+  //
+  Serial.println("Execute command");
+  Serial.println(cmd->frequency);
+  Serial.println(cmd->rawData);
+  free(cmd);
+  // sent raw data to arduino uno
+  // then report status whic success or not
 }
