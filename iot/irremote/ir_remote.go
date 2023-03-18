@@ -59,28 +59,51 @@ type Command struct {
 	RemoteID  snowid.ID `json:"remoteId"`
 	VirtualID snowid.ID `json:"virtualId"`
 	Name      string    `json:"name"`
-	Code      []uint    `json:"code"`
-	Remark    *string   `json:"remark"`
+	// Code of raw data
+	Code   []uint  `json:"-"`
+	Remark *string `json:"remark"`
+	// Platform is a platform that this command will be used
 	Platform  string    `json:"platform"`
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
 }
 
+// Find IRRemote by deviceID
 func Find(ctx context.Context, deviceID snowid.ID) (*IRRemote, error) {
-	// TODO: implement
-	panic("not implemented")
+	rows, err := pgctx.Query(ctx, `select id, device_id, home_id, created_at, updated_at from device_ir_remotes where device_id = $1`, deviceID)
+	if err != nil {
+		return nil, err
+	}
+	d, err := pgx.CollectOneRow(rows, pgx.RowToAddrOfStructByPos[IRRemote])
+	if errors.Is(err, pgx.ErrNoRows) {
+		return nil, ErrNotFound
+	}
+	if err != nil {
+		return nil, err
+	}
+	return d, nil
 }
 
-func ListVirtual(ctx context.Context, deviceID snowid.ID) ([]*VirtualKey, error) {
-	// TODO: implement
-	panic("not implemented")
+func ListVirtual(ctx context.Context, remoteID snowid.ID) ([]*VirtualKey, error) {
+	rows, err := pgctx.Query(ctx, `select id, remote_id, name, kind, icon, created_at, updated_at from device_ir_remote_virtual_keys where remote_id = $1`, remoteID)
+	if err != nil {
+		return nil, err
+	}
+	d, err := pgx.CollectRows(rows, pgx.RowToAddrOfStructByPos[VirtualKey])
+	if errors.Is(err, pgx.ErrNoRows) {
+		return nil, ErrVirtualKeyNotfound
+	}
+	if err != nil {
+		return nil, err
+	}
+	return d, nil
 }
 
 type CreateVirtualKeyParam struct {
-	Name     string `json:"name"`
-	Kind     string `json:"kind"`
-	Icon     string `json:"icon"`
-	remoteID snowid.ID
+	Name     string    `json:"name"`
+	Kind     string    `json:"kind"`
+	Icon     string    `json:"icon"`
+	RemoteID snowid.ID `json:"-"`
 }
 
 func CreateVirtual(ctx context.Context, p *CreateVirtualKeyParam) (*VirtualKey, error) {
@@ -88,7 +111,7 @@ func CreateVirtual(ctx context.Context, p *CreateVirtualKeyParam) (*VirtualKey, 
 		return nil, err
 	}
 
-	remoteID := p.remoteID
+	remoteID := p.RemoteID
 
 	err := pgctx.QueryRow(ctx, `select id from device_ir_remote_virtual_keys where remote_id = $1`,
 		remoteID, //
@@ -127,6 +150,38 @@ func CreateVirtual(ctx context.Context, p *CreateVirtualKeyParam) (*VirtualKey, 
 	return FindVirtual(ctx, remoteID, id)
 }
 
+type UpdateVirtualParam struct {
+	Name      string    `json:"name"`
+	VirtualID snowid.ID `json:"-"`
+}
+
+func UpdateVirtual(ctx context.Context, p *UpdateVirtualParam) error {
+	if _, err := account.FromContext(ctx); err != nil {
+		return err
+	}
+
+	tx, err := pgctx.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+	_, err = tx.Exec(ctx, `
+			update device_ir_remote_virtual_keys 
+			set name = $1, updated_at = $2
+			where id = $3`,
+		p.Name,
+		time.Now(),
+		p.VirtualID,
+	)
+	if err != nil {
+		return err
+	}
+	if err := tx.Commit(ctx); err != nil {
+		return err
+	}
+	return nil
+}
+
 func FindVirtual(ctx context.Context, remoteID, virtualID snowid.ID) (*VirtualKey, error) {
 	// TODO: test this function
 	rows, err := pgctx.Query(ctx, `select id, remote_id, name, kind, icon, created_at, updated_at from device_ir_remote_virtual_keys where remote_id = $1 and id = $2`, remoteID, virtualID)
@@ -141,5 +196,25 @@ func FindVirtual(ctx context.Context, remoteID, virtualID snowid.ID) (*VirtualKe
 		return nil, err
 	}
 
+	return d, nil
+}
+
+func DeleteVirtualKey(ctx context.Context, virtualID snowid.ID) (bool, error) {
+	_, err := pgctx.Exec(ctx, `delete from device_ir_remote_virtual_keys where id = $1`, virtualID)
+	return err == nil, err
+}
+
+func ListVirtualCommand(ctx context.Context, virtualID snowid.ID) ([]*Command, error) {
+	rows, err := pgctx.Query(ctx, `select id, remote_id, virtual_id, name, code, remark, created_at, updated_at from device_ir_remote_commands where virtual_id = $1`, virtualID)
+	if err != nil {
+		return nil, err
+	}
+	d, err := pgx.CollectRows(rows, pgx.RowToAddrOfStructByPos[Command])
+	if errors.Is(err, pgx.ErrNoRows) {
+		return nil, ErrCommandNotfound
+	}
+	if err != nil {
+		return nil, err
+	}
 	return d, nil
 }

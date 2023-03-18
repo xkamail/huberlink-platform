@@ -85,7 +85,7 @@ create unique index device_ir_remotes_device_id_unique on device_ir_remotes (dev
 create table device_ir_remote_virtual_keys
 (
     id         bigint primary key,
-    remote_id  bigint references device_ir_remotes (id),
+    remote_id  bigint references device_ir_remotes (id) on delete cascade,
     name       text not null,
     kind       text not null,
     icon       text not null,
@@ -103,6 +103,7 @@ create table device_ir_remote_commands
     name       text  not null,
     code       jsonb not null,
     remark     text,
+    platforms  text        default '',
     created_at timestamptz default now(),
     updated_at timestamptz default now()
 );

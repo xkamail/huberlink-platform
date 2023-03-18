@@ -183,8 +183,26 @@ func Handlers() http.Handler {
 		// ir-remote service
 		r.Get("/home/{home_id}/devices/{devices_id}/ir-remote/{remote_id}", h(
 			func(ctx context.Context, r *http.Request) (any, error) {
+				remoteID, err := URLParamID(r, "remote_id")
+				if err != nil {
+					return nil, err
+				}
 				// return list of virtual remote
-				return nil, errors.New("not implemented")
+				vs, err := irremote.ListVirtual(ctx, remoteID)
+				if err != nil {
+					return nil, err
+				}
+				remote, err := irremote.Find(ctx, remoteID)
+				if err != nil {
+					return nil, err
+				}
+				return struct {
+					Remote *irremote.IRRemote     `json:"remote"`
+					Vs     []*irremote.VirtualKey `json:"virtuals"`
+				}{
+					remote,
+					vs,
+				}, nil
 			},
 		))
 		// create virtual remote
@@ -194,27 +212,64 @@ func Handlers() http.Handler {
 				if err := mustBind(r, &p); err != nil {
 					return nil, err
 				}
+				var err error
+				p.RemoteID, err = URLParamID(r, "remote_id")
+				if err != nil {
+					return nil, err
+				}
 				return irremote.CreateVirtual(ctx, &p)
 			},
 		))
 		r.Put("/home/{home_id}/devices/{devices_id}/ir-remote/{remote_id}/virtual/{virtual_id}", h(
 			func(ctx context.Context, r *http.Request) (any, error) {
+				virtualID, err := URLParamID(r, "virtual_id")
+				if err != nil {
+					return nil, err
+				}
 				// update virtual remote information and kind ?
 				//
-				return nil, errors.New("not implemented")
+				var p irremote.UpdateVirtualParam
+				if err := mustBind(r, &p); err != nil {
+					return nil, err
+				}
+				p.VirtualID = virtualID
+				err = irremote.UpdateVirtual(ctx, &p)
+				return nil, err
 			},
 		))
 		r.Delete("/home/{home_id}/devices/{devices_id}/ir-remote/{remote_id}/virtual/{virtual_id}", h(
 			func(ctx context.Context, r *http.Request) (any, error) {
-				// delete cascade all button
-				// which in this virtual remote
-				return nil, errors.New("not implemented")
+				virtualID, err := URLParamID(r, "virtual_id")
+				if err != nil {
+					return nil, err
+				}
+				return irremote.DeleteVirtualKey(ctx, virtualID)
 			},
 		))
 		r.Get("/home/{home_id}/devices/{devices_id}/ir-remote/{remote_id}/virtual/{virtual_id}", h(
 			func(ctx context.Context, r *http.Request) (any, error) {
+				virtualID, err := URLParamID(r, "virtual_id")
+				if err != nil {
+					return nil, err
+				}
+				remoteID, err := URLParamID(r, "remote_id")
+				if err != nil {
+					return nil, err
+				}
+				v, err := irremote.FindVirtual(ctx, remoteID, virtualID)
+				type detail struct {
+					*irremote.VirtualKey
+					Buttons []*irremote.Command `json:"buttons"`
+				}
+				buttons, err := irremote.ListVirtualCommand(ctx, v.ID)
+				if err != nil {
+					return nil, err
+				}
 				// return a list of button
-				return nil, errors.New("not implemented")
+				return detail{
+					v,
+					buttons,
+				}, nil
 			},
 		))
 		r.Post("/home/{home_id}/devices/{devices_id}/ir-remote/{remote_id}/virtual/{virtual_id}/start-learning", h(
