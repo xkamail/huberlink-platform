@@ -93,6 +93,8 @@ create table device_ir_remote_virtual_keys
     updated_at timestamptz default now()
 );
 
+create unique index device_ir_remote_virtual_keys_remote_id_name_unique on device_ir_remote_virtual_keys (remote_id, name);
+
 create table device_ir_remote_commands
 (
     id         bigint primary key, -- command id

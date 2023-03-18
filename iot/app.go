@@ -14,6 +14,7 @@ import (
 	"github.com/xkamail/huberlink-platform/iot/auth"
 	"github.com/xkamail/huberlink-platform/iot/device"
 	"github.com/xkamail/huberlink-platform/iot/home"
+	"github.com/xkamail/huberlink-platform/iot/irremote"
 	"github.com/xkamail/huberlink-platform/pkg/api"
 	"github.com/xkamail/huberlink-platform/pkg/config"
 	"github.com/xkamail/huberlink-platform/pkg/discord"
@@ -189,9 +190,11 @@ func Handlers() http.Handler {
 		// create virtual remote
 		r.Post("/home/{home_id}/devices/{devices_id}/ir-remote/{remote_id}/virtual", h(
 			func(ctx context.Context, r *http.Request) (any, error) {
-				// define a virtual remote
-				// kind
-				return nil, errors.New("not implemented")
+				var p irremote.CreateVirtualKeyParam
+				if err := mustBind(r, &p); err != nil {
+					return nil, err
+				}
+				return irremote.CreateVirtual(ctx, &p)
 			},
 		))
 		r.Put("/home/{home_id}/devices/{devices_id}/ir-remote/{remote_id}/virtual/{virtual_id}", h(

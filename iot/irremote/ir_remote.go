@@ -2,8 +2,13 @@ package irremote
 
 import (
 	"context"
+	"errors"
 	"time"
 
+	"github.com/jackc/pgx/v5"
+
+	"github.com/xkamail/huberlink-platform/iot/account"
+	"github.com/xkamail/huberlink-platform/pkg/pgctx"
 	"github.com/xkamail/huberlink-platform/pkg/snowid"
 )
 
@@ -72,9 +77,69 @@ func ListVirtual(ctx context.Context, deviceID snowid.ID) ([]*VirtualKey, error)
 }
 
 type CreateVirtualKeyParam struct {
+	Name     string `json:"name"`
+	Kind     string `json:"kind"`
+	Icon     string `json:"icon"`
+	remoteID snowid.ID
 }
 
 func CreateVirtual(ctx context.Context, p *CreateVirtualKeyParam) (*VirtualKey, error) {
-	// TODO: implement
-	panic("not implemented")
+	if _, err := account.FromContext(ctx); err != nil {
+		return nil, err
+	}
+
+	remoteID := p.remoteID
+
+	err := pgctx.QueryRow(ctx, `select id from device_ir_remote_virtual_keys where remote_id = $1`,
+		remoteID, //
+	).Scan(&remoteID)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return nil, ErrNotFound
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	tx, err := pgctx.Begin(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback(ctx)
+	id := snowid.Gen()
+	_, err = tx.Exec(ctx, `
+			insert into device_ir_remote_virtual_keys 
+			(id, remote_id, name, kind, icon, created_at, updated_at) 
+			values ($1, $2, $3, $4, $5, $6, $7)`,
+		id,
+		remoteID,
+		p.Name,
+		p.Kind,
+		p.Icon,
+		time.Now(),
+		time.Now(),
+	)
+	if err != nil {
+		return nil, err
+	}
+	if err := tx.Commit(ctx); err != nil {
+		return nil, err
+	}
+	return FindVirtual(ctx, remoteID, id)
+}
+
+func FindVirtual(ctx context.Context, remoteID, virtualID snowid.ID) (*VirtualKey, error) {
+	// TODO: test this function
+	rows, err := pgctx.Query(ctx, `select id, remote_id, name, kind, icon, created_at, updated_at from device_ir_remote_virtual_keys where remote_id = $1 and id = $2`, remoteID, virtualID)
+	if err != nil {
+		return nil, err
+	}
+	d, err := pgx.CollectOneRow(rows, pgx.RowToAddrOfStructByPos[VirtualKey])
+	if errors.Is(err, pgx.ErrNoRows) {
+		return nil, ErrVirtualKeyNotfound
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	return d, nil
 }
