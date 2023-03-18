@@ -98,8 +98,8 @@ create unique index device_ir_remote_virtual_keys_remote_id_name_unique on devic
 create table device_ir_remote_commands
 (
     id         bigint primary key, -- command id
-    remote_id  bigint references device_ir_remotes (id),
-    virtual_id bigint references device_ir_remote_virtual_keys (id),
+    remote_id  bigint references device_ir_remotes (id) on DELETE cascade,
+    virtual_id bigint references device_ir_remote_virtual_keys (id) on DELETE cascade,
     name       text  not null,
     code       jsonb not null,
     remark     text,
