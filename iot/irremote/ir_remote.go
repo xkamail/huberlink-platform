@@ -35,13 +35,18 @@ type IRRemote struct {
 // VirtualKey is a struct that represents a remote control
 // virtual remote control
 type VirtualKey struct {
-	ID        snowid.ID       `json:"id"`
-	RemoteID  snowid.ID       `json:"remoteId"`
-	Name      string          `json:"name"`
-	Icon      string          `json:"icon"`
-	Kind      VirtualCategory `json:"category"`
-	CreatedAt time.Time       `json:"createdAt"`
-	UpdatedAt time.Time       `json:"updatedAt"`
+	ID       snowid.ID       `json:"id"`
+	RemoteID snowid.ID       `json:"remoteId"`
+	Name     string          `json:"name"`
+	Icon     string          `json:"icon"`
+	Kind     VirtualCategory `json:"category"`
+	// IsLearning is a flag that indicates that the virtual remote is learning
+	// when rawData codes has come
+	// Command will be created and IsLearning will be false
+	//
+	IsLearning bool      `json:"isLearning"`
+	CreatedAt  time.Time `json:"createdAt"`
+	UpdatedAt  time.Time `json:"updatedAt"`
 }
 
 type Command struct {
