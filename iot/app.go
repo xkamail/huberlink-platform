@@ -356,7 +356,7 @@ func newHomeContext(ctx context.Context, h *home.Home) context.Context {
 
 func homeFromCtx(ctx context.Context) (*home.Home, error) {
 	h, ok := ctx.Value(homeDetailCtx{}).(*home.Home)
-	if !ok {
+	if !ok || h == nil {
 		return nil, uierr.UnAuthorization("home: home not found")
 	}
 	return h, nil
