@@ -66,7 +66,7 @@ const DeviceDetailPage = ({
           <DeviceInformation data={data} />
         </div>
         <div className="col-span-2">
-          <IRRemoteSection />
+          <IRRemoteSection device={data} />
         </div>
       </div>
     </>

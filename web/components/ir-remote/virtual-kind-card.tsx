@@ -1,11 +1,7 @@
-import { DeviceKindEnum } from '@/lib/types'
 import { cn } from '@/lib/utils'
-import {
-  CircleDotIcon,
-  EyeIcon,
-  HelpCircle,
-  ToggleRightIcon,
-} from 'lucide-react'
+import { CircleDotIcon, HelpCircle } from 'lucide-react'
+
+import { DeviceKindEnum, VirtualCategoryEnum } from '@/lib/types'
 import { useFormContext } from 'react-hook-form'
 
 interface IProps {
@@ -16,7 +12,15 @@ interface IProps {
   onChange: (kind: DeviceKindEnum) => void
 }
 
-const KindCard = ({ kind, icon, label, description, onChange }: IProps) => {
+const VirtualKindCard = ({
+  kind,
+  label,
+  icon,
+}: {
+  kind: VirtualCategoryEnum
+  label: string
+  icon: string
+}) => {
   const { setValue, watch } = useFormContext()
   const v = watch('kind')
   const onClick = () => {
@@ -45,23 +49,18 @@ const KindCard = ({ kind, icon, label, description, onChange }: IProps) => {
   )
 }
 
+export default VirtualKindCard
+
+VirtualKindCard.displayName = 'VirtualKindCard'
+
 const renderIcon = (icon: string, active: boolean) => {
   const iconClass = cn(`w-8 h-8`, active ? 'text-slate-100' : 'text-gray-500')
   if (icon === 'unknown') {
     return <HelpCircle className={iconClass} />
   }
-  if (icon === 'sensor') {
-    return <EyeIcon className={iconClass} />
-  }
-  if (icon === 'switch') {
-    return <ToggleRightIcon className={iconClass} />
-  }
+
   if (icon === 'remote') {
     return <CircleDotIcon className={iconClass} />
   }
   return <HelpCircle className={iconClass} />
 }
-
-export default KindCard
-
-KindCard.displayName = 'KindCard'

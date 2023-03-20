@@ -141,3 +141,23 @@ export enum VirtualCategoryEnum {
   DVD,
   WaterHeart,
 }
+export const VIRTUAL_CATEGORY = [
+  {
+    name: 'DIY',
+    description: 'Create your own IR Remote',
+    icon: 'diy',
+    kind: VirtualCategoryEnum.Other,
+  },
+  {
+    name: 'TV',
+    description: 'TV Remote Control',
+    icon: 'tv',
+    kind: VirtualCategoryEnum.TV,
+  },
+  {
+    name: 'Air',
+    description: 'Air Conditioner Remote Control',
+    icon: 'air-conditioner',
+    kind: VirtualCategoryEnum.AirConditioner,
+  },
+]

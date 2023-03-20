@@ -80,7 +80,7 @@ const CreateDevicePage = () => {
             >
               Cancel
             </Button>
-            <Button type="submit" variant="default" loading={loading}>
+            <Button type="submit" variant="primary" loading={loading}>
               Create device
             </Button>
           </div>

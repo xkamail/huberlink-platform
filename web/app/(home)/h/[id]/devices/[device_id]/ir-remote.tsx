@@ -1,21 +1,23 @@
+import CreateVirtualDeviceForm from '@/components/ir-remote/create-virtual-device'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-const IRRemoteSection = () => {
+import { IDeviceDetail } from '@/lib/types'
+import { useState } from 'react'
+
+const IRRemoteSection = ({ device }: { device: IDeviceDetail }) => {
+  const [open, setOpen] = useState(false)
+
   return (
     <div className="grid md:grid-cols-2 gap-4">
       <div></div>
       <div className="col-span-full">
-        <Dialog>
+        <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <div className="text-center">
               <Button block size="lg" variant="primary">
@@ -25,28 +27,15 @@ const IRRemoteSection = () => {
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px] md:max-w-[565px]">
             <DialogHeader>
-              <DialogTitle>Edit profile</DialogTitle>
-              <DialogDescription>
-                Make changes to your profile here. Click save when youre done.
-              </DialogDescription>
+              <DialogTitle>Create Virtual Device</DialogTitle>
             </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="name" className="text-right">
-                  Name
-                </Label>
-                <Input id="name" value="Pedro Duarte" className="col-span-3" />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="username" className="text-right">
-                  Username
-                </Label>
-                <Input id="username" value="@peduarte" className="col-span-3" />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button type="submit">Save changes</Button>
-            </DialogFooter>
+
+            <CreateVirtualDeviceForm
+              deviceId={device.id}
+              onSuccess={() => {
+                setOpen(false)
+              }}
+            />
           </DialogContent>
         </Dialog>
       </div>

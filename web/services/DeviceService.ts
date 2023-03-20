@@ -42,6 +42,31 @@ const DeviceService = {
         >(`/home/${homeId}/devices/${deviceId}/ir-remote`)
         .then((r) => r.data)
     },
+    createVirtual({
+      homeId,
+      deviceId,
+      name,
+      kind,
+      icon,
+    }: {
+      homeId: string
+      deviceId: string
+      name: string
+      kind: string
+      icon: string
+    }) {
+      return fetcher
+        .post<
+          IResponse<{
+            id: string
+          }>
+        >(`/home/${homeId}/devices/${deviceId}/ir-remote/virtual`, {
+          name,
+          kind,
+          icon,
+        })
+        .then((r) => r.data)
+    },
   },
 }
 
