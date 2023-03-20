@@ -12,8 +12,18 @@ import (
 	"github.com/xkamail/huberlink-platform/pkg/snowid"
 )
 
+type Virtualer interface {
+	// Properties get default properties
+	Properties() Properties
+	// PropertiesKeys validate properties
+	PropertiesKeys() []string
+}
+
 // VirtualCategory is an enum that represents a virtual key category
 type VirtualCategory uint
+
+// Properties represent state of a virtual key (device)
+type Properties map[string]string
 
 const (
 	VirtualCategoryOther VirtualCategory = iota
@@ -49,9 +59,10 @@ type VirtualKey struct {
 	// when rawData codes has come
 	// Command will be created and IsLearning will be false
 	//
-	IsLearning bool      `json:"isLearning"`
-	CreatedAt  time.Time `json:"createdAt"`
-	UpdatedAt  time.Time `json:"updatedAt"`
+	IsLearning bool       `json:"isLearning"`
+	Properties Properties `json:"properties"`
+	CreatedAt  time.Time  `json:"createdAt"`
+	UpdatedAt  time.Time  `json:"updatedAt"`
 }
 
 type Command struct {
