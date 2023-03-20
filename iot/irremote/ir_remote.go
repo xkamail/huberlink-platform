@@ -117,8 +117,12 @@ func Find(ctx context.Context, deviceID snowid.ID) (*IRRemote, error) {
 	return d, nil
 }
 
-func ListVirtual(ctx context.Context, remoteID snowid.ID) ([]*VirtualKey, error) {
-	rows, err := pgctx.Query(ctx, `select id, remote_id, name, kind, icon, is_learning, properties, created_at, updated_at from device_ir_remote_virtual_keys where remote_id = $1`, remoteID)
+func ListVirtual(ctx context.Context, deviceID snowid.ID) ([]*VirtualKey, error) {
+	rows, err := pgctx.Query(ctx, `select v.id, v.remote_id, v.name, v.kind, v.icon, v.is_learning, v.properties, v.created_at, v.updated_at 
+		from device_ir_remote_virtual_keys v inner join device_ir_remotes dir on dir.id = v.remote_id 
+		where dir.device_id = $1`,
+		deviceID,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -136,26 +140,17 @@ type CreateVirtualKeyParam struct {
 	Name     string          `json:"name"`
 	Kind     VirtualCategory `json:"kind"`
 	Icon     string          `json:"icon"`
-	RemoteID snowid.ID       `json:"-"`
+	DeviceID snowid.ID       `json:"-"`
 }
 
 func CreateVirtual(ctx context.Context, p *CreateVirtualKeyParam) (*VirtualKey, error) {
 	if _, err := account.FromContext(ctx); err != nil {
 		return nil, err
 	}
-
-	remoteID := p.RemoteID
-
-	err := pgctx.QueryRow(ctx, `select id from device_ir_remotes where id = $1`,
-		remoteID, //
-	).Scan(&remoteID)
-	if errors.Is(err, pgx.ErrNoRows) {
-		return nil, ErrNotFound
-	}
+	remoteID, err := findRemoteID(ctx, p.DeviceID)
 	if err != nil {
 		return nil, err
 	}
-
 	tx, err := pgctx.Begin(ctx)
 	if err != nil {
 		return nil, err
@@ -270,4 +265,18 @@ func ListVirtualCommand(ctx context.Context, virtualID snowid.ID) ([]*Command, e
 		return nil, err
 	}
 	return d, nil
+}
+
+func findRemoteID(ctx context.Context, deviceID snowid.ID) (snowid.ID, error) {
+	var remoteID snowid.ID
+	err := pgctx.QueryRow(ctx, `select id from device_ir_remotes where device_id = $1`,
+		deviceID, //
+	).Scan(&remoteID)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return snowid.Zero, ErrNotFound
+	}
+	if err != nil {
+		return snowid.Zero, err
+	}
+	return remoteID, nil
 }

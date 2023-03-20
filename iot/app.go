@@ -191,18 +191,18 @@ func Handlers() http.Handler {
 			},
 		))
 		// ir-remote service
-		r.Get("/home/{home_id}/devices/{devices_id}/ir-remote/{remote_id}", h(
+		r.Get("/home/{home_id}/devices/{devices_id}/ir-remote", h(
 			func(ctx context.Context, r *http.Request) (any, error) {
-				remoteID, err := URLParamID(r, "remote_id")
+				deviceID, err := URLParamID(r, "device_id")
 				if err != nil {
 					return nil, err
 				}
 				// return list of virtual remote
-				vs, err := irremote.ListVirtual(ctx, remoteID)
+				vs, err := irremote.ListVirtual(ctx, deviceID)
 				if err != nil {
 					return nil, err
 				}
-				remote, err := irremote.Find(ctx, remoteID)
+				remote, err := irremote.Find(ctx, deviceID)
 				if err != nil {
 					return nil, err
 				}
@@ -216,21 +216,21 @@ func Handlers() http.Handler {
 			},
 		))
 		// create virtual remote
-		r.Post("/home/{home_id}/devices/{devices_id}/ir-remote/{remote_id}/virtual", h(
+		r.Post("/home/{home_id}/devices/{devices_id}/ir-remote/virtual", h(
 			func(ctx context.Context, r *http.Request) (any, error) {
 				var p irremote.CreateVirtualKeyParam
 				if err := mustBind(r, &p); err != nil {
 					return nil, err
 				}
 				var err error
-				p.RemoteID, err = URLParamID(r, "remote_id")
+				p.DeviceID, err = URLParamID(r, "device_id")
 				if err != nil {
 					return nil, err
 				}
 				return irremote.CreateVirtual(ctx, &p)
 			},
 		))
-		r.Put("/home/{home_id}/devices/{devices_id}/ir-remote/{remote_id}/virtual/{virtual_id}", h(
+		r.Put("/home/{home_id}/devices/{devices_id}/ir-remote/virtual/{virtual_id}", h(
 			func(ctx context.Context, r *http.Request) (any, error) {
 				virtualID, err := URLParamID(r, "virtual_id")
 				if err != nil {
@@ -247,7 +247,7 @@ func Handlers() http.Handler {
 				return nil, err
 			},
 		))
-		r.Delete("/home/{home_id}/devices/{devices_id}/ir-remote/{remote_id}/virtual/{virtual_id}", h(
+		r.Delete("/home/{home_id}/devices/{devices_id}/ir-remote/virtual/{virtual_id}", h(
 			func(ctx context.Context, r *http.Request) (any, error) {
 				virtualID, err := URLParamID(r, "virtual_id")
 				if err != nil {
@@ -256,7 +256,7 @@ func Handlers() http.Handler {
 				return irremote.DeleteVirtualKey(ctx, virtualID)
 			},
 		))
-		r.Get("/home/{home_id}/devices/{devices_id}/ir-remote/{remote_id}/virtual/{virtual_id}", h(
+		r.Get("/home/{home_id}/devices/{devices_id}/ir-remote/virtual/{virtual_id}", h(
 			func(ctx context.Context, r *http.Request) (any, error) {
 				virtualID, err := URLParamID(r, "virtual_id")
 				if err != nil {
@@ -282,7 +282,7 @@ func Handlers() http.Handler {
 				}, nil
 			},
 		))
-		r.Post("/home/{home_id}/devices/{devices_id}/ir-remote/{remote_id}/virtual/{virtual_id}/start-learning", h(
+		r.Post("/home/{home_id}/devices/{devices_id}/ir-remote/virtual/{virtual_id}/start-learning", h(
 			func(ctx context.Context, r *http.Request) (any, error) {
 				// create a 30 seconds learning session
 				// when universal remote got an ir signal
@@ -290,13 +290,13 @@ func Handlers() http.Handler {
 				return nil, errors.New("not implemented")
 			},
 		))
-		r.Post("/home/{home_id}/devices/{devices_id}/ir-remote/{remote_id}/virtual/{virtual_id}/execute", h(
+		r.Post("/home/{home_id}/devices/{devices_id}/ir-remote/virtual/{virtual_id}/execute", h(
 			func(ctx context.Context, r *http.Request) (any, error) {
 				// execute a button
 				return nil, errors.New("not implemented")
 			},
 		))
-		r.Put("/home/{home_id}/devices/{devices_id}/ir-remote/{remote_id}/virtual/{virtual_id}/button/{button_id}", h(
+		r.Put("/home/{home_id}/devices/{devices_id}/ir-remote/virtual/{virtual_id}/button/{button_id}", h(
 			func(ctx context.Context, r *http.Request) (any, error) {
 				// if name is empty then it has to be a new remote button
 				// which come from learning session
@@ -304,7 +304,7 @@ func Handlers() http.Handler {
 				return nil, errors.New("not implemented")
 			},
 		))
-		r.Delete("/home/{home_id}/devices/{devices_id}/ir-remote/{remote_id}/virtual/{virtual_id}/button/{button_id}", h(func(ctx context.Context, r *http.Request) (any, error) {
+		r.Delete("/home/{home_id}/devices/{devices_id}/ir-remote/virtual/{virtual_id}/button/{button_id}", h(func(ctx context.Context, r *http.Request) (any, error) {
 			// delete a button and codes is gone
 			return nil, errors.New("not implemented")
 		}))
