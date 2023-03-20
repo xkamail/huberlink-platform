@@ -9,6 +9,7 @@ import (
 	"github.com/xkamail/huberlink-platform/pkg/pgctx"
 	"github.com/xkamail/huberlink-platform/pkg/rand"
 	"github.com/xkamail/huberlink-platform/pkg/snowid"
+	"github.com/xkamail/huberlink-platform/pkg/uierr"
 )
 
 // Handler is a global interface for all device handler
@@ -56,7 +57,20 @@ type CreateParam struct {
 	HomeID snowid.ID `json:"-"`
 }
 
+func (p *CreateParam) Valid() error {
+	if p.HomeID == snowid.Zero {
+		return uierr.Invalid("home_id", "home id is required")
+	}
+	if p.Name == "" {
+		return uierr.Invalid("name", "name is required")
+	}
+	return nil
+}
+
 func Create(ctx context.Context, p *CreateParam) (*snowid.ID, error) {
+	if err := p.Valid(); err != nil {
+		return nil, err
+	}
 	acc, err := account.FromContext(ctx)
 	if err != nil {
 		return nil, err
