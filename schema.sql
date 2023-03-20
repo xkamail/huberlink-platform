@@ -80,7 +80,7 @@ create table device_ir_remote_virtual_keys (
     id bigint primary key,
     remote_id bigint references device_ir_remotes (id) on delete cascade,
     name text not null,
-    kind text not null,
+    kind smallint not null,
     icon text not null,
     is_learning boolean default false,
     properties jsonb default '{}' :: jsonb,

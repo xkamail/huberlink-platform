@@ -2,7 +2,9 @@ package irremote
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
+	"strconv"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -10,6 +12,7 @@ import (
 	"github.com/xkamail/huberlink-platform/iot/account"
 	"github.com/xkamail/huberlink-platform/pkg/pgctx"
 	"github.com/xkamail/huberlink-platform/pkg/snowid"
+	"github.com/xkamail/huberlink-platform/pkg/uierr"
 )
 
 type Virtualer interface {
@@ -21,6 +24,25 @@ type Virtualer interface {
 
 // VirtualCategory is an enum that represents a virtual key category
 type VirtualCategory uint
+
+func (v *VirtualCategory) UnmarshalJSON(b []byte) error {
+	u, err := strconv.ParseUint(string(b), 10, 8)
+	if err != nil {
+		return err
+	}
+	if u > uint64(VirtualCategoryWaterHeater) {
+		return uierr.Invalid("category", "invalid virtual category")
+	}
+	*v = VirtualCategory(u)
+	return nil
+}
+
+func (v *VirtualCategory) MarshalJSON() ([]byte, error) {
+	return json.Marshal(*v)
+}
+
+var _ json.Marshaler = (*VirtualCategory)(nil)
+var _ json.Unmarshaler = (*VirtualCategory)(nil)
 
 // Properties represent state of a virtual key (device)
 type Properties map[string]string
@@ -111,10 +133,10 @@ func ListVirtual(ctx context.Context, remoteID snowid.ID) ([]*VirtualKey, error)
 }
 
 type CreateVirtualKeyParam struct {
-	Name     string    `json:"name"`
-	Kind     string    `json:"kind"`
-	Icon     string    `json:"icon"`
-	RemoteID snowid.ID `json:"-"`
+	Name     string          `json:"name"`
+	Kind     VirtualCategory `json:"kind"`
+	Icon     string          `json:"icon"`
+	RemoteID snowid.ID       `json:"-"`
 }
 
 func CreateVirtual(ctx context.Context, p *CreateVirtualKeyParam) (*VirtualKey, error) {
