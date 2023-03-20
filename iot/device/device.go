@@ -2,7 +2,10 @@ package device
 
 import (
 	"context"
+	"errors"
 	"time"
+
+	"github.com/jackc/pgx/v5"
 
 	"github.com/xkamail/huberlink-platform/iot/account"
 	"github.com/xkamail/huberlink-platform/iot/home"
@@ -46,7 +49,19 @@ func List(ctx context.Context, homeID snowid.ID) ([]*Device, error) {
 }
 
 func Find(ctx context.Context, deviceID snowid.ID) (*Device, error) {
-	panic("not implemented")
+	rows, err := pgctx.Query(ctx, `select id, name, icon, model, kind, home_id, user_id, token, ip_address, location, latest_heartbeat_at, created_at, updated_at from devices where id = $1`, deviceID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	d, err := pgx.CollectOneRow(rows, pgx.RowToAddrOfStructByPos[Device])
+	if errors.Is(err, pgx.ErrNoRows) {
+		return nil, ErrNotFound
+	}
+	if err != nil {
+		return nil, err
+	}
+	return d, nil
 }
 
 type CreateParam struct {

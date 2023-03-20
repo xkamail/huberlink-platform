@@ -178,8 +178,18 @@ func Handlers() http.Handler {
 			}
 			return device.Find(ctx, deviceID)
 		}))
-		r.Delete("/home/{home_id}/devices/{id}", nil)
-		r.Patch("/home/{home_id}/devices/{id}", nil)
+		r.Delete("/home/{home_id}/devices/{id}", h(
+			func(ctx context.Context, r *http.Request) (any, error) {
+				// TODO:
+				return nil, errors.New("no implemented")
+			},
+		))
+		r.Patch("/home/{home_id}/devices/{id}", h(
+			func(ctx context.Context, r *http.Request) (any, error) {
+				// TODO:
+				return nil, errors.New("no implemented")
+			},
+		))
 		// ir-remote service
 		r.Get("/home/{home_id}/devices/{devices_id}/ir-remote/{remote_id}", h(
 			func(ctx context.Context, r *http.Request) (any, error) {

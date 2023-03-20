@@ -44,7 +44,15 @@ func TestCreate(t *testing.T) {
 		assert.NoError(t, err)
 		assert.NotNil(t, list)
 		assert.Len(t, list, 1)
+
+		t.Run("find device", func(t *testing.T) {
+			res, err := device.Find(ctx, *dev)
+			assert.NoError(t, err)
+			assert.NotNil(t, res)
+		})
+
 	})
+
 	t.Run("invalid home id", func(t *testing.T) {
 		dev, err := device.Create(authCtx, &device.CreateParam{
 			Name:   "ir-remote-1",
