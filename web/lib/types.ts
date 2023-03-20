@@ -94,3 +94,50 @@ export type ICreateDeviceForm = {
   icon?: string
   model?: string
 }
+export interface IDetailDetail {
+  id: string
+  name: string
+  icon: string
+  model: string
+  kind: DeviceKindEnum
+  homeId: string
+  userId: string
+  token: string
+  ipAddress: string | null
+  location: string | null
+  latestHeartbeatAt: Date | null
+  createdAt: Date
+  updatedAt: Date
+}
+
+export interface IIRRemote {
+  id: string
+  deviceId: string
+  homeId: string
+  createdAt: Date
+  updatedAt: Date
+}
+
+export interface IIRRemoteVirtualDevice {
+  id: string
+  remoteId: string
+  name: string
+  kind: VirtualCategoryEnum
+  icon: string
+  isLearning: boolean
+  properties: { [key: string]: any }
+  createdAt: Date
+  updatedAt: Date
+}
+
+export enum VirtualCategoryEnum {
+  Other,
+  TV,
+  AirConditioner,
+  Light,
+  Fan,
+  Speaker,
+  Projector,
+  DVD,
+  WaterHeart,
+}

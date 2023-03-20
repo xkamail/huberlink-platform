@@ -6,6 +6,7 @@ import { useHomeSelector } from '@/lib/contexts/HomeContext'
 import { IDeviceCard } from '@/lib/types'
 import DeviceService from '@/services/DeviceService'
 import { PlusIcon } from 'lucide-react'
+import Link from 'next/link'
 import { useCallback, useEffect, useState } from 'react'
 import DeviceSkeletons from './skeleton'
 
@@ -43,7 +44,8 @@ const HomeDevicesPage = () => {
         {status === 'loading' && <DeviceSkeletons />}
         {status === 'ok' &&
           devices.map((d, i) => (
-            <div
+            <Link
+              href={`/h/${homeId}/devices/${d.id}`}
               className="col-span-1 flex justify-between items-center rounded-lg p-4 bg-white shadow transition-all cursor-pointer hover:shadow-lg"
               key={i}
             >
@@ -60,7 +62,7 @@ const HomeDevicesPage = () => {
                   </span>
                 </Button>
               </div>
-            </div>
+            </Link>
           ))}
         <div className="text-center col-span-full">
           <Button variant="link">Load more</Button>
