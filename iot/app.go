@@ -160,7 +160,7 @@ func Handlers() http.Handler {
 			return device.List(ctx, h.ID)
 		}))
 		r.Post("/home/{home_id}/devices", h(func(ctx context.Context, r *http.Request) (any, error) {
-			h, err := homeFromCtx(ctx)
+			homeID, err := URLParamID(r, "home_id")
 			if err != nil {
 				return nil, err
 			}
@@ -168,7 +168,7 @@ func Handlers() http.Handler {
 			if err := mustBind(r, &p); err != nil {
 				return nil, err
 			}
-			p.HomeID = h.ID
+			p.HomeID = homeID
 			return device.Create(ctx, &p)
 		}))
 		r.Get("/home/{home_id}/devices/{device_id}", h(func(ctx context.Context, r *http.Request) (any, error) {

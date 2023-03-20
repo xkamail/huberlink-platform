@@ -73,7 +73,7 @@ type CreateParam struct {
 }
 
 func (p *CreateParam) Valid() error {
-	if p.HomeID == snowid.Zero {
+	if p.HomeID.Int() == 0 {
 		return uierr.Invalid("home_id", "home id is required")
 	}
 	if p.Name == "" {
