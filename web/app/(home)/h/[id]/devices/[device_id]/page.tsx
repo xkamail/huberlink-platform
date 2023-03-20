@@ -1,9 +1,11 @@
 'use client'
 import PageHeader from '@/components/ui/page-header'
+import Spinner from '@/components/ui/spinner'
 import { useHomeSelector } from '@/lib/contexts/HomeContext'
 import { IDeviceDetail, ResponseCode } from '@/lib/types'
 import DeviceService from '@/services/DeviceService'
 import { useCallback, useEffect, useState } from 'react'
+import DeviceInformation from './information'
 
 //
 const DeviceDetailPage = ({
@@ -49,12 +51,21 @@ const DeviceDetailPage = ({
       </div>
     )
   if (status === 'loading' || !data)
-    return <p className="text-center">Loading...</p>
+    return (
+      <div className="text-center w-full flex justify-center my-20">
+        <Spinner />
+      </div>
+    )
 
   return (
     <>
       <PageHeader title={data.name} />
-      <div className="w-full bg-white p-4">xx</div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="col-span-1">
+          <DeviceInformation data={data} />
+        </div>
+        <div className="col-span-1">a</div>
+      </div>
     </>
   )
 }
