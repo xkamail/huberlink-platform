@@ -42,6 +42,11 @@ func Gen() ID {
 	return ID(node.Generate().Int64())
 }
 
+// New returns a new snowflake ID
+func New() ID {
+	return Gen()
+}
+
 func Parse(str string) (ID, error) {
 	id, err := snowflake.ParseString(str)
 	if err != nil {
