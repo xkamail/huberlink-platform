@@ -1,7 +1,7 @@
 import {
   ICreateDeviceForm,
-  IDetailDetail,
   IDeviceCard,
+  IDeviceDetail,
   IIRRemote,
   IResponse,
 } from '@/lib/types'
@@ -26,28 +26,20 @@ const DeviceService = {
 
   findById({ homeId, deviceId }: { homeId: string; deviceId: string }) {
     return fetcher
-      .get<IResponse<IDetailDetail>>(`/home/${homeId}/devices/${deviceId}`)
+      .get<IResponse<IDeviceDetail>>(`/home/${homeId}/devices/${deviceId}`)
       .then((r) => r.data)
   },
 
   ir: {
     //
-    findDetail({
-      homeId,
-      deviceId,
-      remoteId,
-    }: {
-      homeId: string
-      deviceId: string
-      remoteId: string
-    }) {
+    findDetail({ homeId, deviceId }: { homeId: string; deviceId: string }) {
       return fetcher
         .get<
           IResponse<{
             vs: IIRRemoteVirtualDevice[]
             remote: IIRRemote
           }>
-        >(`/home/${homeId}/devices/${deviceId}/ir-remote/${remoteId}`)
+        >(`/home/${homeId}/devices/${deviceId}/ir-remote`)
         .then((r) => r.data)
     },
   },

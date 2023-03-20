@@ -1,13 +1,13 @@
 export type IResponse<T> =
   | {
       success: true
-      code: number
+      code: ResponseCode
       message: string
       data: T
     }
   | {
       success: false
-      code: number
+      code: ResponseCode
       message: string
       errors: any[]
     }
@@ -94,7 +94,7 @@ export type ICreateDeviceForm = {
   icon?: string
   model?: string
 }
-export interface IDetailDetail {
+export interface IDeviceDetail {
   id: string
   name: string
   icon: string
