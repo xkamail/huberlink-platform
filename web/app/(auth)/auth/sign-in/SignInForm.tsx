@@ -26,10 +26,11 @@ const SignInForm = () => {
       formError(ctx, res)
       return
     }
-    //
-    toast.succes('Signed in successfully')
     nookies.set(null, 'accessToken', res.data.token)
     nookies.set(null, 'refreshToken', res.data.refreshToken)
+    //
+    toast.succes('Signed in successfully')
+
     router.push('/h')
   }
 

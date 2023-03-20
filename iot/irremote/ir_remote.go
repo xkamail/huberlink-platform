@@ -161,16 +161,36 @@ func CreateVirtual(ctx context.Context, p *CreateVirtualKeyParam) (*VirtualKey, 
 		return nil, err
 	}
 	defer tx.Rollback(ctx)
+
+	properties := make(Properties)
+
+	switch p.Kind {
+	case VirtualCategoryTV:
+		properties = TV{}.Properties()
+	case VirtualCategoryAirConditioner:
+		properties = Air{}.Properties()
+	case VirtualCategoryLight:
+	case VirtualCategoryFan:
+	case VirtualCategorySpeaker:
+	case VirtualCategoryProjector:
+	case VirtualCategoryDVD:
+	case VirtualCategoryWaterHeater:
+	case VirtualCategoryOther:
+		properties = Other{}.Properties()
+	default:
+	}
+
 	id := snowid.Gen()
 	_, err = tx.Exec(ctx, `
 			insert into device_ir_remote_virtual_keys 
-			(id, remote_id, name, kind, icon, created_at, updated_at) 
-			values ($1, $2, $3, $4, $5, $6, $7)`,
+			(id, remote_id, name, kind, icon, is_learning, properties, created_at, updated_at) 
+			values ($1, $2, $3, $4, $5, false, $6, $7, $8)`,
 		id,
 		remoteID,
 		p.Name,
 		p.Kind,
 		p.Icon,
+		properties,
 		time.Now(),
 		time.Now(),
 	)
