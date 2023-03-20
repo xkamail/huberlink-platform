@@ -1,7 +1,11 @@
+import { Button } from '@/components/ui/button'
 import Card from '@/components/ui/card'
 import { IDeviceDetail } from '@/lib/types'
 import dayjs from 'dayjs'
+import { useEffect, useState } from 'react'
 const DeviceInformation = ({ data }: { data: IDeviceDetail }) => {
+  const [copied, setCopied] = useState(false)
+  useEffect(() => {}, [])
   return (
     <Card title="Information">
       <div className="flex flex-col">
@@ -24,6 +28,11 @@ const DeviceInformation = ({ data }: { data: IDeviceDetail }) => {
               )}
             </p>
           </div>
+        </div>
+        <div className="mt-6 w-full">
+          <Button block variant="subtle">
+            {copied ? 'Copied' : 'Copy Device Token'}
+          </Button>
         </div>
       </div>
     </Card>

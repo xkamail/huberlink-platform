@@ -69,9 +69,9 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         <Link
           href={to}
           className={cn(
-            buttonVariants({ variant, size, className }),
             block && 'w-full',
-            circle && 'rounded-full'
+            circle && 'rounded-full',
+            buttonVariants({ variant, size, className })
           )}
         >
           {children}
@@ -81,9 +81,9 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <button
         className={cn(
-          buttonVariants({ variant, size, className }),
           block && 'w-full',
-          'transition-all'
+          circle && 'rounded-full',
+          buttonVariants({ variant, size, className })
         )}
         ref={ref}
         {...props}

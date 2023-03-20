@@ -6,6 +6,7 @@ import { IDeviceDetail, ResponseCode } from '@/lib/types'
 import DeviceService from '@/services/DeviceService'
 import { useCallback, useEffect, useState } from 'react'
 import DeviceInformation from './information'
+import IRRemoteSection from './ir-remote'
 
 //
 const DeviceDetailPage = ({
@@ -64,7 +65,9 @@ const DeviceDetailPage = ({
         <div className="col-span-1">
           <DeviceInformation data={data} />
         </div>
-        <div className="col-span-1">a</div>
+        <div className="col-span-2">
+          <IRRemoteSection />
+        </div>
       </div>
     </>
   )
