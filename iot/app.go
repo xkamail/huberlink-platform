@@ -341,7 +341,7 @@ func URLParamID(r *http.Request, key string) (snowid.ID, error) {
 	id := chi.URLParam(r, key)
 	i, err := snowflake.ParseString(id)
 	if err != nil {
-		return snowid.Zero, uierr.Invalid("id", "invalid id parameter")
+		return snowid.Zero, uierr.Invalid(key, err.Error())
 	}
 	return snowid.ID(i), nil
 }
