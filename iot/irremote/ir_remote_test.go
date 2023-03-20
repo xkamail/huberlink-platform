@@ -7,6 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/xkamail/huberlink-platform/iot/device"
+	"github.com/xkamail/huberlink-platform/iot/home"
 	"github.com/xkamail/huberlink-platform/iot/irremote"
 	"github.com/xkamail/huberlink-platform/pkg/tm"
 	"github.com/xkamail/huberlink-platform/pkg/uierr"
@@ -21,8 +22,16 @@ func TestIRRemote(t *testing.T) {
 	defer m.Cleanup()
 
 	ctx := tm.CreateUserCtx(t, m.Ctx())
-
-	deviceID, err := device.Create(ctx, &device.CreateParam{})
+	homeID, err := home.Create(ctx, &home.CreateParam{
+		Name: "my home",
+	})
+	deviceID, err := device.Create(ctx, &device.CreateParam{
+		"test",
+		"",
+		"",
+		device.KindIRRemote,
+		*homeID,
+	})
 	assert.NoError(t, err)
 	assert.NotNil(t, deviceID)
 	remote, err := irremote.Find(ctx, *deviceID)
@@ -30,9 +39,15 @@ func TestIRRemote(t *testing.T) {
 	assert.NotNil(t, remote)
 	// ordering test
 	t.Run("create virtual", func(t *testing.T) {
-		var p irremote.CreateVirtualKeyParam
-		p.Name = "Air"
-		irremote.CreateVirtual(ctx, &p)
+		p := irremote.CreateVirtualKeyParam{
+			"Air",
+			irremote.VirtualCategoryAirConditioner,
+			"",
+			remote.ID,
+		}
+		virtual, err := irremote.CreateVirtual(ctx, &p)
+		assert.NoError(t, err)
+		assert.NotNil(t, virtual)
 	})
 	t.Run("list virtual", func(t *testing.T) {
 		vs, err := irremote.ListVirtual(ctx, remote.ID)

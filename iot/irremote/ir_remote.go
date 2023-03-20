@@ -75,8 +75,8 @@ type VirtualKey struct {
 	ID       snowid.ID       `json:"id"`
 	RemoteID snowid.ID       `json:"remoteId"`
 	Name     string          `json:"name"`
-	Icon     string          `json:"icon"`
 	Kind     VirtualCategory `json:"category"`
+	Icon     string          `json:"icon"`
 	// IsLearning is a flag that indicates that the virtual remote is learning
 	// when rawData codes has come
 	// Command will be created and IsLearning will be false
@@ -146,7 +146,7 @@ func CreateVirtual(ctx context.Context, p *CreateVirtualKeyParam) (*VirtualKey, 
 
 	remoteID := p.RemoteID
 
-	err := pgctx.QueryRow(ctx, `select id from device_ir_remote_virtual_keys where remote_id = $1`,
+	err := pgctx.QueryRow(ctx, `select id from device_ir_remotes where id = $1`,
 		remoteID, //
 	).Scan(&remoteID)
 	if errors.Is(err, pgx.ErrNoRows) {
@@ -217,7 +217,7 @@ func UpdateVirtual(ctx context.Context, p *UpdateVirtualParam) error {
 
 func FindVirtual(ctx context.Context, remoteID, virtualID snowid.ID) (*VirtualKey, error) {
 	// TODO: test this function
-	rows, err := pgctx.Query(ctx, `select id, remote_id, name, kind, icon, created_at, updated_at from device_ir_remote_virtual_keys where remote_id = $1 and id = $2`, remoteID, virtualID)
+	rows, err := pgctx.Query(ctx, `select id, remote_id, name, kind, icon, is_learning, properties, created_at, updated_at from device_ir_remote_virtual_keys where remote_id = $1 and id = $2`, remoteID, virtualID)
 	if err != nil {
 		return nil, err
 	}
