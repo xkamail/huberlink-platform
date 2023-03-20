@@ -25,7 +25,7 @@ const HomePage = () => {
       return
     }
     toast.succes(`Home ${data.name} created!`)
-    router.push(`/h/${res.data.id}`)
+    router.push(`/h/${res.data}`)
   }
 
   return (

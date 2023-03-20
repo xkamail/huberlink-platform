@@ -64,9 +64,18 @@ const HomeDevicesPage = () => {
               </div>
             </Link>
           ))}
-        <div className="text-center col-span-full">
-          <Button variant="link">Load more</Button>
-        </div>
+        {status === 'ok' && devices.length === 0 && (
+          <div className="text-center col-span-full">
+            <p className="text-slate-500 dark:text-slate-400">
+              You {`don't`} have any devices yet. Create one!
+            </p>
+          </div>
+        )}
+        {status === 'ok' && devices.length > 0 && (
+          <div className="text-center col-span-full">
+            <Button variant="link">Load more</Button>
+          </div>
+        )}
       </div>
     </div>
   )
