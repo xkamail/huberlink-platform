@@ -30,14 +30,6 @@ const DeviceDetailPage = ({
       return
     }
     setData(res.data)
-    const resIR = await DeviceService.ir.findDetail({
-      homeId,
-      deviceId,
-    })
-    if (!resIR.success) {
-      setStatus('error')
-      return
-    }
     setStatus('ok')
   }, [deviceId, homeId])
 

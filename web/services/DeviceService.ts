@@ -36,7 +36,7 @@ const DeviceService = {
       return fetcher
         .get<
           IResponse<{
-            vs: IIRRemoteVirtualDevice[]
+            virtuals: IIRRemoteVirtualDevice[]
             remote: IIRRemote
           }>
         >(`/home/${homeId}/devices/${deviceId}/ir-remote`)
@@ -66,6 +66,11 @@ const DeviceService = {
           icon,
         })
         .then((r) => r.data)
+    },
+    listVirtual({ homeId, deviceId }: { homeId: string; deviceId: string }) {
+      return fetcher.get<IResponse<{}>>(
+        `/home/${homeId}/devices/${deviceId}/ir-remote/ir-remote`
+      )
     },
   },
 }

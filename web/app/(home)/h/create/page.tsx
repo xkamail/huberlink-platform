@@ -35,11 +35,8 @@ const HomePage = () => {
         <div className="bg-white rounded-lg p-4">
           <div>
             <Form ctx={ctx} onSubmit={submit}>
-              <p className="text-sm text-slate-500 dark:text-slate-400">
-                Once upon a time, in a far-off land, there was a very lazy king
-                who spent all day lounging on his throne. One day, his advisors
-                came to him with a problem: the kingdom was running out of
-                money.
+              <p className="text-slate-600 dark:text-slate-400">
+                Create home to start adding devices
               </p>
               <Input {...ctx.register('name')} placeholder="Enter home name" />
               <div className="flex justify-between items-center">
