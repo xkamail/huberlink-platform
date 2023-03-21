@@ -74,13 +74,8 @@ const VirtualDevice = ({
             </h1>
 
             <AlertDialog>
-              <AlertDialogTrigger>
-                <Button
-                  size="sm"
-                  variant="link"
-                  className="hover:text-red-500"
-                  onClick={handleDelete}
-                >
+              <AlertDialogTrigger asChild>
+                <Button size="sm" variant="link" className="hover:text-red-500">
                   <TrashIcon className="w-4 h-4" />
                 </Button>
               </AlertDialogTrigger>
@@ -91,7 +86,7 @@ const VirtualDevice = ({
                   </AlertDialogTitle>
                   <AlertDialogDescription>
                     This action cannot be undone. This will permanently delete
-                    your virtual devices.
+                    your virtual devices and all commands.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>

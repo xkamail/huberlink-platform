@@ -1,4 +1,5 @@
 'use client'
+import Card from '@/components/ui/card'
 import PageHeader from '@/components/ui/page-header'
 import Spinner from '@/components/ui/spinner'
 import { useHomeSelector } from '@/lib/contexts/HomeContext'
@@ -56,6 +57,9 @@ const DeviceDetailPage = ({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="col-span-1">
           <DeviceInformation data={data} />
+        </div>
+        <div className="col-span-1">
+          <Card>-</Card>
         </div>
         <div className="col-span-2">
           <IRRemoteSection device={data} />
