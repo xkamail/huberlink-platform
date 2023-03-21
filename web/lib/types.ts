@@ -122,7 +122,7 @@ export interface IIRRemoteVirtualDevice {
   id: string
   remoteId: string
   name: string
-  kind: VirtualCategoryEnum
+  category: VirtualCategoryEnum
   icon: string
   isLearning: boolean
   properties: { [key: string]: any }

@@ -1,4 +1,4 @@
-import { ArrowLeftIcon } from 'lucide-react'
+import { ChevronLeftIcon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { Button } from './button'
 
@@ -12,7 +12,7 @@ const PageHeader = ({ title }: { title: string }) => {
           router.back()
         }}
       >
-        <ArrowLeftIcon />
+        <ChevronLeftIcon />
       </Button>
 
       <h2 className="scroll-m-20 pb-2 text-3xl font-semibold tracking-tight transition-colors first:mt-0 dark:border-b-slate-700">

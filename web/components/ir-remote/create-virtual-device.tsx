@@ -26,7 +26,7 @@ const CreateVirtualDeviceForm = ({
     },
   })
   const onSubmit = async (data: any) => {
-    if (!data.kind) {
+    if (data.kind === '') {
       toast.error('Please select a kind')
       return
     }
@@ -52,6 +52,10 @@ const CreateVirtualDeviceForm = ({
           label="Name"
           options={{
             required: 'Name is required',
+            maxLength: {
+              value: 10,
+              message: 'Name must be less than 10 characters',
+            },
           }}
         />
         <div className="mt-4 gap-4 flex-row flex justify-center">

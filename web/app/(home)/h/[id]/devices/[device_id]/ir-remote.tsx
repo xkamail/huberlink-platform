@@ -1,6 +1,6 @@
 import CreateVirtualDeviceForm from '@/components/ir-remote/create-virtual-device'
+import VirtualDevice from '@/components/ir-remote/virtual-device'
 import { Button } from '@/components/ui/button'
-import Card from '@/components/ui/card'
 import {
   Dialog,
   DialogContent,
@@ -33,7 +33,7 @@ const IRRemoteSection = ({ device }: { device: IDeviceDetail }) => {
         data.success &&
         data.data.virtuals.map((v) => (
           <div className="col-span-1" key={v.id}>
-            <Card>{v.name}</Card>
+            <VirtualDevice {...v} />
           </div>
         ))}
       <div className="col-span-full">
