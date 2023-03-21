@@ -16,6 +16,7 @@ import { IIRRemoteVirtualDevice, VirtualCategoryEnum } from '@/lib/types'
 import DeviceService from '@/services/DeviceService'
 import { ChevronRight, TrashIcon } from 'lucide-react'
 import Image from 'next/image'
+import Link from 'next/link'
 import { Button } from '../ui/button'
 import Card from '../ui/card'
 const renderCategory = (category: VirtualCategoryEnum) => {
@@ -61,6 +62,28 @@ const VirtualDevice = ({
       deviceId,
     })
   }
+  //
+  let href = `/h/${homeId}/devices/${deviceId}/ir-remote`
+
+  // render category path
+  switch (category) {
+    case VirtualCategoryEnum.AirConditioner:
+      href += `/air`
+      break
+    case VirtualCategoryEnum.TV:
+      href += `/tv`
+      break
+    case VirtualCategoryEnum.Fan:
+      href += `/fan`
+      break
+    case VirtualCategoryEnum.Other:
+      href += `/diy`
+      break
+    default:
+      href += `/diy`
+      break
+  }
+
   return (
     <Card>
       <div className="grid grid-cols-2 gap-4">
@@ -99,10 +122,12 @@ const VirtualDevice = ({
             </AlertDialog>
           </div>
           <div className="">
-            <Button size="sm" variant="subtle" block>
-              <span className="mb-1">Settings</span>
-              <ChevronRight className="w-4 h-4 ml-1" />
-            </Button>
+            <Link href={href}>
+              <Button size="sm" variant="subtle" block>
+                <span className="mb-1">Settings</span>
+                <ChevronRight className="w-4 h-4 ml-1" />
+              </Button>
+            </Link>
           </div>
         </div>
       </div>
