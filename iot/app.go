@@ -165,10 +165,11 @@ func Handlers() http.Handler {
 				return nil, err
 			}
 			var p device.CreateParam
+			p.HomeID = homeID
 			if err := mustBind(r, &p); err != nil {
 				return nil, err
 			}
-			p.HomeID = homeID
+
 			return device.Create(ctx, &p)
 		}))
 		r.Get("/home/{home_id}/devices/{device_id}", h(func(ctx context.Context, r *http.Request) (any, error) {
