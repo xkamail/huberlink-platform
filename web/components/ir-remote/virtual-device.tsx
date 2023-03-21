@@ -1,11 +1,23 @@
 'use client'
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog'
+import { useHomeSelector } from '@/lib/contexts/HomeContext'
 import { IIRRemoteVirtualDevice, VirtualCategoryEnum } from '@/lib/types'
+import DeviceService from '@/services/DeviceService'
 import { ChevronRight, TrashIcon } from 'lucide-react'
 import Image from 'next/image'
 import { Button } from '../ui/button'
 import Card from '../ui/card'
-
 const renderCategory = (category: VirtualCategoryEnum) => {
   let img = require(`@/assets/images/remote-control.png`)
   if (category === VirtualCategoryEnum.AirConditioner) {
@@ -28,13 +40,27 @@ const renderCategory = (category: VirtualCategoryEnum) => {
         alt={category.toString()}
         width={256}
         height={256}
-        className="w-12 h-12 md:w-16 md:h-16"
+        className="w-12 h-12 md:w-16 md:h-16  grayscale"
       />
     </div>
   )
 }
 
-const VirtualDevice = ({ name, category }: IIRRemoteVirtualDevice) => {
+const VirtualDevice = ({
+  name,
+  category,
+  deviceId,
+  id: virtualId,
+}: IIRRemoteVirtualDevice & { deviceId: string }) => {
+  const homeId = useHomeSelector((s) => s.homeId)
+  const handleDelete = () => {
+    //
+    DeviceService.ir.deleteVirtual({
+      homeId,
+      virtualId,
+      deviceId,
+    })
+  }
   return (
     <Card>
       <div className="grid grid-cols-2 gap-4">
@@ -46,9 +72,36 @@ const VirtualDevice = ({ name, category }: IIRRemoteVirtualDevice) => {
             <h1 className="text-xl text-slate-900 font-semibold tracking-tight">
               {name}
             </h1>
-            <Button size="sm" variant="link" className="hover:text-red-500">
-              <TrashIcon className="w-4 h-4" />
-            </Button>
+
+            <AlertDialog>
+              <AlertDialogTrigger>
+                <Button
+                  size="sm"
+                  variant="link"
+                  className="hover:text-red-500"
+                  onClick={handleDelete}
+                >
+                  <TrashIcon className="w-4 h-4" />
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>
+                    Are you sure absolutely sure?
+                  </AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete
+                    your virtual devices.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleDelete}>
+                    Continue
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
           <div className="">
             <Button size="sm" variant="subtle" block>

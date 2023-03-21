@@ -22,18 +22,27 @@ const IRRemoteSection = ({ device }: { device: IDeviceDetail }) => {
         deviceId: device.id,
         homeId,
       }),
-    { refreshInterval: 1000 }
+    {
+      refreshInterval: 1000,
+    }
   )
   const [open, setOpen] = useState(false)
   if (isLoading) return <div>Loading...</div>
   if (error) return <div>Error</div>
   return (
-    <div className="grid md:grid-cols-2 gap-4">
+    <div className="grid md:grid-cols-2 gap-4 py-10">
+      {data && data.success && data.data.virtuals.length === 0 && (
+        <div className="col-span-full my-10">
+          <div className="text-center text-slate-600">
+            <p>No virtual device found</p>
+          </div>
+        </div>
+      )}
       {data &&
         data.success &&
         data.data.virtuals.map((v) => (
           <div className="col-span-1" key={v.id}>
-            <VirtualDevice {...v} />
+            <VirtualDevice deviceId={device.id} {...v} />
           </div>
         ))}
       <div className="col-span-full">

@@ -72,6 +72,19 @@ const DeviceService = {
         `/home/${homeId}/devices/${deviceId}/ir-remote/ir-remote`
       )
     },
+    deleteVirtual({
+      homeId,
+      deviceId,
+      virtualId,
+    }: {
+      homeId: string
+      deviceId: string
+      virtualId: string
+    }) {
+      return fetcher.delete<IResponse<{}>>(
+        `/home/${homeId}/devices/${deviceId}/ir-remote/virtual/${virtualId}`
+      )
+    },
   },
 }
 
