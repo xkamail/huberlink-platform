@@ -93,7 +93,8 @@ type Command struct {
 	VirtualID snowid.ID `json:"virtualId"`
 	Name      string    `json:"name"`
 	// Code of raw data
-	Code   []uint  `json:"-"`
+	Code []uint `json:"-"`
+	// remark is a note for frontend
 	Remark *string `json:"remark"`
 	// Platform is a platform that this command will be used
 	Platform  string    `json:"platform"`
