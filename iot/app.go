@@ -268,6 +268,9 @@ func Handlers() http.Handler {
 					return nil, err
 				}
 				v, err := irremote.FindVirtual(ctx, remoteID, virtualID)
+				if err != nil {
+					return nil, err
+				}
 				type detail struct {
 					*irremote.VirtualKey
 					Buttons []*irremote.Command `json:"buttons"`

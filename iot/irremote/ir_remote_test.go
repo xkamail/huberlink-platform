@@ -25,6 +25,7 @@ func TestIRRemote(t *testing.T) {
 	homeID, err := home.Create(ctx, &home.CreateParam{
 		Name: "my home",
 	})
+	assert.NoError(t, err)
 	deviceID, err := device.Create(ctx, &device.CreateParam{
 		"test",
 		"",

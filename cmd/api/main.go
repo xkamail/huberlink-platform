@@ -2,14 +2,17 @@ package main
 
 import (
 	"context"
+	"flag"
 	"log"
 	"net"
 	"net/http"
+	"os"
 
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/moonrhythm/parapet"
 	"github.com/moonrhythm/parapet/pkg/cors"
+	"golang.org/x/exp/slog"
 
 	"github.com/xkamail/huberlink-platform/iot"
 	"github.com/xkamail/huberlink-platform/pkg/api"
@@ -18,14 +21,21 @@ import (
 	"github.com/xkamail/huberlink-platform/pkg/uierr"
 )
 
+var debug = flag.Bool("debug", false, "enable debug log")
+
 func main() {
+	flag.Parse()
 	if err := run(); err != nil {
 		log.Fatal(err)
 	}
 }
 
 func run() error {
-
+	l := slog.NewTextHandler(os.Stdout)
+	if *debug {
+		l.Enabled(context.TODO(), slog.LevelDebug)
+	}
+	slog.SetDefault(slog.New(l))
 	if err := config.Init(); err != nil {
 		return err
 	}

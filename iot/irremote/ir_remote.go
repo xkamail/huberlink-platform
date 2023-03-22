@@ -87,21 +87,6 @@ type VirtualKey struct {
 	UpdatedAt  time.Time  `json:"updatedAt"`
 }
 
-type Command struct {
-	ID        snowid.ID `json:"id"`
-	RemoteID  snowid.ID `json:"remoteId"`
-	VirtualID snowid.ID `json:"virtualId"`
-	Name      string    `json:"name"`
-	// Code of raw data
-	Code []uint `json:"-"`
-	// remark is a note for frontend
-	Remark *string `json:"remark"`
-	// Platform is a platform that this command will be used
-	Platform  string    `json:"platform"`
-	CreatedAt time.Time `json:"createdAt"`
-	UpdatedAt time.Time `json:"updatedAt"`
-}
-
 // Find IRRemote by deviceID
 func Find(ctx context.Context, deviceID snowid.ID) (*IRRemote, error) {
 	rows, err := pgctx.Query(ctx, `select id, device_id, home_id, created_at, updated_at from device_ir_remotes where device_id = $1`, deviceID)
@@ -129,7 +114,7 @@ func ListVirtual(ctx context.Context, deviceID snowid.ID) ([]*VirtualKey, error)
 	}
 	d, err := pgx.CollectRows(rows, pgx.RowToAddrOfStructByPos[VirtualKey])
 	if errors.Is(err, pgx.ErrNoRows) {
-		return nil, ErrVirtualKeyNotfound
+		return nil, ErrVirtualKeyNotFound
 	}
 	if err != nil {
 		return nil, err
@@ -243,7 +228,7 @@ func FindVirtual(ctx context.Context, deviceID, virtualID snowid.ID) (*VirtualKe
 	}
 	d, err := pgx.CollectOneRow(rows, pgx.RowToAddrOfStructByPos[VirtualKey])
 	if errors.Is(err, pgx.ErrNoRows) {
-		return nil, ErrVirtualKeyNotfound
+		return nil, ErrVirtualKeyNotFound
 	}
 	if err != nil {
 		return nil, err
