@@ -121,6 +121,7 @@ func handler(ctx context.Context) func(client mqtt.Client, msg mqtt.Message) {
 			if irRemoteLearningSub.Topic() == topic {
 				return irRemoteLearningSub.Handler(ctx, msg.Payload())
 			}
+			slog.Debug("unknown topic", slog.String("topic", topic))
 		default:
 			return fmt.Errorf("not support device kind %d", iot.Kind)
 		}

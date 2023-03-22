@@ -9,6 +9,7 @@ import (
 
 	"github.com/xkamail/huberlink-platform/pkg/pgctx"
 	"github.com/xkamail/huberlink-platform/pkg/snowid"
+	"github.com/xkamail/huberlink-platform/pkg/uierr"
 )
 
 type Command struct {
@@ -53,7 +54,7 @@ func CreateCommand(ctx context.Context, p *CreateCommandParam) (*Command, error)
 		&remoteID,
 	)
 	if errors.Is(err, pgx.ErrNoRows) {
-		return nil, ErrVirtualKeyNotFound
+		return nil, uierr.NotFound("no virtual key is learning")
 	}
 	if err != nil {
 		return nil, err

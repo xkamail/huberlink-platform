@@ -30,7 +30,7 @@ type learningSubscribe struct {
 }
 
 func (t learningSubscribe) Topic() string {
-	return "learning"
+	return "irremote/learning"
 }
 
 type MQTTLearningPayload struct {
