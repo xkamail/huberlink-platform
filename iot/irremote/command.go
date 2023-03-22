@@ -44,7 +44,7 @@ func CreateCommand(ctx context.Context, p *CreateCommandParam) (*Command, error)
 	)
 	// find  virtual key which is learning state
 	err := pgctx.QueryRow(ctx, `
-			select is_learning, dir.id 
+			select device_ir_remote_virtual_keys.id, dir.id 
 			from device_ir_remote_virtual_keys 
 			inner join device_ir_remotes dir on dir.id = device_ir_remote_virtual_keys.remote_id
 			where dir.device_id = $1 and is_learning = true`,
