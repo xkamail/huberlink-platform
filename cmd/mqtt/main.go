@@ -119,7 +119,7 @@ func handler(ctx context.Context) func(client mqtt.Client, msg mqtt.Message) {
 		// we only support IRRemote for now
 		case device.KindIRRemote:
 			if irRemoteLearningSub.Topic() == topic {
-				return irRemoteLearningSub.Handler(ctx, msg.Payload())
+				return irRemoteLearningSub.Handler(ctx, iot.ID, msg.Payload())
 			}
 			slog.Debug("unknown topic", slog.String("topic", topic))
 		default:

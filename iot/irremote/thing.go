@@ -34,21 +34,20 @@ func (t learningSubscribe) Topic() string {
 }
 
 type MQTTLearningPayload struct {
-	DeviceID snowid.ID `json:"deviceId"`
-	RawData  []uint8   `json:"rawData"`
-	Platform string    `json:"platform"`
+	RawData  []uint8 `json:"rawData"`
+	Platform string  `json:"platform"`
 }
 
-func (t learningSubscribe) Handler(ctx context.Context, _b []byte) error {
+func (t learningSubscribe) Handler(ctx context.Context, deviceID snowid.ID, _b []byte) error {
 	var p MQTTLearningPayload
 	if err := json.Unmarshal(_b, &p); err != nil {
 		return err
 	}
 	// find  virtual key which is learning state
 	command, err := CreateCommand(ctx, &CreateCommandParam{
-		Name:     "",
-		Remark:   "",
-		DeviceID: p.DeviceID,
+		Name:     "", // user have to setting name after learning
+		Remark:   "", // for specific frontend to show
+		DeviceID: deviceID,
 		Platform: p.Platform,
 		Code:     p.RawData,
 	})

@@ -85,6 +85,10 @@ func CreateCommand(ctx context.Context, p *CreateCommandParam) (*Command, error)
 	if err != nil {
 		return nil, err
 	}
+	_, err = tx.Exec(ctx, `update device_ir_remote_virtual_keys set is_learning = false where id = $1`, virtualID)
+	if err != nil {
+		return nil, err
+	}
 	// commit transaction
 	if err := tx.Commit(ctx); err != nil {
 		return nil, err

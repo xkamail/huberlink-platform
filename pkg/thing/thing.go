@@ -37,7 +37,7 @@ type Subscriber interface {
 	// Topic return topic name to subscribe
 	Topic() string
 	// Handler return handler function
-	Handler(ctx context.Context, p []byte) error
+	Handler(ctx context.Context, deviceID snowid.ID, p []byte) error
 }
 
 type ReportFormat[T any] struct {
