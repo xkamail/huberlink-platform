@@ -23,6 +23,9 @@ import (
 )
 
 var debug = flag.Bool("debug", false, "enable debug log")
+var messagePubHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) {
+	fmt.Printf("Received message: %s from topic: %s\n", msg.Payload(), msg.Topic())
+}
 
 func main() {
 	flag.Parse()
@@ -33,11 +36,11 @@ func main() {
 
 // run MQTT server
 func run() error {
-	l := slog.NewTextHandler(os.Stdout)
 	if *debug {
-		l.Enabled(context.TODO(), slog.LevelDebug)
+		l := slog.HandlerOptions{Level: slog.LevelDebug}.NewTextHandler(os.Stdout)
+		slog.SetDefault(slog.New(l))
+		slog.Debug("debug mode enabled")
 	}
-	slog.SetDefault(slog.New(l))
 
 	ctx := context.Background()
 	if err := config.Init(); err != nil {
@@ -60,10 +63,16 @@ func run() error {
 	opts.AddBroker(cfg.MQTTURI)
 	opts.SetUsername(cfg.MQTTUsername)
 	opts.SetPassword(cfg.MQTTPassword)
-	opts.SetClientID("")
+	opts.SetClientID("mqtt server node")
 	opts.SetCleanSession(true)
 	opts.SetKeepAlive(60 * time.Second)
-	opts.SetDefaultPublishHandler(handler(ctx))
+	opts.SetDefaultPublishHandler(messagePubHandler)
+	opts.OnConnect = func(c mqtt.Client) {
+		log.Printf("connected to mqtt server %v", c.IsConnected())
+	}
+	opts.OnConnectionLost = func(c mqtt.Client, err error) {
+		log.Printf("connection lost: %v", err)
+	}
 	c := mqtt.NewClient(opts)
 	if token := c.Connect(); token.Wait() && token.Error() != nil {
 		return token.Error()
@@ -72,19 +81,14 @@ func run() error {
 	if err != nil {
 		return err
 	}
-	err = thing.Execute(context.Background(), snowid.Gen(), &thing.ExecuteMessage{
-		Time: time.Now().Unix(),
-		Data: &irremote.MQTTCmd{
-			Code:      "0x123",
-			Frequency: 38,
-		},
-	})
-	if err != nil {
-		return err
+	for _, topic := range []string{
+		thing.PrefixTopic + "/+/thing/#",
+	} {
+		if token := c.Subscribe(topic, 0, handler(ctx)); token.Wait() && token.Error() != nil {
+			return token.Error()
+		}
 	}
-	c.IsConnected()
 	log.Printf("server is running %v\n", c.IsConnected())
-
 	select {}
 }
 
@@ -123,7 +127,7 @@ func handler(ctx context.Context) func(client mqtt.Client, msg mqtt.Message) {
 		return nil
 	}
 	return func(client mqtt.Client, msg mqtt.Message) {
-		slog.Debug("Received message on topic: %s\nMessage: %s\n", msg.Topic(), string(msg.Payload()))
+		slog.Debug("Received message", slog.String("topic", msg.Topic()), slog.String("payload", string(msg.Payload())))
 		//
 		err := fn(client, msg)
 		if err != nil {
