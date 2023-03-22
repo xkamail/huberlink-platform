@@ -98,7 +98,26 @@ func CreateCommand(ctx context.Context, p *CreateCommandParam) (*Command, error)
 }
 
 func FindCommand(ctx context.Context, deviceID, virtualID, commandID snowid.ID) (*Command, error) {
-	return nil, nil
+	rows, err := pgctx.Query(ctx, `
+		select c.id, c.remote_id, c.virtual_id, c.name, c.code, c.remark, c.platforms, c.created_at, c.updated_at 
+		from device_ir_remote_commands c 
+		inner join device_ir_remotes dir on dir.id = c.remote_id 
+		where c.id = $1 and c.virtual_id = $2 and dir.device_id = $3`,
+		commandID,
+		virtualID,
+		deviceID,
+	)
+	if err != nil {
+		return nil, err
+	}
+	c, err := pgx.CollectOneRow(rows, pgx.RowToAddrOfStructByPos[Command])
+	if errors.Is(err, pgx.ErrNoRows) {
+		return nil, ErrCommandNotFound
+	}
+	if err != nil {
+		return nil, err
+	}
+	return c, nil
 }
 
 func ListCommand(ctx context.Context, deviceID, virtualID snowid.ID) ([]*Command, error) {
@@ -107,4 +126,35 @@ func ListCommand(ctx context.Context, deviceID, virtualID snowid.ID) ([]*Command
 
 func DeleteCommand(ctx context.Context, deviceID, virtualID, commandID snowid.ID) error {
 	return nil
+}
+
+type UpdateCommandParam struct {
+	Name   string `json:"name"`
+	Remark string `json:"remark"`
+}
+
+func (p *UpdateCommandParam) Valid() error {
+	if p.Name == "" {
+		return uierr.Invalid("name", "name is required")
+	}
+
+	return nil
+}
+
+func UpdateCommand(ctx context.Context, deviceID, virtualID, commandID snowid.ID, p *UpdateCommandParam) (*Command, error) {
+
+	_, err := pgctx.Exec(ctx, `
+		update device_ir_remote_commands 
+			set name = $1, 
+			remark = $2 
+			where id = $3 and virtual_id = $4 `,
+		p.Name,
+		p.Remark,
+		commandID,
+		virtualID,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return FindCommand(ctx, deviceID, virtualID, commandID)
 }

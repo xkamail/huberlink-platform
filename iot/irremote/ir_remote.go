@@ -249,7 +249,7 @@ func ListVirtualCommand(ctx context.Context, virtualID snowid.ID) ([]*Command, e
 	}
 	d, err := pgx.CollectRows(rows, pgx.RowToAddrOfStructByPos[Command])
 	if errors.Is(err, pgx.ErrNoRows) {
-		return nil, ErrCommandNotfound
+		return nil, ErrCommandNotFound
 	}
 	if err != nil {
 		return nil, err
