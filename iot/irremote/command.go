@@ -121,11 +121,35 @@ func FindCommand(ctx context.Context, deviceID, virtualID, commandID snowid.ID) 
 }
 
 func ListCommand(ctx context.Context, deviceID, virtualID snowid.ID) ([]*Command, error) {
-	return nil, nil
+	rows, err := pgctx.Query(ctx, `
+		select c.id, c.remote_id, c.virtual_id, c.name, c.code, c.remark, c.platforms, c.created_at, c.updated_at 
+		from device_ir_remote_commands c 
+		inner join device_ir_remotes dir on dir.id = c.remote_id 
+		where c.virtual_id = $2 and dir.device_id = $3`,
+		virtualID,
+		deviceID,
+	)
+	if err != nil {
+		return nil, err
+	}
+	c, err := pgx.CollectRows(rows, pgx.RowToAddrOfStructByPos[Command])
+	if errors.Is(err, pgx.ErrNoRows) {
+		return nil, ErrCommandNotFound
+	}
+	if err != nil {
+		return nil, err
+	}
+	return c, nil
 }
 
 func DeleteCommand(ctx context.Context, deviceID, virtualID, commandID snowid.ID) error {
-	return nil
+	_, err := pgctx.Exec(ctx, `
+		delete from device_ir_remote_commands
+		where id = $1 and virtual_id = $2`,
+		commandID,
+		virtualID,
+	)
+	return err
 }
 
 type UpdateCommandParam struct {
