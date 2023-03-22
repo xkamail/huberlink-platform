@@ -196,7 +196,7 @@ func CreateVirtual(ctx context.Context, p *CreateVirtualKeyParam) (*VirtualKey, 
 	if err := tx.Commit(ctx); err != nil {
 		return nil, err
 	}
-	return FindVirtual(ctx, remoteID, id)
+	return FindVirtual(ctx, p.DeviceID, id)
 }
 
 type UpdateVirtualParam struct {
@@ -231,9 +231,13 @@ func UpdateVirtual(ctx context.Context, p *UpdateVirtualParam) error {
 	return nil
 }
 
-func FindVirtual(ctx context.Context, remoteID, virtualID snowid.ID) (*VirtualKey, error) {
+func FindVirtual(ctx context.Context, deviceID, virtualID snowid.ID) (*VirtualKey, error) {
 	// TODO: test this function
-	rows, err := pgctx.Query(ctx, `select id, remote_id, name, kind, icon, is_learning, properties, created_at, updated_at from device_ir_remote_virtual_keys where remote_id = $1 and id = $2`, remoteID, virtualID)
+	rows, err := pgctx.Query(ctx, `select v.id, remote_id, name, kind, icon, is_learning, properties, v.created_at, v.updated_at from device_ir_remote_virtual_keys v inner join device_ir_remotes dir on dir.id = v.remote_id 
+		where dir.device_id = $1 and v.id = $2`,
+		deviceID,
+		virtualID,
+	)
 	if err != nil {
 		return nil, err
 	}

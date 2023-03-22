@@ -43,18 +43,19 @@ func TestIRRemote(t *testing.T) {
 			"Air",
 			irremote.VirtualCategoryAirConditioner,
 			"",
-			remote.ID,
+			*deviceID,
 		}
 		virtual, err := irremote.CreateVirtual(ctx, &p)
 		assert.NoError(t, err)
 		assert.NotNil(t, virtual)
+		t.Run("list virtual", func(t *testing.T) {
+			vs, err := irremote.ListVirtual(ctx, *deviceID)
+			assert.NoError(t, err)
+			assert.NotNil(t, vs)
+			assert.Len(t, vs, 1)
+		})
 	})
-	t.Run("list virtual", func(t *testing.T) {
-		vs, err := irremote.ListVirtual(ctx, remote.ID)
-		assert.NoError(t, err)
-		assert.NotNil(t, vs)
-		assert.Len(t, vs, 1)
-	})
+
 }
 
 func TestVirtualCategory(t *testing.T) {
