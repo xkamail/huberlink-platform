@@ -14,9 +14,18 @@ String getHeartbeatTopic() {
 String getExecuteTopic() {
   return String("huberlink/") + String(device_id) + String(topic_execute);
 }
-
+String getTopicWildcard() {
+  return String("huberlink/") + String(device_id) + "/#";
+}
 
 #define mqtt_server "191.101.214.207"
 #define mqtt_port 1883
 #define mqtt_user "test"
 #define mqtt_password "test"
+
+char* fmtString(const char* format, const char* string) {
+  size_t len = snprintf(NULL, 0, format, string) + 1;
+  char* buf = new char[len];
+  snprintf(buf, len, format, string);
+  return buf;
+}

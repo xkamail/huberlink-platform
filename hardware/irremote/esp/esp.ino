@@ -1,6 +1,6 @@
 #include <ArduinoJson.h>
 #include <WiFiManager.h>
-#include "PinAndDefinations.h"
+#include <PubSubClient.h>
 #include <SoftwareSerial.h>
 #include <string.h>
 #include "config.h"
@@ -20,14 +20,12 @@ struct Command {
 void setup() {
   Serial.begin(9600);
   SPI.begin();
-  attachInterrupt(uint8_t pin, void (*)(), int mode)
 
-    // automatically connect using saved credentials if they exist
-    // If connection fails it starts an access point with the specified name
-    if (wm.autoConnect("IRRemote HuberLink")) {
+  // automatically connect using saved credentials if they exist
+  // If connection fails it starts an access point with the specified name
+  if (wm.autoConnect("IRRemote HuberLink")) {
     Serial.println("connected...yeey :)");
-  }
-  else {
+  } else {
     Serial.println("Configportal running");
   }
 
@@ -44,9 +42,7 @@ void loop() {
     Serial.print("Attempting MQTT connection...");
     if (client.connect(device_id, "test", "test")) {
       Serial.println("connected");
-      client.subscribe(topic_execute);
-      client.subscribe(topic_heartbeat);
-      client.subscribe(topic_learning);
+      client.subscribe(getTopicWildcard().c_str());
     } else {
       Serial.print("failed, rc=");
       Serial.print(client.state());
@@ -66,9 +62,6 @@ void loop() {
 
 
 void handler(char *topic, byte *p, unsigned int length) {
-  Serial.print("Message: ");
-  Serial.print(topic);
-  Serial.println("");
 
   String jsonStr = "";
   unsigned int i = 0;
@@ -85,19 +78,12 @@ void handler(char *topic, byte *p, unsigned int length) {
   // split topic from huberlink/device_id/topicname
   String topicName = _topicStr.substring(prefix.length() + 1);
   Serial.println(topicName);
-  if (topicName != "thing/execute")
-    return;
   // do exuecute
-
-  // extract json from payload
-  // to Command struct
   DynamicJsonDocument doc(1024);
   deserializeJson(doc, jsonStr);
   Command cmd;
   cmd.frequency = doc["frequency"];
   cmd.rawData = doc["rawData"];
-  //
-
   onExecuteCommand(&cmd);
 }
 
@@ -107,8 +93,7 @@ void onHeartbeat() {
   unsigned long currentMillis = millis();
   if (currentMillis - latestBeat >= 5000) {
     latestBeat = currentMillis;
-    Serial.println("beat~");
-    char *payload = "Hello world";
+    char *payload = fmtString("hello %s", String("world").c_str());
     Publish(getHeartbeatTopic().c_str(), payload);
   }
 }

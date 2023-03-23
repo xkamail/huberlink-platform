@@ -155,6 +155,11 @@ func Create(ctx context.Context, p *CreateParam) (*snowid.ID, error) {
 	return &id, nil
 }
 
+func HeartBeat(ctx context.Context, deviceID snowid.ID) error {
+	_, err := pgctx.Exec(ctx, `update devices set latest_heartbeat_at = $1 where id = $2`, time.Now(), deviceID)
+	return err
+}
+
 func generateToken() (string, error) {
 	s, err := rand.String(500)
 	if err != nil {
