@@ -5,7 +5,7 @@
 #include <string.h>
 #include "config.h"
 #include <SPI.h>
-
+#define SS 2
 
 WiFiManager wm;
 WiFiClient espClient;
@@ -13,12 +13,12 @@ PubSubClient client(espClient);
 
 // Command that sent from mqtt to run the remote code
 struct Command {
-  int frequency;
-  unsigned int rawData;
+  unsigned int rawData[400] = {};
 };
 
 void setup() {
   Serial.begin(9600);
+  // setup SPI
   SPI.begin();
 
   // automatically connect using saved credentials if they exist
@@ -33,6 +33,7 @@ void setup() {
     delay(500);
     Serial.print(".");
   }
+  client.setBufferSize(500);
   client.setServer(mqtt_server, mqtt_port);
   client.setCallback(handler);
 }
@@ -42,7 +43,9 @@ void loop() {
     Serial.print("Attempting MQTT connection...");
     if (client.connect(device_id, "test", "test")) {
       Serial.println("connected");
-      client.subscribe(getTopicWildcard().c_str());
+      client.subscribe(getLearningTopic().c_str());
+      client.subscribe(getExecuteTopic().c_str());
+      client.subscribe(getPingTopic().c_str());
     } else {
       Serial.print("failed, rc=");
       Serial.print(client.state());
@@ -63,28 +66,28 @@ void loop() {
 
 void handler(char *topic, byte *p, unsigned int length) {
 
-  String jsonStr = "";
-  unsigned int i = 0;
-  while (i < length)
-    jsonStr += (char)p[i++];
-  //
-
   String _topicStr = String(topic);
   String prefix = String("huberlink/") + String(device_id);
   if (!_topicStr.startsWith(prefix)) {
     Serial.println("Topic not match");
     return;
   }
-  // split topic from huberlink/device_id/topicname
   String topicName = _topicStr.substring(prefix.length() + 1);
+  Serial.print("TOPIC:");
   Serial.println(topicName);
-  // do exuecute
-  DynamicJsonDocument doc(1024);
-  deserializeJson(doc, jsonStr);
-  Command cmd;
-  cmd.frequency = doc["frequency"];
-  cmd.rawData = doc["rawData"];
-  onExecuteCommand(&cmd);
+
+  if (topicName == "thing/irremote/execute") {
+    Serial.print("Size:");
+    Serial.println(length);
+    for (int i = 0; i < length; i++) {
+      
+      Serial.print((char)p[i]);
+    }
+    return;
+  }
+  if (topicName == "thing/ping") {
+    return;
+  }
 }
 
 unsigned long latestBeat = 0;
@@ -108,8 +111,6 @@ void Publish(const char *topic, const char *payload) {
 void onExecuteCommand(Command *cmd) {
   //
   Serial.println("Execute command");
-  Serial.println(cmd->frequency);
-  Serial.println(cmd->rawData);
   free(cmd);
   // sent raw data to arduino uno
   // then report status whic success or not

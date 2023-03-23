@@ -10,13 +10,16 @@ const char* topic_ping = "/thing/ping";
 String getHeartbeatTopic() {
   return String("huberlink/") + String(device_id) + String(topic_heartbeat);
 }
-
 String getExecuteTopic() {
   return String("huberlink/") + String(device_id) + String(topic_execute);
 }
-String getTopicWildcard() {
-  return String("huberlink/") + String(device_id) + "/#";
+String getLearningTopic() {
+  return String("huberlink/") + String(device_id) + String(topic_learning);
 }
+String getPingTopic() {
+  return String("huberlink/") + String(device_id) + String(topic_ping);
+}
+
 
 #define mqtt_server "191.101.214.207"
 #define mqtt_port 1883
