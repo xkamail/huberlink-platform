@@ -5,7 +5,6 @@
 #include <string.h>
 #include "config.h"
 #include <SPI.h>
-#define SS 2
 
 WiFiManager wm;
 WiFiClient espClient;
@@ -17,10 +16,14 @@ struct Command {
 };
 
 void setup() {
-  Serial.begin(9600);
-  // setup SPI
-  SPI.begin();
+  pinMode(D1, INPUT);
+  Serial.begin(115200);
+  //attachInterrupt(digitalPinToInterrupt(D0), dataFromUno, RISING);
 
+  SPI.begin();
+  pinMode(SS, OUTPUT);
+  // setup SPI
+  digitalWrite(SS, HIGH);
   // automatically connect using saved credentials if they exist
   // If connection fails it starts an access point with the specified name
   if (wm.autoConnect("IRRemote HuberLink")) {
@@ -41,7 +44,7 @@ void setup() {
 void loop() {
   if (!client.connected()) {
     Serial.print("Attempting MQTT connection...");
-    if (client.connect(device_id, "test", "test")) {
+    if (client.connect(device_id, mqtt_user, mqtt_password)) {
       Serial.println("connected");
       client.subscribe(getLearningTopic().c_str());
       client.subscribe(getExecuteTopic().c_str());
@@ -79,10 +82,25 @@ void handler(char *topic, byte *p, unsigned int length) {
   if (topicName == "thing/irremote/execute") {
     Serial.print("Size:");
     Serial.println(length);
-    for (int i = 0; i < length; i++) {
-      
-      Serial.print((char)p[i]);
+    char *token = strtok((char *)p, ",");
+    int _i = 0;
+    uint8_t codes[800] = {};
+    while (token != NULL) {
+      uint8_t n = (uint8_t)atoi(token);
+      codes[_i++] = n;
+      token = strtok(NULL, ",");
     }
+    digitalWrite(SS, LOW);
+    //
+    for (int i = 0; i < _i; i++) {
+      SPI.transfer(codes[i]);
+      Serial.print(codes[i]);
+      Serial.print(" ");
+    }
+    SPI.transfer(0);  // end
+    Serial.println();
+    //
+    digitalWrite(SS, HIGH);
     return;
   }
   if (topicName == "thing/ping") {
