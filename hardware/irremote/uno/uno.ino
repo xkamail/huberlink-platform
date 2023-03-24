@@ -1,106 +1,94 @@
+
+#include <IRLibRecvPCI.h>
+#include <IRLib_HashRaw.h>
+#define IR_RECEIVE_PIN 2  // To be compatible with interrupt example, pin 2 is chosen here.
+#define IR_SEND_PIN 3
+#define TONE_PIN 4
+#define APPLICATION_PIN 5
+#define ALTERNATIVE_IR_FEEDBACK_LED_PIN 6  // E.g. used for examples which use LED_BUILDIN for example output.
+#define _IR_TIMING_TEST_PIN 7
 #include <IRremote.hpp>
-#define MARK_EXCESS_MICROS 20  // Adapt it to your IR receiver module. 20 is recommended for the cheap VS1838 modules.
 
-#define RAW_BUFFER_LENGTH 600
+#include "avr/interrupt.h"
+IRrecvPCI receiver(2);  // D2
+#if !defined(STR_HELPER)
+#define STR_HELPER(x) #x
+#define STR(x) STR_HELPER(x)
+#endif
 
-struct storedIRDataStruct {
-  IRData receivedIRData;
-  // extensions for sendRaw
-  uint8_t rawCode[RAW_BUFFER_LENGTH];  // The durations if raw
-  uint8_t rawCodeLength;               // The length of the code
-} sStoredIRData;
-
+IRsend IrSender;
 
 void setup() {
-  
+
+  pinMode(4, OUTPUT);
+  pinMode(2, INPUT);
   //
+  while (!Serial) {}
   Serial.begin(9600);
-  attachInterrupt(1, sw, RISING);
-  IrSender.begin(4);
-  IrReceiver.begin(PIND2, true);
-  Serial.println("begin");
+  Serial.println("start");
+  receiver.enableIRIn();
+
+  receiver.setFrameTimeout(100000);
+  Serial.println(F("START " __FILE__ " from " __DATE__ "\r\nUsing library version " VERSION_IRREMOTE));
+  Serial.println(F("Send IR signals at pin " STR(IR_SEND_PIN)));
+
+  IrSender.begin();  // Start with IR_SEND_PIN as send pin and enable feedback LED at default feedback LED pin
 }
 
 void loop() {
+  sw();
+  handleResult();
+}
+
+void handleResult() {
+  if (receiver.getResults()) {
+    Serial.println(F("Got a result"));
+    Serial.println(recvGlobal.recvLength, DEC);
+    Serial.print(F("uint16_t rawData[RAW_DATA_LEN]={\n\t"));
+    for (bufIndex_t i = 1; i < recvGlobal.recvLength; i++) {
+      Serial.print(recvGlobal.recvBuffer[i], DEC);
+      Serial.print(F(", "));
+      if ((i % 8) == 0) Serial.print(F("\n\t"));
+    }
+    Serial.println(F("1000};"));  //Add arbitrary trailing space
+    receiver.enableIRIn();        //Restart receiver
+  }
+}
+uint16_t rawData[68] = {
+  4474, 4602, 474, 1774, 474, 1774, 474, 1774,
+  474, 650, 478, 646, 478, 646, 454, 670,
+  478, 646, 478, 1774, 474, 1774, 474, 1774,
+  458, 666, 454, 670, 454, 670, 454, 670,
+  478, 650, 474, 650, 474, 1774, 454, 670,
+  454, 670, 474, 650, 478, 646, 454, 674,
+  450, 674, 450, 1798, 474, 650, 450, 1798,
+  454, 1794, 454, 1794, 454, 1798, 450, 1798,
+  450, 1798, 474, 1000
+};
+
+void sent() {
+  Serial.println("sent");
+  IrSender.sendSamsung(uint16_t aAddress, uint16_t aCommand, int_fast8_t aNumberOfRepeats)
+    IrSender.sendRaw(rawData, sizeof(rawData) / sizeof(rawData[0]), 36);  // Note the approach used to automatically calculate the size of the array.
 
   //
-  if (IrReceiver.decode()) {
-    storeCode();
-    IrReceiver.resume();  // resume receiver
-  }
+  // receiver.enableIRIn();
 }
+
+long debounce = 0;
 
 void sw() {
-  IrReceiver.stop();
-  Serial.println("click");
-  sendCode(&sStoredIRData);
-}
-
-// Stores the code for later playback in sStoredIRData
-// Most of this code is just logging
-void storeCode() {
-  Serial.println("storeCode");
-  if (IrReceiver.decodedIRData.rawDataPtr->rawlen < 4) {
-    Serial.print(F("Ignore data with rawlen="));
-    Serial.println(IrReceiver.decodedIRData.rawDataPtr->rawlen);
-    return;
-  }
-  if (IrReceiver.decodedIRData.flags & IRDATA_FLAGS_IS_REPEAT) {
-    Serial.println(F("Ignore repeat"));
-    return;
-  }
-  if (IrReceiver.decodedIRData.flags & IRDATA_FLAGS_IS_AUTO_REPEAT) {
-    Serial.println(F("Ignore autorepeat"));
-    return;
-  }
-  if (IrReceiver.decodedIRData.flags & IRDATA_FLAGS_PARITY_FAILED) {
-    Serial.println(F("Ignore parity error"));
-    return;
-  }
-  /*
-     * Copy decoded data
-     */
-  sStoredIRData.receivedIRData = IrReceiver.decodedIRData;
-
-  if (sStoredIRData.receivedIRData.protocol == UNKNOWN) {
-    Serial.print(F("Received unknown code and store "));
-    Serial.print(IrReceiver.decodedIRData.rawDataPtr->rawlen - 1);
-    Serial.println(F(" timing entries as raw "));
-    IrReceiver.printIRResultRawFormatted(&Serial, true);  // Output the results in RAW format
-    sStoredIRData.rawCodeLength = IrReceiver.decodedIRData.rawDataPtr->rawlen - 1;
-    /*
-         * Store the current raw data in a dedicated array for later usage
-         */
-    IrReceiver.compensateAndStoreIRResultInArray(sStoredIRData.rawCode);
-  } else {
-    sStoredIRData.rawCodeLength = IrReceiver.decodedIRData.rawDataPtr->rawlen - 1;
-    IrReceiver.compensateAndStoreIRResultInArray(sStoredIRData.rawCode);
-    Serial.println(sStoredIRData.rawCodeLength);
-    Serial.println("got known value");
-    for (int i = 0; i < sStoredIRData.rawCodeLength; i++) {
-      //
-      Serial.print(sStoredIRData.rawCode[i]);
-      if (i != sStoredIRData.rawCodeLength - 1) {
-        Serial.print(",");
-      }
+  int sw = digitalRead(5);
+  if ((millis() - debounce) > 1000) {
+    if (sw == LOW) {
+      Serial.println("press sw");
+      sent();
+      debounce = millis();
     }
-    Serial.println("");
-    sStoredIRData.receivedIRData.flags = 0;  // clear flags -esp. repeat- for later sending
-    Serial.println();
   }
+
+  return;
 }
-
-
-void sendCode(storedIRDataStruct *aIRDataToSend) {
-  Serial.println("sent");
-  IrSender.sendRaw(aIRDataToSend->rawCode, aIRDataToSend->rawCodeLength, 38);
-  // Serial.println("===");
-  // for (int i = 0; i < aIRDataToSend->rawCodeLength; i++) {
-  //   //
-  //   Serial.print(aIRDataToSend->rawCode[i]);
-  //   if (i != aIRDataToSend->rawCodeLength - 1) {
-  //     Serial.print(",");
-  //   }
-  // }
-  // Serial.println("");
+ISR(TIMER1_OVF_vect) {
+  PORTB ^= _BV(5);  // for debug
 }
