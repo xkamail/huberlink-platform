@@ -1,25 +1,21 @@
-#include <ArduinoJson.h>
+#define MARK_EXCESS_MICROS 20
+#define RAW_BUFFER_LENGTH 600
 #include <WiFiManager.h>
 #include <PubSubClient.h>
-#include <SoftwareSerial.h>
 #include <string.h>
 #include "config.h"
 #include <SPI.h>
+#include <IRremote.hpp>
 
 WiFiManager wm;
 WiFiClient espClient;
 PubSubClient client(espClient);
 
-// Command that sent from mqtt to run the remote code
-struct Command {
-  unsigned int rawData[400] = {};
-};
-
 void setup() {
   pinMode(D1, INPUT);
   Serial.begin(115200);
   //attachInterrupt(digitalPinToInterrupt(D0), dataFromUno, RISING);
-
+  IrReceiver.begin(D4, false);
   SPI.begin();
   pinMode(SS, OUTPUT);
   // setup SPI
@@ -64,8 +60,44 @@ void loop() {
   onHeartbeat();
   client.loop();
   wm.process();
+  listeningIR();
 }
+volatile bool feedbackResult = false;
 
+void listeningIR() {
+  if (IrReceiver.decode() && !feedbackResult) {
+    if (IrReceiver.decodedIRData.rawDataPtr->rawlen < 4) {
+      Serial.print(F("Ignore data with rawlen="));
+      Serial.println(IrReceiver.decodedIRData.rawDataPtr->rawlen);
+      return;
+    }
+    if (IrReceiver.decodedIRData.flags & IRDATA_FLAGS_IS_REPEAT) {
+      Serial.println(F("Ignore repeat"));
+      return;
+    }
+    if (IrReceiver.decodedIRData.flags & IRDATA_FLAGS_IS_AUTO_REPEAT) {
+      Serial.println(F("Ignore autorepeat"));
+      return;
+    }
+    if (IrReceiver.decodedIRData.flags & IRDATA_FLAGS_PARITY_FAILED) {
+      Serial.println(F("Ignore parity error"));
+      return;
+    }
+    if (IrReceiver.decodedIRData.flags & IRDATA_FLAGS_WAS_OVERFLOW) {
+      return;
+    }
+
+    uint8_t raw[600] = {};
+    int rawLength = IrReceiver.decodedIRData.rawDataPtr->rawlen - 1;
+    IrReceiver.compensateAndStoreIRResultInArray(raw);
+    String result;
+    for (int i = 0; i < rawLength; i++) {
+      result += String(raw[i]) + String(",");
+    }
+    feedbackResult = true;
+    Publish(getTopicLearningResult().c_str(), result.c_str());
+  }
+}
 
 void handler(char *topic, byte *p, unsigned int length) {
 
@@ -75,11 +107,10 @@ void handler(char *topic, byte *p, unsigned int length) {
     Serial.println("Topic not match");
     return;
   }
-  String topicName = _topicStr.substring(prefix.length() + 1);
+  String topicName = "/" + _topicStr.substring(prefix.length() + 1);
   Serial.print("TOPIC:");
   Serial.println(topicName);
-
-  if (topicName == "thing/irremote/execute") {
+  if (topicName == String(topic_execute)) {
     Serial.print("Size:");
     Serial.println(length);
     char *token = strtok((char *)p, ",");
@@ -103,7 +134,14 @@ void handler(char *topic, byte *p, unsigned int length) {
     digitalWrite(SS, HIGH);
     return;
   }
-  if (topicName == "thing/ping") {
+  if (topicName == String(topic_learning)) {
+    feedbackResult = false;
+    Serial.println("start learning");
+    IrReceiver.start();
+    return;
+  }
+  if (topicName == String(topic_ping)) {
+    Publish(getPingTopic().c_str(), String("pong").c_str());
     return;
   }
 }
@@ -124,12 +162,4 @@ void Publish(const char *topic, const char *payload) {
   while (topic[0] == '/')
     topic++;
   client.publish(topic, payload);
-}
-
-void onExecuteCommand(Command *cmd) {
-  //
-  Serial.println("Execute command");
-  free(cmd);
-  // sent raw data to arduino uno
-  // then report status whic success or not
 }

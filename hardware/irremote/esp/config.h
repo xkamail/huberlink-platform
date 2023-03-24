@@ -5,8 +5,11 @@ const char* device_token = "eOq830I6_QRpE3W-S1F_hx1Zj9BGczeVOLf4ieW9J09KWIHq5AEl
 const char* topic_heartbeat = "/thing/heartbeat";
 const char* topic_execute = "/thing/irremote/execute";
 const char* topic_learning = "/thing/irremote/learning";
+const char* topic_learning_result = "/thing/irremote/learning/result";
 const char* topic_ping = "/thing/ping";
-
+String getTopicLearningResult() {
+  return String("huberlink/") + String(device_id) + String(topic_learning_result);
+}
 String getHeartbeatTopic() {
   return String("huberlink/") + String(device_id) + String(topic_heartbeat);
 }
