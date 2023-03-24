@@ -19,12 +19,13 @@ String getLearningTopic() {
 String getPingTopic() {
   return String("huberlink/") + String(device_id) + String(topic_ping);
 }
+const int MAX_RAW_DATA = 10;
 
 
-#define mqtt_server "191.101.214.207"
+#define mqtt_server "141.11.156.252"
 #define mqtt_port 1883
-#define mqtt_user "test"
-#define mqtt_password "test"
+#define mqtt_user "huberlink"
+#define mqtt_password "huberlink"
 
 char* fmtString(const char* format, const char* string) {
   size_t len = snprintf(NULL, 0, format, string) + 1;
