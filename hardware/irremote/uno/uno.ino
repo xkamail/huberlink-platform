@@ -1,5 +1,6 @@
 
 #include <IRLibRecvPCI.h>
+#include <IRLibSendBase.h>  //We need the base code
 #include <IRLib_HashRaw.h>
 #define IR_RECEIVE_PIN 2  // To be compatible with interrupt example, pin 2 is chosen here.
 #define IR_SEND_PIN 3
@@ -7,16 +8,17 @@
 #define APPLICATION_PIN 5
 #define ALTERNATIVE_IR_FEEDBACK_LED_PIN 6  // E.g. used for examples which use LED_BUILDIN for example output.
 #define _IR_TIMING_TEST_PIN 7
-#include <IRremote.hpp>
 
 #include "avr/interrupt.h"
+
+IRsendRaw sender;
+
 IRrecvPCI receiver(2);  // D2
 #if !defined(STR_HELPER)
 #define STR_HELPER(x) #x
 #define STR(x) STR_HELPER(x)
 #endif
 
-IRsend IrSender;
 
 void setup() {
 
@@ -29,10 +31,6 @@ void setup() {
   receiver.enableIRIn();
 
   receiver.setFrameTimeout(100000);
-  Serial.println(F("START " __FILE__ " from " __DATE__ "\r\nUsing library version " VERSION_IRREMOTE));
-  Serial.println(F("Send IR signals at pin " STR(IR_SEND_PIN)));
-
-  IrSender.begin();  // Start with IR_SEND_PIN as send pin and enable feedback LED at default feedback LED pin
 }
 
 void loop() {
@@ -51,28 +49,29 @@ void handleResult() {
       if ((i % 8) == 0) Serial.print(F("\n\t"));
     }
     Serial.println(F("1000};"));  //Add arbitrary trailing space
-    receiver.enableIRIn();        //Restart receiver
+    // receiver.enableIRIn();        //Restart receiver
   }
 }
-uint16_t rawData[68] = {
-  4474, 4602, 474, 1774, 474, 1774, 474, 1774,
-  474, 650, 478, 646, 478, 646, 454, 670,
-  478, 646, 478, 1774, 474, 1774, 474, 1774,
-  458, 666, 454, 670, 454, 670, 454, 670,
-  478, 650, 474, 650, 474, 1774, 454, 670,
-  454, 670, 474, 650, 478, 646, 454, 674,
-  450, 674, 450, 1798, 474, 650, 450, 1798,
-  454, 1794, 454, 1794, 454, 1798, 450, 1798,
-  450, 1798, 474, 1000
-};
-
+//recvGlobal
 void sent() {
   Serial.println("sent");
-  IrSender.sendSamsung(uint16_t aAddress, uint16_t aCommand, int_fast8_t aNumberOfRepeats)
-    IrSender.sendRaw(rawData, sizeof(rawData) / sizeof(rawData[0]), 36);  // Note the approach used to automatically calculate the size of the array.
+  if (recvGlobal.recvBuffer[recvGlobal.recvLength - 1] != 1000) {
+    Serial.println("[DEBUG] rearrange array!");
+    for (bufIndex_t i = 0; i < recvGlobal.recvLength; i++) {
+      recvGlobal.recvBuffer[i] = recvGlobal.recvBuffer[i + 1];
+    }
+    recvGlobal.recvBuffer[recvGlobal.recvLength - 1] = 1000;
+  }
+  Serial.println("finished");
+  for (bufIndex_t i = 0; i < recvGlobal.recvLength; i++) {
+    Serial.print(recvGlobal.recvBuffer[i], DEC);
+    Serial.print(F(", "));
+    if ((i % 8) == 0) Serial.print(F("\n\t"));
+  }
 
+  sender.send(recvGlobal.recvBuffer, recvGlobal.recvLength, 38);
   //
-  // receiver.enableIRIn();
+  //receiver.enableIRIn();
 }
 
 long debounce = 0;
