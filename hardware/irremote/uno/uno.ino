@@ -1,7 +1,7 @@
 #include <IRremote.hpp>
 #define MARK_EXCESS_MICROS 20  // Adapt it to your IR receiver module. 20 is recommended for the cheap VS1838 modules.
 
-#define RAW_BUFFER_LENGTH 400
+#define RAW_BUFFER_LENGTH 600
 
 struct storedIRDataStruct {
   IRData receivedIRData;
@@ -10,7 +10,9 @@ struct storedIRDataStruct {
   uint8_t rawCodeLength;               // The length of the code
 } sStoredIRData;
 
+
 void setup() {
+  
   //
   Serial.begin(9600);
   attachInterrupt(1, sw, RISING);
@@ -73,7 +75,16 @@ void storeCode() {
   } else {
     sStoredIRData.rawCodeLength = IrReceiver.decodedIRData.rawDataPtr->rawlen - 1;
     IrReceiver.compensateAndStoreIRResultInArray(sStoredIRData.rawCode);
+    Serial.println(sStoredIRData.rawCodeLength);
     Serial.println("got known value");
+    for (int i = 0; i < sStoredIRData.rawCodeLength; i++) {
+      //
+      Serial.print(sStoredIRData.rawCode[i]);
+      if (i != sStoredIRData.rawCodeLength - 1) {
+        Serial.print(",");
+      }
+    }
+    Serial.println("");
     sStoredIRData.receivedIRData.flags = 0;  // clear flags -esp. repeat- for later sending
     Serial.println();
   }
@@ -82,15 +93,14 @@ void storeCode() {
 
 void sendCode(storedIRDataStruct *aIRDataToSend) {
   Serial.println("sent");
-
   IrSender.sendRaw(aIRDataToSend->rawCode, aIRDataToSend->rawCodeLength, 38);
-  Serial.println("===");
-  for (int i = 0; i < aIRDataToSend->rawCodeLength; i++) {
-    //
-    Serial.print(aIRDataToSend->rawCode[i]);
-    if (i != aIRDataToSend->rawCodeLength - 1) {
-      Serial.print(",");
-    }
-  }
-  Serial.println("");
+  // Serial.println("===");
+  // for (int i = 0; i < aIRDataToSend->rawCodeLength; i++) {
+  //   //
+  //   Serial.print(aIRDataToSend->rawCode[i]);
+  //   if (i != aIRDataToSend->rawCodeLength - 1) {
+  //     Serial.print(",");
+  //   }
+  // }
+  // Serial.println("");
 }

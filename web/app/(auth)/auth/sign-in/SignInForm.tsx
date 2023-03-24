@@ -12,6 +12,8 @@ import { useRouter } from 'next/navigation'
 import { parseCookies } from 'nookies'
 import { useForm } from 'react-hook-form'
 const SignInForm = () => {
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const userDispatch = useUserDispatch()
   const { toast } = useToast()
   const router = useRouter()
   const ctx = useForm({
@@ -21,9 +23,6 @@ const SignInForm = () => {
     },
   })
   const submit = async (data: ISignInForm) => {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    const userDispatch = useUserDispatch()
-
     const res = await AuthService.signIn(data)
     if (!res.success) {
       toast.error(res.message)
