@@ -1,93 +1,62 @@
-
-#include <IRLibRecvPCI.h>
-#include <IRLibSendBase.h>  //We need the base code
-#include <IRLib_HashRaw.h>
-#define IR_RECEIVE_PIN 2  // To be compatible with interrupt example, pin 2 is chosen here.
-#define IR_SEND_PIN 3
-#define TONE_PIN 4
-#define APPLICATION_PIN 5
-#define ALTERNATIVE_IR_FEEDBACK_LED_PIN 6  // E.g. used for examples which use LED_BUILDIN for example output.
-#define _IR_TIMING_TEST_PIN 7
-
+#include <Arduino.h>
+#include <SPI.h>
 #include "avr/interrupt.h"
+#define IR_SEND_PIN 3
 
-IRsendRaw sender;
-
-IRrecvPCI receiver(2);  // D2
+#include <IRremote.hpp>
+/*
+ * Helper macro for getting a macro definition as string
+ */
 #if !defined(STR_HELPER)
 #define STR_HELPER(x) #x
 #define STR(x) STR_HELPER(x)
 #endif
-
-
 void setup() {
-
-  pinMode(4, OUTPUT);
-  pinMode(2, INPUT);
-  //
+  IrSender.begin(3);
+  pinMode(SS, INPUT);
   while (!Serial) {}
   Serial.begin(9600);
-  Serial.println("start");
-  receiver.enableIRIn();
-
-  receiver.setFrameTimeout(100000);
+  Serial.println("Start");
+  Serial.print(F("Ready to send IR signals at pin " STR(IR_SEND_PIN) " on press of button at pin "));
+  SPCR |= _BV(SPE);   /* Enable SPI */
+  DDRB = (1 << PB4);  // slave out
+  SPI.attachInterrupt();
 }
+
+uint8_t irData[300];  // max buffer remote code is 300
+volatile bool _success = false;
+volatile int _length = 0;  // true data length
 
 void loop() {
-  sw();
-  handleResult();
-}
-
-void handleResult() {
-  if (receiver.getResults()) {
-    Serial.println(F("Got a result"));
-    Serial.println(recvGlobal.recvLength, DEC);
-    Serial.print(F("uint16_t rawData[RAW_DATA_LEN]={\n\t"));
-    for (bufIndex_t i = 1; i < recvGlobal.recvLength; i++) {
-      Serial.print(recvGlobal.recvBuffer[i], DEC);
-      Serial.print(F(", "));
-      if ((i % 8) == 0) Serial.print(F("\n\t"));
+  if (_success) {
+    _success = false;
+    int m = _length;
+    _length = 0;
+    Serial.print(m);
+    Serial.println("OK");
+    for (int i = 0; i < m; i++) {
+      Serial.print(irData[i]);
+      Serial.print(" ");
     }
-    Serial.println(F("1000};"));  //Add arbitrary trailing space
-    // receiver.enableIRIn();        //Restart receiver
+    Serial.println("===");
+    sent(m);
   }
 }
-//recvGlobal
-void sent() {
-  Serial.println("sent");
-  if (recvGlobal.recvBuffer[recvGlobal.recvLength - 1] != 1000) {
-    Serial.println("[DEBUG] rearrange array!");
-    for (bufIndex_t i = 0; i < recvGlobal.recvLength; i++) {
-      recvGlobal.recvBuffer[i] = recvGlobal.recvBuffer[i + 1];
-    }
-    recvGlobal.recvBuffer[recvGlobal.recvLength - 1] = 1000;
-  }
-  Serial.println("finished");
-  for (bufIndex_t i = 0; i < recvGlobal.recvLength; i++) {
-    Serial.print(recvGlobal.recvBuffer[i], DEC);
-    Serial.print(F(", "));
-    if ((i % 8) == 0) Serial.print(F("\n\t"));
-  }
 
-  sender.send(recvGlobal.recvBuffer, recvGlobal.recvLength, 38);
-  //
-  //receiver.enableIRIn();
+void sent(int _length) {
+  Serial.println("[INFO] sent");
+  IrSender.sendRaw(irData, _length, 38);
 }
 
-long debounce = 0;
-
-void sw() {
-  int sw = digitalRead(5);
-  if ((millis() - debounce) > 1000) {
-    if (sw == LOW) {
-      Serial.println("press sw");
-      sent();
-      debounce = millis();
-    }
+ISR(SPI_STC_vect) {
+  uint8_t oldsrg = SREG;
+  cli();
+  uint8_t n = (uint8_t)SPDR;
+  if (n == 0) {
+    _success = true;
+    SREG = oldsrg;
+    return;
   }
-
-  return;
-}
-ISR(TIMER1_OVF_vect) {
-  PORTB ^= _BV(5);  // for debug
+  irData[_length++] = n;
+  SREG = oldsrg;
 }
