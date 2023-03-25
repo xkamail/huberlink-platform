@@ -19,9 +19,10 @@ import {
   IIRRemoteVirtualDeviceCommand,
 } from '@/lib/types'
 import DeviceService from '@/services/DeviceService'
-import { EditIcon, PlusIcon } from 'lucide-react'
+import { PlusIcon } from 'lucide-react'
 import Image from 'next/image'
 import { useCallback, useEffect, useState } from 'react'
+import CommandCard from './CommandCard'
 const IRRemoteSettingPage = ({
   params: { id, device_id: deviceId, virtual_id: virtualId },
 }: {
@@ -123,17 +124,9 @@ const IRRemoteSettingPage = ({
     <div>
       <PageHeader title={data.name} />
       <div>
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
           {buttons.map((b, i: number) => (
-            <div
-              key={i}
-              className="p-4 bg-white shadow-sm rounded-lg flex justify-between items-center"
-            >
-              <p className="capitalize">{b.name || 'undefined'}</p>
-              <Button variant="ghost">
-                <EditIcon className="w-5 h-5" />
-              </Button>
-            </div>
+            <CommandCard key={i} data={b} />
           ))}
           <Dialog open={isLearning}>
             <DialogTrigger asChild>
