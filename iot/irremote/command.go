@@ -171,10 +171,6 @@ type UpdateCommandParam struct {
 	Flag   CommandFlag `json:"flag"`
 }
 
-const (
-	name = 
-)
-
 func (p *UpdateCommandParam) Valid() error {
 	if p.Name == "" {
 		return uierr.Invalid("name", "name is required")
