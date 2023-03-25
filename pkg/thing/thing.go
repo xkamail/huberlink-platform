@@ -68,7 +68,7 @@ func Ping(ctx context.Context, deviceID snowid.ID) bool {
 	log.Printf("is connected %v\n", c.IsConnected())
 	defer c.Disconnect(250)
 	topic := fmt.Sprintf("%s/%s/thing/ping", PrefixTopic, deviceID.String())
-	c.Publish(topic, 0, false, []byte("hi"))
+	c.Publish(topic, 0, false, []byte("hi")) // message should not be "pong"
 	pong := make(chan bool)
 	c.Subscribe(topic, 0, func(client mqtt.Client, message mqtt.Message) {
 		pong <- true
