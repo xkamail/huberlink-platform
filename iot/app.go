@@ -341,15 +341,39 @@ func Handlers() http.Handler {
 		))
 		r.Put("/home/{home_id}/devices/{device_id}/ir-remote/virtual/{virtual_id}/button/{button_id}", h(
 			func(ctx context.Context, r *http.Request) (any, error) {
-				// if name is empty then it has to be a new remote button
-				// which come from learning session
-				// update a button name of a virtual remote
-				return nil, errors.New("not implemented")
+				deviceID, err := URLParamID(r, "device_id")
+				if err != nil {
+					return nil, err
+				}
+				virtualID, err := URLParamID(r, "virtual_id")
+				if err != nil {
+					return nil, err
+				}
+				commandID, err := URLParamID(r, "button_id")
+				if err != nil {
+					return nil, err
+				}
+				var p irremote.UpdateCommandParam
+				if err := mustBind(r, &p); err != nil {
+					return nil, err
+				}
+				return irremote.UpdateCommand(ctx, deviceID, virtualID, commandID, &p)
 			},
 		))
 		r.Delete("/home/{home_id}/devices/{device_id}/ir-remote/virtual/{virtual_id}/button/{button_id}", h(func(ctx context.Context, r *http.Request) (any, error) {
-			// delete a button and codes is gone
-			return nil, errors.New("not implemented")
+			deviceID, err := URLParamID(r, "device_id")
+			if err != nil {
+				return nil, err
+			}
+			virtualID, err := URLParamID(r, "virtual_id")
+			if err != nil {
+				return nil, err
+			}
+			commandID, err := URLParamID(r, "button_id")
+			if err != nil {
+				return nil, err
+			}
+			return nil, irremote.DeleteCommand(ctx, deviceID, virtualID, commandID)
 		}))
 	}
 	return router
