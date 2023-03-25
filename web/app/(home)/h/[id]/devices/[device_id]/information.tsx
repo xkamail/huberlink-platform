@@ -46,7 +46,7 @@ const DeviceInformation = ({ data }: { data: IDeviceDetail }) => {
             <p className="text-sm">{data.model}</p>
             <p className="text-sm">
               {data.latestHeartbeatAt ? (
-                <span className="text-green-500">
+                <span className="text-slate-400">
                   {dayjs(data.latestHeartbeatAt).format('HH:mm:ss DD/MM/YYYY')}
                 </span>
               ) : (
