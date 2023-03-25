@@ -32,6 +32,68 @@ const DeviceService = {
   },
 
   ir: {
+    updateCommand(
+      {
+        homeId,
+        deviceId,
+        virtualId,
+        commandId,
+      }: {
+        homeId: string
+        deviceId: string
+        virtualId: string
+        commandId: string
+      },
+      data: {
+        name: string
+        remark: string
+      }
+    ) {
+      return fetcher
+        .put(
+          `/home/${homeId}/devices/${deviceId}/ir-remote/virtual/${virtualId}/button/${commandId}`,
+          data
+        )
+        .then((r) => r.data)
+    },
+    deleteCommand({
+      homeId,
+      deviceId,
+      virtualId,
+      commandId,
+    }: {
+      homeId: string
+      deviceId: string
+      virtualId: string
+      commandId: string
+    }) {
+      return fetcher
+        .delete(
+          `/home/${homeId}/devices/${deviceId}/ir-remote/virtual/${virtualId}/button/${commandId}`
+        )
+        .then((r) => r.data)
+    },
+    executeCommand(
+      {
+        homeId,
+        deviceId,
+        virtualId,
+      }: {
+        homeId: string
+        deviceId: string
+        virtualId: string
+      },
+      commandId: string
+    ) {
+      return fetcher
+        .post(
+          `/home/${homeId}/devices/${deviceId}/ir-remote/virtual/${virtualId}/execute`,
+          {
+            commandId,
+          }
+        )
+        .then((r) => r.data)
+    },
     findVirtual({
       homeId,
       deviceId,
