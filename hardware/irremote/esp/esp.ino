@@ -141,6 +141,11 @@ void handler(char *topic, byte *p, unsigned int length) {
     return;
   }
   if (topicName == String(topic_ping)) {
+    if (length == 4) {  // prevent self message
+                        // TODO: improve check message contain
+                        // instead of length of string
+      return;
+    }
     Publish(getPingTopic().c_str(), String("pong").c_str());
     return;
   }
