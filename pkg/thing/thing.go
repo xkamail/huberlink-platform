@@ -2,6 +2,7 @@ package thing
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
@@ -41,4 +42,16 @@ type Subscriber interface {
 type ReportFormat[T any] struct {
 	Time int64 `json:"time"`
 	Data T     `json:"data"`
+}
+
+func Call(ctx context.Context, topic string, deviceID snowid.ID, payload []byte) error {
+	c, err := New()
+	if err != nil {
+		return err
+	}
+	defer c.Disconnect(250)
+	topic = fmt.Sprintf("%s/%s/%s", PrefixTopic, deviceID.String(), topic)
+	token := c.Publish(topic, 0, false, payload)
+	token.Wait()
+	return token.Error()
 }
