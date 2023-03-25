@@ -128,7 +128,7 @@ func ListCommand(ctx context.Context, deviceID, virtualID snowid.ID) ([]*Command
 		select c.id, c.remote_id, c.virtual_id, c.name, c.code, c.remark, c.platforms, c.created_at, c.updated_at 
 		from device_ir_remote_commands c 
 		inner join device_ir_remotes dir on dir.id = c.remote_id 
-		where c.virtual_id = $2 and dir.device_id = $3 order by c.created_at desc `,
+		where c.virtual_id = $1 and dir.device_id = $2 order by c.created_at desc `,
 		virtualID,
 		deviceID,
 	)
