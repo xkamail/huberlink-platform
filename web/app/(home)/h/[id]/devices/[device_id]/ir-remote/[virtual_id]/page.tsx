@@ -133,7 +133,7 @@ const IRRemoteSettingPage = ({
                   Start learning
                 </Button>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-[425px]">
+              <DialogContent closeBtn={false} className="sm:max-w-[425px]">
                 <DialogHeader>
                   <DialogTitle>Start learning a new button</DialogTitle>
                   <DialogDescription className="my-10">
