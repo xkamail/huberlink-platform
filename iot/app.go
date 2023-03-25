@@ -287,6 +287,19 @@ func Handlers() http.Handler {
 				}, nil
 			},
 		))
+		r.Get("/home/{home_id}/devices/{device_id}/ir-remote/virtual/{virtual_id}/buttons", h(
+			func(ctx context.Context, r *http.Request) (any, error) {
+				virtualID, err := URLParamID(r, "virtual_id")
+				if err != nil {
+					return nil, err
+				}
+				deviceID, err := URLParamID(r, "device_id")
+				if err != nil {
+					return nil, err
+				}
+				return irremote.ListCommand(ctx, deviceID, virtualID)
+			},
+		))
 		r.Post("/home/{home_id}/devices/{device_id}/ir-remote/virtual/{virtual_id}/start-learning", h(
 			func(ctx context.Context, r *http.Request) (any, error) {
 				virtualID, err := URLParamID(r, "virtual_id")
