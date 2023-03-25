@@ -37,6 +37,8 @@ func StartLearning(ctx context.Context, deviceID, virtualID snowid.ID) error {
 func StopLearning(ctx context.Context, deviceID, virtualID snowid.ID) error {
 	// stop learning
 	// to disable learning modal on frontend
-	_, err := pgctx.Exec(ctx, `update device_ir_remote_virtual_keys set is_learning = false where id = $1`)
+	_, err := pgctx.Exec(ctx, `update device_ir_remote_virtual_keys set is_learning = false where id = $1`,
+		virtualID,
+	)
 	return err
 }
