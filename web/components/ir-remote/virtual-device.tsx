@@ -17,6 +17,7 @@ import DeviceService from '@/services/DeviceService'
 import { ChevronRight, TrashIcon } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { mutate } from 'swr'
 import { Button } from '../ui/button'
 import Card from '../ui/card'
 const renderCategory = (category: VirtualCategoryEnum) => {
@@ -56,11 +57,15 @@ const VirtualDevice = ({
   const homeId = useHomeSelector((s) => s.homeId)
   const handleDelete = () => {
     //
-    DeviceService.ir.deleteVirtual({
-      homeId,
-      virtualId,
-      deviceId,
-    })
+    DeviceService.ir
+      .deleteVirtual({
+        homeId,
+        virtualId,
+        deviceId,
+      })
+      .finally(() => {
+        mutate(`device-ir-remote`)
+      })
   }
   //
   let href = `/h/${homeId}/devices/${deviceId}/ir-remote/${virtualId}`

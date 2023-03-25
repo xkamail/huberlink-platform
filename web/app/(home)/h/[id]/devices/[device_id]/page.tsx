@@ -3,12 +3,11 @@ import Card from '@/components/ui/card'
 import PageHeader from '@/components/ui/page-header'
 import Spinner from '@/components/ui/spinner'
 import { useHomeSelector } from '@/lib/contexts/HomeContext'
-import { IDeviceDetail, ResponseCode } from '@/lib/types'
 import DeviceService from '@/services/DeviceService'
-import { useCallback, useEffect, useState } from 'react'
+import { useState } from 'react'
+import useSWR from 'swr'
 import DeviceInformation from './information'
 import IRRemoteSection from './ir-remote'
-
 //
 const DeviceDetailPage = ({
   params: { device_id: deviceId },
@@ -16,40 +15,40 @@ const DeviceDetailPage = ({
   params: { device_id: string }
 }) => {
   const homeId = useHomeSelector((s) => s.homeId)
-  const [data, setData] = useState<IDeviceDetail | null>(null)
   const [status, setStatus] = useState<
     'idle' | 'loading' | 'ok' | 'error' | 'notfound'
   >('idle')
-
-  const fetchData = useCallback(async () => {
-    const res = await DeviceService.findById({ deviceId, homeId })
-    if (!res.success) {
-      if (res.code === ResponseCode.ResourceNotFound) {
-        setStatus('notfound')
-      }
-      setStatus('error')
-      return
+  const {
+    data: resp,
+    isLoading,
+    error,
+  } = useSWR(
+    'device-detail',
+    () =>
+      DeviceService.findById({
+        deviceId,
+        homeId,
+      }),
+    {
+      refreshInterval: 1000,
     }
-    setData(res.data)
-    setStatus('ok')
-  }, [deviceId, homeId])
+  )
 
-  useEffect(() => {
-    fetchData()
-  }, [])
-
-  if (status === 'notfound')
+  if (error || !resp?.success)
     return (
       <div className="text-center">
-        <p>Device not found</p>
+        <p>{resp?.message}</p>
       </div>
     )
-  if (status === 'loading' || !data)
+
+  if (isLoading || !resp)
     return (
       <div className="text-center w-full flex justify-center my-20">
         <Spinner />
       </div>
     )
+
+  const data = resp.data
 
   return (
     <>

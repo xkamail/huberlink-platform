@@ -12,19 +12,17 @@ import { useHomeSelector } from '@/lib/contexts/HomeContext'
 import { IDeviceDetail } from '@/lib/types'
 import DeviceService from '@/services/DeviceService'
 import { useState } from 'react'
-import useSWR from 'swr'
+import useSWR, { mutate } from 'swr'
 const IRRemoteSection = ({ device }: { device: IDeviceDetail }) => {
   const homeId = useHomeSelector((s) => s.homeId)
   const { data, isLoading, error } = useSWR(
-    '/api/ir-remote',
+    'device-ir-remote',
     () =>
       DeviceService.ir.findDetail({
         deviceId: device.id,
         homeId,
       }),
-    {
-      refreshInterval: 1000,
-    }
+    {}
   )
   const [open, setOpen] = useState(false)
   if (isLoading) return <div>Loading...</div>
@@ -62,6 +60,7 @@ const IRRemoteSection = ({ device }: { device: IDeviceDetail }) => {
             <CreateVirtualDeviceForm
               deviceId={device.id}
               onSuccess={() => {
+                mutate(`device-ir-remote`)
                 setOpen(false)
               }}
             />
