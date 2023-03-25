@@ -171,4 +171,10 @@ export interface IIRRemoteVirtualDeviceCommand {
   remoteId: string
   updatedAt: Date
   virtualId: string
+  flag: number
+}
+export enum IRRemoteVirtualDeviceCommandFlagEnum {
+  HomeScreen = 2,
+  // Power = 4,
+  // Mute = 8,
 }

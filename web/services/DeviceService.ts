@@ -52,6 +52,7 @@ const DeviceService = {
       data: {
         name: string
         remark: string
+        flag: number
       }
     ) {
       return fetcher

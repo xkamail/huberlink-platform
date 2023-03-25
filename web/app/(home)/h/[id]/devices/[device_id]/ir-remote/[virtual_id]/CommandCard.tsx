@@ -1,4 +1,5 @@
 import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
 import {
   Dialog,
   DialogContent,
@@ -9,9 +10,13 @@ import {
 } from '@/components/ui/dialog'
 import Form from '@/components/ui/form'
 import FormInput from '@/components/ui/form-input'
+import { Label } from '@/components/ui/label'
 import { useToast } from '@/hooks/use-toast'
 import { useHomeSelector } from '@/lib/contexts/HomeContext'
-import { IIRRemoteVirtualDeviceCommand } from '@/lib/types'
+import {
+  IIRRemoteVirtualDeviceCommand,
+  IRRemoteVirtualDeviceCommandFlagEnum,
+} from '@/lib/types'
 import DeviceService from '@/services/DeviceService'
 import { EditIcon, SaveIcon, TrashIcon } from 'lucide-react'
 import { useState } from 'react'
@@ -32,9 +37,13 @@ const CommandCard = ({
     defaultValues: {
       name: data.name,
       remark: data.remark,
+      showHomeScreen:
+        (data.flag & IRRemoteVirtualDeviceCommandFlagEnum.HomeScreen) == 1,
     },
   })
   const onDelete = async () => {
+    if (!confirm(`Are you sure to delete ${data.name}`)) return
+
     const res = await DeviceService.ir.deleteCommand({
       homeId,
       deviceId,
@@ -48,7 +57,13 @@ const CommandCard = ({
     mutate(`remote-setting-${deviceId}`)
     setOpen(false)
   }
-  const submit = async (payload: { name: string; remark: string }) => {
+  const submit = async (payload: {
+    name: string
+    remark: string
+    showHomeScreen: boolean
+  }) => {
+    console.log('payload', payload)
+
     //
     const res = await DeviceService.ir.updateCommand(
       {
@@ -57,7 +72,14 @@ const CommandCard = ({
         virtualId: data.virtualId,
         commandId: data.id,
       },
-      payload
+      {
+        ...payload,
+        flag:
+          data.flag |
+          (payload.showHomeScreen
+            ? IRRemoteVirtualDeviceCommandFlagEnum.HomeScreen
+            : 0),
+      }
     )
     if (!res.success) {
       toast.error(res.message)
@@ -90,7 +112,16 @@ const CommandCard = ({
                   required: `Name is required`,
                 }}
               />
-              <FormInput name="remark" placeholder="Remark" label="Remark" />
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="homescreen"
+                  {...ctx.register('showHomeScreen')}
+                  onCheckedChange={(checked) => {
+                    ctx.setValue('showHomeScreen', !!checked.valueOf())
+                  }}
+                />
+                <Label htmlFor="homescreen">showing on homescreen</Label>
+              </div>
             </div>
             <DialogFooter>
               <div className="flex justify-between w-full">
