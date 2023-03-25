@@ -19,6 +19,7 @@ import (
 	"github.com/xkamail/huberlink-platform/pkg/config"
 	"github.com/xkamail/huberlink-platform/pkg/discord"
 	"github.com/xkamail/huberlink-platform/pkg/snowid"
+	"github.com/xkamail/huberlink-platform/pkg/thing"
 	"github.com/xkamail/huberlink-platform/pkg/uierr"
 )
 
@@ -375,6 +376,16 @@ func Handlers() http.Handler {
 			}
 			return nil, irremote.DeleteCommand(ctx, deviceID, virtualID, commandID)
 		}))
+		r.Get("/home/{home_id}/devices/{device_id}/ping", h(
+			func(ctx context.Context, r *http.Request) (any, error) {
+				deviceID, err := URLParamID(r, "device_id")
+				if err != nil {
+					return nil, err
+				}
+				ok := thing.Ping(ctx, deviceID)
+				return ok, nil
+			},
+		))
 	}
 	return router
 }
