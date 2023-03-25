@@ -7,30 +7,35 @@ import { IDeviceCard } from '@/lib/types'
 import DeviceService from '@/services/DeviceService'
 import { PlusIcon } from 'lucide-react'
 import Link from 'next/link'
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
+import useSWR from 'swr'
 import DeviceSkeletons from './skeleton'
 
 const HomeDevicesPage = () => {
   const homeId = useHomeSelector((s) => s.homeId)
-
+  const { data, error, isLoading } = useSWR(`home-devices-${homeId}`, () =>
+    DeviceService.list(homeId)
+  )
   const [devices, setDevices] = useState<IDeviceCard[]>([])
   const [status, setStatus] = useState<'idle' | 'loading' | 'ok' | 'error'>(
     'idle'
   )
-  const fetchData = useCallback(async () => {
-    setStatus('loading')
-    const res = await DeviceService.list(homeId)
-    if (res.success) {
-      setDevices(res.data)
-      setStatus('ok')
-    } else {
+  useEffect(() => {
+    if (isLoading) {
+      setStatus('loading')
+    }
+    if (error) {
       setStatus('error')
     }
-  }, [homeId])
-
-  useEffect(() => {
-    fetchData()
-  }, [fetchData])
+    if (data && data.success) {
+      setDevices(data.data)
+      setStatus('ok')
+    }
+    if (data && !data.success) {
+      setStatus('error')
+    }
+    return () => {}
+  }, [data, error, isLoading])
 
   return (
     <div>
@@ -69,11 +74,6 @@ const HomeDevicesPage = () => {
             <p className="text-slate-500 dark:text-slate-400">
               You {`don't`} have any devices yet. Create one!
             </p>
-          </div>
-        )}
-        {status === 'ok' && devices.length > 0 && (
-          <div className="text-center col-span-full">
-            <Button variant="link">Load more</Button>
           </div>
         )}
       </div>

@@ -16,7 +16,7 @@ import useSWR, { mutate } from 'swr'
 const IRRemoteSection = ({ device }: { device: IDeviceDetail }) => {
   const homeId = useHomeSelector((s) => s.homeId)
   const { data, isLoading, error } = useSWR(
-    'device-ir-remote',
+    `device-ir-remote-${device.id}`,
     () =>
       DeviceService.ir.findDetail({
         deviceId: device.id,

@@ -45,7 +45,7 @@ const IRRemoteSettingPage = ({
     data: _data,
     error,
     isLoading,
-  } = useSWR(`remote-setting`, () =>
+  } = useSWR(`remote-setting-${deviceId}`, () =>
     DeviceService.ir.findVirtual({
       homeId,
       deviceId,
@@ -73,7 +73,7 @@ const IRRemoteSettingPage = ({
   useEffect(() => {
     if (isLearning) {
       let xx = setInterval(() => {
-        mutate(`remote-setting`)
+        mutate(`remote-setting-${deviceId}`)
       }, 1000)
       return () => {
         clearInterval(xx)

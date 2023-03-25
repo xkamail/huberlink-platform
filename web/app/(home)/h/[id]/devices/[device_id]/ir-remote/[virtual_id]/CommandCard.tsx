@@ -45,7 +45,7 @@ const CommandCard = ({
       toast.error(res.message)
       return
     }
-    mutate(`remote-setting`)
+    mutate(`remote-setting-${deviceId}`)
     setOpen(false)
   }
   const submit = async (payload: { name: string; remark: string }) => {
@@ -63,7 +63,7 @@ const CommandCard = ({
       toast.error(res.message)
       return
     }
-    mutate(`remote-setting`)
+    mutate(`remote-setting-${deviceId}`)
     setOpen(false)
   }
   return (
