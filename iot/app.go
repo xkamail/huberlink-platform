@@ -288,10 +288,38 @@ func Handlers() http.Handler {
 		))
 		r.Post("/home/{home_id}/devices/{device_id}/ir-remote/virtual/{virtual_id}/start-learning", h(
 			func(ctx context.Context, r *http.Request) (any, error) {
-				// create a 30 seconds learning session
-				// when universal remote got an ir signal
-				// then will create a button
-				return nil, errors.New("not implemented")
+				virtualID, err := URLParamID(r, "virtual_id")
+				if err != nil {
+					return nil, err
+				}
+				// start learning session
+				deviceID, err := URLParamID(r, "device_id")
+				if err != nil {
+					return nil, err
+				}
+				err = irremote.StartLearning(ctx, deviceID, virtualID)
+				if err != nil {
+					return nil, err
+				}
+				return true, nil
+			},
+		))
+		r.Post("/home/{home_id}/devices/{device_id}/ir-remote/virtual/{virtual_id}/stop-learning", h(
+			func(ctx context.Context, r *http.Request) (any, error) {
+				virtualID, err := URLParamID(r, "virtual_id")
+				if err != nil {
+					return nil, err
+				}
+				// start learning session
+				deviceID, err := URLParamID(r, "device_id")
+				if err != nil {
+					return nil, err
+				}
+				err = irremote.StopLearning(ctx, deviceID, virtualID)
+				if err != nil {
+					return nil, err
+				}
+				return true, nil
 			},
 		))
 		r.Post("/home/{home_id}/devices/{device_id}/ir-remote/virtual/{virtual_id}/execute", h(
