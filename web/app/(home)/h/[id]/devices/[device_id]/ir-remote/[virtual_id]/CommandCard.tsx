@@ -82,7 +82,14 @@ const CommandCard = ({
               <DialogTitle>Edit button</DialogTitle>
             </DialogHeader>
             <div className="py-4 space-y-4">
-              <FormInput name="name" placeholder="Name" label="Name" />
+              <FormInput
+                name="name"
+                placeholder="Name"
+                label="Name"
+                options={{
+                  required: `Name is required`,
+                }}
+              />
               <FormInput name="remark" placeholder="Remark" label="Remark" />
             </div>
             <DialogFooter>
