@@ -63,26 +63,7 @@ const VirtualDevice = ({
     })
   }
   //
-  let href = `/h/${homeId}/devices/${deviceId}/ir-remote`
-
-  // render category path
-  switch (category) {
-    case VirtualCategoryEnum.AirConditioner:
-      href += `/air`
-      break
-    case VirtualCategoryEnum.TV:
-      href += `/tv`
-      break
-    case VirtualCategoryEnum.Fan:
-      href += `/fan`
-      break
-    case VirtualCategoryEnum.Other:
-      href += `/diy`
-      break
-    default:
-      href += `/diy`
-      break
-  }
+  let href = `/h/${homeId}/devices/${deviceId}/ir-remote/${virtualId}`
 
   return (
     <Card>

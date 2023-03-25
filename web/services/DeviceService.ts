@@ -31,6 +31,55 @@ const DeviceService = {
   },
 
   ir: {
+    findVirtual({
+      homeId,
+      deviceId,
+      virtualId,
+    }: {
+      homeId: string
+      deviceId: string
+      virtualId: string
+    }) {
+      return fetcher
+        .get<
+          IResponse<
+            {
+              buttons: any[]
+            } & IIRRemoteVirtualDevice
+          >
+        >(`/home/${homeId}/devices/${deviceId}/ir-remote/virtual/${virtualId}`)
+        .then((r) => r.data)
+    },
+    startLearning({
+      homeId,
+      deviceId,
+      virtualId,
+    }: {
+      homeId: string
+      deviceId: string
+      virtualId: string
+    }) {
+      return fetcher
+        .post<IResponse<{}>>(
+          `/home/${homeId}/devices/${deviceId}/ir-remote/virtual/${virtualId}/start-learning`
+        )
+        .then((r) => r.data)
+    },
+    stopLearning({
+      homeId,
+      deviceId,
+      virtualId,
+    }: {
+      homeId: string
+      deviceId: string
+      virtualId: string
+    }) {
+      return fetcher
+        .post<IResponse<{}>>(
+          `/home/${homeId}/devices/${deviceId}/ir-remote/virtual/${virtualId}/stop-learning`
+        )
+        .then((r) => r.data)
+    },
     //
     findDetail({ homeId, deviceId }: { homeId: string; deviceId: string }) {
       return fetcher
