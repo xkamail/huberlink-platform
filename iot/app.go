@@ -322,7 +322,7 @@ func Handlers() http.Handler {
 				return true, nil
 			},
 		))
-		r.Post("/home/{home_id}/devices/{device_id}/ir-remote/virtual/{virtual_id/execute", h(
+		r.Post("/home/{home_id}/devices/{device_id}/ir-remote/virtual/{virtual_id}/execute", h(
 			func(ctx context.Context, r *http.Request) (any, error) {
 				deviceID, err := URLParamID(r, "device_id")
 				if err != nil {
