@@ -243,7 +243,7 @@ func DeleteVirtualKey(ctx context.Context, virtualID snowid.ID) (bool, error) {
 }
 
 func ListVirtualCommand(ctx context.Context, virtualID snowid.ID) ([]*Command, error) {
-	rows, err := pgctx.Query(ctx, `select id, remote_id, virtual_id, name, code, remark, created_at, updated_at from device_ir_remote_commands where virtual_id = $1`, virtualID)
+	rows, err := pgctx.Query(ctx, `select id, remote_id, virtual_id, name, code, remark, platforms, created_at, updated_at from device_ir_remote_commands where virtual_id = $1`, virtualID)
 	if err != nil {
 		return nil, err
 	}
