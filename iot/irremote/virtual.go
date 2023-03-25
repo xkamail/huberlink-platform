@@ -5,6 +5,7 @@ import (
 
 	"github.com/xkamail/huberlink-platform/pkg/pgctx"
 	"github.com/xkamail/huberlink-platform/pkg/snowid"
+	"github.com/xkamail/huberlink-platform/pkg/thing"
 )
 
 func StartLearning(ctx context.Context, deviceID, virtualID snowid.ID) error {
@@ -31,6 +32,13 @@ func StartLearning(ctx context.Context, deviceID, virtualID snowid.ID) error {
 	if affect.RowsAffected() == 0 {
 		return ErrNotFound
 	}
+	c, err := thing.New()
+	if err != nil {
+		return err
+	}
+	defer c.Disconnect(1000)
+	c.Publish(GetTopicLearning(deviceID), 0, true, virtualID.String())
+	
 	return nil
 }
 

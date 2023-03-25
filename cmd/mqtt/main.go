@@ -116,7 +116,7 @@ func handler(ctx context.Context) func(client mqtt.Client, msg mqtt.Message) {
 		return nil
 	}
 	return func(client mqtt.Client, msg mqtt.Message) {
-		slog.Debug("Received message", slog.String("topic", msg.Topic()), slog.String("payload", string(msg.Payload())))
+		//slog.Debug("Received message", slog.String("topic", msg.Topic()), slog.String("payload", string(msg.Payload())))
 		//
 		err := fn(client, msg)
 		if err != nil {
