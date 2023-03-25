@@ -3,12 +3,26 @@ package irremote
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 
 	"golang.org/x/exp/slog"
 
 	"github.com/xkamail/huberlink-platform/pkg/snowid"
 	"github.com/xkamail/huberlink-platform/pkg/thing"
 )
+
+func GetTopicExecute(deviceID snowid.ID) string {
+	return fmt.Sprintf("%s/%s/thing/irremote/execute", thing.PrefixTopic, deviceID.String())
+}
+func GetTopicLearning(deviceID snowid.ID) string {
+	return fmt.Sprintf("%s/%s/thing/irremote/learning", thing.PrefixTopic, deviceID.String())
+}
+func GetTopicLearningResult(deviceID snowid.ID) string {
+	return fmt.Sprintf("%s/%s/thing/irremote/learning/result", thing.PrefixTopic, deviceID.String())
+}
+func GetTopicPing(deviceID snowid.ID) string {
+	return fmt.Sprintf("%s/%s/thing/ping", thing.PrefixTopic, deviceID.String())
+}
 
 type MQTTCmd struct {
 	Code      string `json:"code"`

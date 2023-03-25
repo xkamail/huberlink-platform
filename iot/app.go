@@ -322,10 +322,21 @@ func Handlers() http.Handler {
 				return true, nil
 			},
 		))
-		r.Post("/home/{home_id}/devices/{device_id}/ir-remote/virtual/{virtual_id}/execute", h(
+		r.Post("/home/{home_id}/devices/{device_id}/ir-remote/virtual/{virtual_id/execute", h(
 			func(ctx context.Context, r *http.Request) (any, error) {
-				// execute a button
-				return nil, errors.New("not implemented")
+				deviceID, err := URLParamID(r, "device_id")
+				if err != nil {
+					return nil, err
+				}
+				virtualID, err := URLParamID(r, "virtual_id")
+				if err != nil {
+					return nil, err
+				}
+				var p irremote.ExecuteCommandParam
+				if err := mustBind(r, &p); err != nil {
+					return nil, err
+				}
+				return irremote.ExecuteCommand(ctx, deviceID, virtualID, &p)
 			},
 		))
 		r.Put("/home/{home_id}/devices/{device_id}/ir-remote/virtual/{virtual_id}/button/{button_id}", h(

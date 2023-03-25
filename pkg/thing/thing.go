@@ -2,8 +2,6 @@ package thing
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
 	"time"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
@@ -43,31 +41,4 @@ type Subscriber interface {
 type ReportFormat[T any] struct {
 	Time int64 `json:"time"`
 	Data T     `json:"data"`
-}
-
-type ExecuteMessage struct {
-	Time int64 `json:"time"`
-	Data any   `json:"data"`
-}
-
-func Execute(ctx context.Context, deviceId snowid.ID, m *ExecuteMessage) error {
-	select {
-	case <-ctx.Done():
-		return ctx.Err()
-	default:
-		b, err := json.Marshal(m)
-		if err != nil {
-			return err
-		}
-		c, err := New()
-		if err != nil {
-			return err
-		}
-		defer c.Disconnect(250)
-		topic := fmt.Sprintf("%s/%s/thing/execute", PrefixTopic, deviceId.String())
-
-		c.Publish(topic, 1, false, string(b)).
-			WaitTimeout(2 * time.Second)
-		return nil
-	}
 }

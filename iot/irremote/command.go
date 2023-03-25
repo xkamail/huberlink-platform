@@ -3,12 +3,16 @@ package irremote
 import (
 	"context"
 	"errors"
+	"fmt"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/jackc/pgx/v5"
 
 	"github.com/xkamail/huberlink-platform/pkg/pgctx"
 	"github.com/xkamail/huberlink-platform/pkg/snowid"
+	"github.com/xkamail/huberlink-platform/pkg/thing"
 	"github.com/xkamail/huberlink-platform/pkg/uierr"
 )
 
@@ -181,4 +185,47 @@ func UpdateCommand(ctx context.Context, deviceID, virtualID, commandID snowid.ID
 		return nil, err
 	}
 	return FindCommand(ctx, deviceID, virtualID, commandID)
+}
+
+type ExecuteCommandParam struct {
+	CommandID snowid.ID `json:"commandId"`
+}
+type ExecuteResult struct {
+	//
+}
+
+func ExecuteCommand(ctx context.Context, deviceID, virtualID snowid.ID, p *ExecuteCommandParam) (*ExecuteResult, error) {
+	var codes []uint
+	err := pgctx.QueryRow(ctx, `
+		select code 
+		from device_ir_remote_commands inner join device_ir_remotes dir on dir.id = device_ir_remote_commands.remote_id 
+		where virtual_id = $1 and dir.device_id = $2 and device_ir_remote_commands.id = $3`,
+		virtualID,
+		deviceID,
+		p.CommandID,
+	).Scan(&codes)
+	if err != nil {
+		return nil, err
+	}
+	c, err := thing.New()
+	if err != nil {
+		return nil, err
+	}
+	codeString := make([]string, 0)
+	// convert array of uint to string
+	for i := 0; i < len(codes); i++ {
+		codeString = append(codeString, strconv.Itoa(int(codes[i])))
+	}
+
+	payload := strings.Join(codeString, ",")
+	defer c.Disconnect(1000)
+	c.Publish(
+		fmt.Sprintf("%s/%s/thing/irremote/", thing.PrefixTopic, deviceID.String()),
+		0,
+		false,
+		[]byte(payload),
+	).WaitTimeout(1000)
+	return &ExecuteResult{
+		// TODO
+	}, nil
 }
