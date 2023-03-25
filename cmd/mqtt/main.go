@@ -97,11 +97,11 @@ func handler(ctx context.Context) func(client mqtt.Client, msg mqtt.Message) {
 		if err != nil {
 			return err
 		}
-
-		if topic == "thing/heartbeat" {
+		if topic == "heartbeat" {
 			if err := device.HeartBeat(ctx, iot.ID); err != nil {
 				return err
 			}
+			return nil
 		}
 		switch iot.Kind {
 		// we only support IRRemote for now
