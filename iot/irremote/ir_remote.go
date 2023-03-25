@@ -242,21 +242,6 @@ func DeleteVirtualKey(ctx context.Context, virtualID snowid.ID) (bool, error) {
 	return err == nil, err
 }
 
-func ListVirtualCommand(ctx context.Context, virtualID snowid.ID) ([]*Command, error) {
-	rows, err := pgctx.Query(ctx, `select id, remote_id, virtual_id, name, code, remark, platforms, created_at, updated_at from device_ir_remote_commands where virtual_id = $1 order by created_at desc`, virtualID)
-	if err != nil {
-		return nil, err
-	}
-	d, err := pgx.CollectRows(rows, pgx.RowToAddrOfStructByPos[Command])
-	if errors.Is(err, pgx.ErrNoRows) {
-		return nil, ErrCommandNotFound
-	}
-	if err != nil {
-		return nil, err
-	}
-	return d, nil
-}
-
 func findRemoteID(ctx context.Context, deviceID snowid.ID) (snowid.ID, error) {
 	var remoteID snowid.ID
 	err := pgctx.QueryRow(ctx, `select id from device_ir_remotes where device_id = $1`,

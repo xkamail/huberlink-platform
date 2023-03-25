@@ -275,7 +275,7 @@ func Handlers() http.Handler {
 					*irremote.VirtualKey
 					Buttons []*irremote.Command `json:"buttons"`
 				}
-				buttons, err := irremote.ListVirtualCommand(ctx, v.ID)
+				buttons, err := irremote.ListCommand(ctx, deviceID, v.ID)
 				if err != nil {
 					return nil, err
 				}
