@@ -32,13 +32,10 @@ func StartLearning(ctx context.Context, deviceID, virtualID snowid.ID) error {
 	if affect.RowsAffected() == 0 {
 		return ErrNotFound
 	}
-	c, err := thing.New()
-	if err != nil {
+
+	if err := thing.Call(ctx, LearningTopic, deviceID, []byte(virtualID.String())); err != nil {
 		return err
 	}
-	defer c.Disconnect(1000)
-	c.Publish(GetTopicLearning(deviceID), 0, true, virtualID.String())
-
 	return nil
 }
 

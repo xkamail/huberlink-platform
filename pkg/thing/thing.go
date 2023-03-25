@@ -9,7 +9,10 @@ import (
 
 	"github.com/xkamail/huberlink-platform/pkg/config"
 	"github.com/xkamail/huberlink-platform/pkg/snowid"
+	"github.com/xkamail/huberlink-platform/pkg/uierr"
 )
+
+var ErrConnection = uierr.Alert("connection to device error")
 
 const (
 	PrefixTopic = "huberlink"

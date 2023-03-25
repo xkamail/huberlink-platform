@@ -2,7 +2,6 @@ package irremote
 
 import (
 	"context"
-	"fmt"
 	"strconv"
 	"strings"
 
@@ -12,18 +11,8 @@ import (
 	"github.com/xkamail/huberlink-platform/pkg/thing"
 )
 
-func GetTopicExecute(deviceID snowid.ID) string {
-	return fmt.Sprintf("%s/%s/thing/irremote/execute", thing.PrefixTopic, deviceID.String())
-}
-func GetTopicLearning(deviceID snowid.ID) string {
-	return fmt.Sprintf("%s/%s/thing/irremote/learning", thing.PrefixTopic, deviceID.String())
-}
-func GetTopicLearningResult(deviceID snowid.ID) string {
-	return fmt.Sprintf("%s/%s/thing/irremote/learning/result", thing.PrefixTopic, deviceID.String())
-}
-func GetTopicPing(deviceID snowid.ID) string {
-	return fmt.Sprintf("%s/%s/thing/ping", thing.PrefixTopic, deviceID.String())
-}
+const ExecuteTopic = "thing/irremote/execute"
+const LearningTopic = "thing/irremote/learning"
 
 type MQTTCmd struct {
 	Code      string `json:"code"`

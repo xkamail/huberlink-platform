@@ -203,27 +203,24 @@ func ExecuteCommand(ctx context.Context, deviceID, virtualID snowid.ID, p *Execu
 		deviceID,
 		p.CommandID,
 	).Scan(&codes)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return nil, ErrCommandNotFound
+	}
 	if err != nil {
 		return nil, err
 	}
-	c, err := thing.New()
-	if err != nil {
-		return nil, err
-	}
+
 	codeString := make([]string, 0)
 	// convert array of uint to string
 	for i := 0; i < len(codes); i++ {
 		codeString = append(codeString, strconv.Itoa(int(codes[i])))
 	}
-
 	payload := strings.Join(codeString, ",")
-	defer c.Disconnect(1000)
-	c.Publish(
-		GetTopicExecute(deviceID),
-		0,
-		false,
-		[]byte(payload),
-	).WaitTimeout(1000)
+
+	if err := thing.Call(ctx, ExecuteTopic, deviceID, []byte(payload)); err != nil {
+		return nil, err
+	}
+
 	return &ExecuteResult{
 		// TODO
 	}, nil
