@@ -10,6 +10,11 @@ import { IIRRemoteVirtualDevice } from './../lib/types'
 import { fetcher } from './requests'
 
 const DeviceService = {
+  ping(homeId: string, deviceId: string) {
+    return fetcher
+      .get<IResponse<boolean>>(`/home/${homeId}/devices/${deviceId}/ping`)
+      .then((r) => r.data)
+  },
   list(homeId: string) {
     return fetcher
       .get<IResponse<IDeviceCard[]>>(`/home/${homeId}/devices/all`)

@@ -1,13 +1,25 @@
 import { Button } from '@/components/ui/button'
 import Card from '@/components/ui/card'
 import { useToast } from '@/hooks/use-toast'
+import { useHomeSelector } from '@/lib/contexts/HomeContext'
 import { IDeviceDetail } from '@/lib/types'
+import DeviceService from '@/services/DeviceService'
 import dayjs from 'dayjs'
 import { useEffect, useState } from 'react'
 const DeviceInformation = ({ data }: { data: IDeviceDetail }) => {
+  const homeId = useHomeSelector((s) => s.homeId)
   const { toast } = useToast()
   const [copied, setCopied] = useState(false)
-  useEffect(() => {}, [])
+  const [online, setOnline] = useState<'checking' | 'online' | 'offline'>(
+    'checking'
+  )
+  //
+  useEffect(() => {
+    DeviceService.ping(homeId, data.id).then((r) => {
+      setOnline(r.success && r.data ? 'online' : 'offline')
+    })
+  }, [])
+  //
   const handleCopy = () => {
     navigator.clipboard.writeText(data.token)
     toast.succes('Copied to clipboard')
@@ -26,6 +38,7 @@ const DeviceInformation = ({ data }: { data: IDeviceDetail }) => {
             <p className="text-sm">Type</p>
             <p className="text-sm">Model</p>
             <p className="text-sm">Heartbeat</p>
+            <p className="text-sm">Status</p>
           </div>
           <div className="w-1/2 flex flex-col items-end gap-1">
             <p className="text-sm">{data.name}</p>
@@ -40,6 +53,19 @@ const DeviceInformation = ({ data }: { data: IDeviceDetail }) => {
                 <span className="text-red-500">Offline</span>
               )}
             </p>
+            {online == 'checking' ? (
+              <p>
+                <span className="text-yellow-500">Checking...</span>
+              </p>
+            ) : (
+              <p>
+                {online == 'online' ? (
+                  <span className="text-green-500">Online</span>
+                ) : (
+                  <span className="text-red-500">Offline</span>
+                )}
+              </p>
+            )}
           </div>
         </div>
         <div className="mt-6 w-full">
