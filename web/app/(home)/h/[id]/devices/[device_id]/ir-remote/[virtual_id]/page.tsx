@@ -1,6 +1,5 @@
 'use client'
 import { Button } from '@/components/ui/button'
-import Card from '@/components/ui/card'
 import {
   Dialog,
   DialogContent,
@@ -15,9 +14,12 @@ import Spinner from '@/components/ui/spinner'
 import { useStatus } from '@/hooks/use-status'
 import { useToast } from '@/hooks/use-toast'
 import { useHomeSelector } from '@/lib/contexts/HomeContext'
-import { IIRRemoteVirtualDevice } from '@/lib/types'
+import {
+  IIRRemoteVirtualDevice,
+  IIRRemoteVirtualDeviceCommand,
+} from '@/lib/types'
 import DeviceService from '@/services/DeviceService'
-import { PlusIcon } from 'lucide-react'
+import { EditIcon, PlusIcon } from 'lucide-react'
 import Image from 'next/image'
 import { useCallback, useEffect, useState } from 'react'
 const IRRemoteSettingPage = ({
@@ -35,7 +37,7 @@ const IRRemoteSettingPage = ({
 
   const { toast } = useToast()
   const homeId = useHomeSelector((s) => s.homeId)
-  const [buttons, setButtons] = useState<any>([])
+  const [buttons, setButtons] = useState<IIRRemoteVirtualDeviceCommand[]>([])
   const fetchData = useCallback(async () => {
     const res = await DeviceService.ir.findVirtual({
       homeId,
@@ -121,46 +123,58 @@ const IRRemoteSettingPage = ({
     <div>
       <PageHeader title={data.name} />
       <div>
-        <Card title="Button">
-          <div>
-            {buttons.map((b: any, i: number) => (
-              <div key={i}></div>
-            ))}
-            <Dialog open={isLearning}>
-              <DialogTrigger asChild>
-                <Button variant="outline" onClick={onStartLearning}>
+        <div className="grid grid-cols-4 gap-4">
+          {buttons.map((b, i: number) => (
+            <div
+              key={i}
+              className="p-4 bg-white shadow-sm rounded-lg flex justify-between items-center"
+            >
+              <p className="capitalize">{b.name || 'undefined'}</p>
+              <Button variant="ghost">
+                <EditIcon className="w-5 h-5" />
+              </Button>
+            </div>
+          ))}
+          <Dialog open={isLearning}>
+            <DialogTrigger asChild>
+              <div className="p-4 bg-white shadow-sm rounded-lg flex items-center">
+                <Button
+                  onClick={onStartLearning}
+                  variant="link"
+                  className="mx-auto"
+                >
                   <PlusIcon className="w-5 h-5 mr-2" />
-                  Start learning
+                  Add New Button
                 </Button>
-              </DialogTrigger>
-              <DialogContent closeBtn={false} className="sm:max-w-[425px]">
-                <DialogHeader>
-                  <DialogTitle>Start learning a new button</DialogTitle>
-                  <DialogDescription className="my-10">
-                    <div className="mx-auto mb-10 p-4">
-                      <Image
-                        src={require('@/assets/images/remote-control.png')}
-                        width={128}
-                        height={128}
-                        alt="remote control"
-                        className="mx-auto"
-                      />
-                    </div>
-                    <p>
-                      Put your remote control in front of the IR sensor and
-                      press a button.
-                    </p>
-                  </DialogDescription>
-                </DialogHeader>
-                <DialogFooter>
-                  <Button variant="outline" block onClick={onStopLearning}>
-                    Stop
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-          </div>
-        </Card>
+              </div>
+            </DialogTrigger>
+            <DialogContent closeBtn={false} className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>Start learning a new button</DialogTitle>
+                <DialogDescription className="my-10">
+                  <div className="mx-auto mb-10 p-4">
+                    <Image
+                      src={require('@/assets/images/remote-control.png')}
+                      width={128}
+                      height={128}
+                      alt="remote control"
+                      className="mx-auto"
+                    />
+                  </div>
+                  <p>
+                    Put your remote control in front of the IR sensor and press
+                    a button.
+                  </p>
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter>
+                <Button variant="outline" block onClick={onStopLearning}>
+                  Stop
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
     </div>
   )

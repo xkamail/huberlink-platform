@@ -3,6 +3,7 @@ import {
   IDeviceCard,
   IDeviceDetail,
   IIRRemote,
+  IIRRemoteVirtualDeviceCommand,
   IResponse,
 } from '@/lib/types'
 import { IIRRemoteVirtualDevice } from './../lib/types'
@@ -44,7 +45,7 @@ const DeviceService = {
         .get<
           IResponse<
             {
-              buttons: any[]
+              buttons: IIRRemoteVirtualDeviceCommand[]
             } & IIRRemoteVirtualDevice
           >
         >(`/home/${homeId}/devices/${deviceId}/ir-remote/virtual/${virtualId}`)

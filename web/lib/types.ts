@@ -161,3 +161,14 @@ export const VIRTUAL_CATEGORY = [
     kind: VirtualCategoryEnum.AirConditioner,
   },
 ]
+
+export interface IIRRemoteVirtualDeviceCommand {
+  createdAt: Date
+  id: string
+  name: string
+  platform: string
+  remark: string | null
+  remoteId: string
+  updatedAt: Date
+  virtualId: string
+}
