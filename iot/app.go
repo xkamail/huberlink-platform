@@ -263,11 +263,11 @@ func Handlers() http.Handler {
 				if err != nil {
 					return nil, err
 				}
-				remoteID, err := URLParamID(r, "remote_id")
+				deviceID, err := URLParamID(r, "device_id")
 				if err != nil {
 					return nil, err
 				}
-				v, err := irremote.FindVirtual(ctx, remoteID, virtualID)
+				v, err := irremote.FindVirtual(ctx, deviceID, virtualID)
 				if err != nil {
 					return nil, err
 				}
