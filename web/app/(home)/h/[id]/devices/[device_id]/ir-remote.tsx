@@ -46,7 +46,7 @@ const IRRemoteSection = ({ device }: { device: IDeviceDetail }) => {
       <div className="col-span-full">
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <div className="text-center">
+            <div className="text-center mt-10">
               <Button block size="lg" variant="primary">
                 <span>Create new virtual device</span>
               </Button>

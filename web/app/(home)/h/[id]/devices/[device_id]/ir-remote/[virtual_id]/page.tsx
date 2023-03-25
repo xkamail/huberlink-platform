@@ -21,8 +21,11 @@ import {
 import DeviceService from '@/services/DeviceService'
 import { PlusIcon } from 'lucide-react'
 import Image from 'next/image'
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import CommandCard from './CommandCard'
+
+import useSWR, { mutate } from 'swr'
+
 const IRRemoteSettingPage = ({
   params: { id, device_id: deviceId, virtual_id: virtualId },
 }: {
@@ -38,42 +41,46 @@ const IRRemoteSettingPage = ({
 
   const { toast } = useToast()
   const homeId = useHomeSelector((s) => s.homeId)
-  const [buttons, setButtons] = useState<IIRRemoteVirtualDeviceCommand[]>([])
-  const fetchData = useCallback(async () => {
-    const res = await DeviceService.ir.findVirtual({
+  const {
+    data: _data,
+    error,
+    isLoading,
+  } = useSWR(`remote-setting`, () =>
+    DeviceService.ir.findVirtual({
       homeId,
       deviceId,
       virtualId,
     })
-    if (res.success) {
-      setStatus('ok')
-      setData(res.data)
-      setIsLearning(res.data.isLearning)
-      setButtons(res.data.buttons)
-      //
-    } else {
-      setStatus('error')
-      //
-      toast.error(res.message)
-    }
-  }, [])
-
+  )
+  // watch data changes
   useEffect(() => {
-    fetchData()
-  }, [fetchData])
+    if (error || !_data?.success) {
+      setStatus('error')
+    }
+    if (isLoading) {
+      setStatus('loading')
+    }
+    if (_data && _data.success) {
+      setData(_data.data)
+      setButtons(_data.data.buttons)
+      setIsLearning(_data.data.isLearning)
+      setStatus('ok')
+    }
+  }, [error, isLoading, _data, setStatus])
+
+  const [buttons, setButtons] = useState<IIRRemoteVirtualDeviceCommand[]>([])
+
   useEffect(() => {
     if (isLearning) {
       let xx = setInterval(() => {
-        fetchData()
+        mutate(`remote-setting`)
       }, 1000)
       return () => {
         clearInterval(xx)
       }
     }
-    return () => {
-      //
-    }
   }, [isLearning])
+
   const onStartLearning = async () => {
     const res = await DeviceService.ir.startLearning({
       homeId,
@@ -86,6 +93,7 @@ const IRRemoteSettingPage = ({
       setIsLearning(true)
     }
   }
+
   const onStopLearning = async () => {
     const res = await DeviceService.ir.stopLearning({
       homeId,
@@ -124,9 +132,9 @@ const IRRemoteSettingPage = ({
     <div>
       <PageHeader title={data.name} />
       <div>
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-          {buttons.map((b, i: number) => (
-            <CommandCard key={i} data={b} />
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {buttons.map((b) => (
+            <CommandCard deviceId={deviceId} key={b.id} data={b} />
           ))}
           <Dialog open={isLearning}>
             <DialogTrigger asChild>
