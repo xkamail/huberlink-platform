@@ -184,12 +184,14 @@ func UpdateCommand(ctx context.Context, deviceID, virtualID, commandID snowid.ID
 	_, err := pgctx.Exec(ctx, `
 		update device_ir_remote_commands 
 			set name = $1, 
-			remark = $2 
+			remark = $2,
+			flag = $5
 			where id = $3 and virtual_id = $4 `,
 		p.Name,
 		p.Remark,
 		commandID,
 		virtualID,
+		p.Flag,
 	)
 	if err != nil {
 		return nil, err
