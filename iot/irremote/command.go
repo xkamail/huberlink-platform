@@ -3,7 +3,6 @@ package irremote
 import (
 	"context"
 	"errors"
-	"fmt"
 	"strconv"
 	"strings"
 	"time"
@@ -220,7 +219,7 @@ func ExecuteCommand(ctx context.Context, deviceID, virtualID snowid.ID, p *Execu
 	payload := strings.Join(codeString, ",")
 	defer c.Disconnect(1000)
 	c.Publish(
-		fmt.Sprintf("%s/%s/thing/irremote/", thing.PrefixTopic, deviceID.String()),
+		GetTopicExecute(deviceID),
 		0,
 		false,
 		[]byte(payload),

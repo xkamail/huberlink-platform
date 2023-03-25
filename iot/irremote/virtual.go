@@ -38,7 +38,7 @@ func StartLearning(ctx context.Context, deviceID, virtualID snowid.ID) error {
 	}
 	defer c.Disconnect(1000)
 	c.Publish(GetTopicLearning(deviceID), 0, true, virtualID.String())
-	
+
 	return nil
 }
 
