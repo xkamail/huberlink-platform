@@ -14,6 +14,7 @@ import { Label } from '@/components/ui/label'
 import { useToast } from '@/hooks/use-toast'
 import { useHomeSelector } from '@/lib/contexts/HomeContext'
 import {
+  CommandFlagEnum,
   IIRRemoteVirtualDeviceCommand,
   IRRemoteVirtualDeviceCommandFlagEnum,
 } from '@/lib/types'
@@ -38,9 +39,11 @@ const CommandCard = ({
       name: data.name,
       remark: data.remark,
       showHomeScreen:
-        (data.flag & IRRemoteVirtualDeviceCommandFlagEnum.HomeScreen) == 1,
+        (data.flag & IRRemoteVirtualDeviceCommandFlagEnum.HomeScreen) ==
+        IRRemoteVirtualDeviceCommandFlagEnum.HomeScreen,
     },
   })
+
   const onDelete = async () => {
     if (!confirm(`Are you sure to delete ${data.name}`)) return
 
@@ -74,11 +77,7 @@ const CommandCard = ({
       },
       {
         ...payload,
-        flag:
-          data.flag |
-          (payload.showHomeScreen
-            ? IRRemoteVirtualDeviceCommandFlagEnum.HomeScreen
-            : 0),
+        flag: payload.showHomeScreen ? CommandFlagEnum.HomeScreen : 0,
       }
     )
     if (!res.success) {
@@ -119,8 +118,9 @@ const CommandCard = ({
                   onCheckedChange={(checked) => {
                     ctx.setValue('showHomeScreen', !!checked.valueOf())
                   }}
+                  checked={ctx.watch('showHomeScreen')}
                 />
-                <Label htmlFor="homescreen">showing on homescreen</Label>
+                <Label htmlFor="homescreen">show on homescreen</Label>
               </div>
             </div>
             <DialogFooter>

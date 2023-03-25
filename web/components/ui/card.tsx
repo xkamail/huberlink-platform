@@ -1,12 +1,16 @@
+import { cn } from '@/lib/utils'
+
 const Card = ({
   children,
   title,
+  className,
 }: {
   title?: string
   children: React.ReactNode
+  className?: string
 }) => {
   return (
-    <div className="rounded-lg shadow bg-white p-4">
+    <div className={cn('rounded-lg shadow bg-white p-4', className)}>
       {title && (
         <div>
           <h2 className="mb-6 scroll-m-20 border-b border-b-slate-200 pb-2 text-2xl font-semibold tracking-tight first:mt-0 dark:border-b-slate-700">

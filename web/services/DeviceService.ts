@@ -37,6 +37,21 @@ const DeviceService = {
   },
 
   ir: {
+    listCommand({
+      homeId,
+      deviceId,
+      virtualId,
+    }: {
+      homeId: string
+      deviceId: string
+      virtualId: string
+    }) {
+      return fetcher
+        .get<IResponse<IIRRemoteVirtualDeviceCommand[]>>(
+          `/home/${homeId}/devices/${deviceId}/ir-remote/virtual/${virtualId}/buttons`
+        )
+        .then((r) => r.data)
+    },
     updateCommand(
       {
         homeId,

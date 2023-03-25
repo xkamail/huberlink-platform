@@ -173,6 +173,9 @@ export interface IIRRemoteVirtualDeviceCommand {
   virtualId: string
   flag: number
 }
+export enum CommandFlagEnum {
+  HomeScreen = 2,
+}
 export enum IRRemoteVirtualDeviceCommandFlagEnum {
   HomeScreen = 2,
   // Power = 4,
