@@ -2,8 +2,9 @@ package irremote
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
+	"strconv"
+	"strings"
 
 	"golang.org/x/exp/slog"
 
@@ -44,7 +45,7 @@ type learningSubscribe struct {
 }
 
 func (t learningSubscribe) Topic() string {
-	return "irremote/learning"
+	return "irremote/learning/result"
 }
 
 type MQTTLearningPayload struct {
@@ -53,17 +54,28 @@ type MQTTLearningPayload struct {
 }
 
 func (t learningSubscribe) Handler(ctx context.Context, deviceID snowid.ID, _b []byte) error {
-	var p MQTTLearningPayload
-	if err := json.Unmarshal(_b, &p); err != nil {
-		return err
+	codes := make([]uint8, 0)
+	str := string(_b)
+	slog.Debug("learning result", slog.String("str", str))
+	for _, c := range strings.Split(str, ",") {
+		if c == "" {
+			continue
+		}
+		atoi, err := strconv.Atoi(c)
+		if err != nil {
+			slog.Error("atoi error", err)
+			return err
+		}
+		codes = append(codes, uint8(atoi))
 	}
+
 	// find  virtual key which is learning state
 	command, err := CreateCommand(ctx, &CreateCommandParam{
 		Name:     "", // user have to setting name after learning
 		Remark:   "", // for specific frontend to show
 		DeviceID: deviceID,
-		Platform: p.Platform,
-		Code:     p.RawData,
+		Platform: "",
+		Code:     codes,
 	})
 	if err != nil {
 		slog.Debug("create command error", err)

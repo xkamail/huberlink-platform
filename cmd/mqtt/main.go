@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
@@ -63,30 +62,18 @@ func run() error {
 	opts.AddBroker(cfg.MQTTURI)
 	opts.SetUsername(cfg.MQTTUsername)
 	opts.SetPassword(cfg.MQTTPassword)
-	opts.SetClientID("mqtt server node")
-	opts.SetCleanSession(true)
 	opts.SetKeepAlive(60 * time.Second)
 	opts.SetDefaultPublishHandler(messagePubHandler)
 	opts.OnConnect = func(c mqtt.Client) {
+		c.Subscribe(thing.PrefixTopic+"/+/thing/#", 0, handler(ctx))
 		log.Printf("connected to mqtt server %v", c.IsConnected())
 	}
 	opts.OnConnectionLost = func(c mqtt.Client, err error) {
-		log.Printf("connection lost: %v", err)
+		log.Printf("connection lost: %v", err.Error())
 	}
 	c := mqtt.NewClient(opts)
 	if token := c.Connect(); token.Wait() && token.Error() != nil {
 		return token.Error()
-	}
-
-	if err != nil {
-		return err
-	}
-	for _, topic := range []string{
-		thing.PrefixTopic + "/+/thing/#",
-	} {
-		if token := c.Subscribe(topic, 0, handler(ctx)); token.Wait() && token.Error() != nil {
-			return token.Error()
-		}
 	}
 	log.Printf("server is running %v\n", c.IsConnected())
 	select {}
@@ -108,10 +95,6 @@ func handler(ctx context.Context) func(client mqtt.Client, msg mqtt.Message) {
 		}
 		iot, err := device.Find(ctx, deviceID)
 		if err != nil {
-			return err
-		}
-		var payload thing.ReportFormat[any]
-		if err := json.Unmarshal(msg.Payload(), &payload); err != nil {
 			return err
 		}
 
