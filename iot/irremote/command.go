@@ -15,6 +15,14 @@ import (
 	"github.com/xkamail/huberlink-platform/pkg/uierr"
 )
 
+type CommandFlag uint
+
+const (
+	CommandFlagNone = 1 << iota
+	// CommandFlagHome is a flag for showing button on home screen
+	CommandFlagHome
+)
+
 type Command struct {
 	ID        snowid.ID `json:"id"`
 	RemoteID  snowid.ID `json:"remoteId"`
@@ -26,10 +34,12 @@ type Command struct {
 	Remark *string `json:"remark"`
 	// Platform is a platform that this command will be used
 	// unknown, samsung, lg, ...
-	Platform  string    `json:"platform"`
-	CreatedAt time.Time `json:"createdAt"`
-	UpdatedAt time.Time `json:"updatedAt"`
+	Platform  string      `json:"platform"`
+	CreatedAt time.Time   `json:"createdAt"`
+	UpdatedAt time.Time   `json:"updatedAt"`
+	Flag      CommandFlag `json:"flag"`
 }
+
 type CreateCommandParam struct {
 	Name   string
 	Remark string
@@ -102,7 +112,7 @@ func CreateCommand(ctx context.Context, p *CreateCommandParam) (*Command, error)
 
 func FindCommand(ctx context.Context, deviceID, virtualID, commandID snowid.ID) (*Command, error) {
 	rows, err := pgctx.Query(ctx, `
-		select c.id, c.remote_id, c.virtual_id, c.name, c.code, c.remark, c.platforms, c.created_at, c.updated_at 
+		select c.id, c.remote_id, c.virtual_id, c.name, c.code, c.remark, c.platforms, c.created_at, c.updated_at, c.flag 
 		from device_ir_remote_commands c 
 		inner join device_ir_remotes dir on dir.id = c.remote_id 
 		where c.id = $1 and c.virtual_id = $2 and dir.device_id = $3`,
@@ -125,7 +135,7 @@ func FindCommand(ctx context.Context, deviceID, virtualID, commandID snowid.ID) 
 
 func ListCommand(ctx context.Context, deviceID, virtualID snowid.ID) ([]*Command, error) {
 	rows, err := pgctx.Query(ctx, `
-		select c.id, c.remote_id, c.virtual_id, c.name, c.code, c.remark, c.platforms, c.created_at, c.updated_at 
+		select c.id, c.remote_id, c.virtual_id, c.name, c.code, c.remark, c.platforms, c.created_at, c.updated_at, c.flag
 		from device_ir_remote_commands c 
 		inner join device_ir_remotes dir on dir.id = c.remote_id 
 		where c.virtual_id = $1 and dir.device_id = $2 order by c.created_at desc `,
@@ -156,9 +166,14 @@ func DeleteCommand(ctx context.Context, deviceID, virtualID, commandID snowid.ID
 }
 
 type UpdateCommandParam struct {
-	Name   string `json:"name"`
-	Remark string `json:"remark"`
+	Name   string      `json:"name"`
+	Remark string      `json:"remark"`
+	Flag   CommandFlag `json:"flag"`
 }
+
+const (
+	name = 
+)
 
 func (p *UpdateCommandParam) Valid() error {
 	if p.Name == "" {

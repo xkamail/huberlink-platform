@@ -100,5 +100,6 @@ create table device_ir_remote_commands (
     remark text,
     platforms text default '',
     created_at timestamptz default now(),
-    updated_at timestamptz default now()
+    updated_at timestamptz default now(),
+    flag integer default 0
 );
