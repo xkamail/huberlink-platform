@@ -106,7 +106,7 @@ func Find(ctx context.Context, deviceID snowid.ID) (*IRRemote, error) {
 func ListVirtual(ctx context.Context, deviceID snowid.ID) ([]*VirtualKey, error) {
 	rows, err := pgctx.Query(ctx, `select v.id, v.remote_id, v.name, v.kind, v.icon, v.is_learning, v.properties, v.created_at, v.updated_at 
 		from device_ir_remote_virtual_keys v inner join device_ir_remotes dir on dir.id = v.remote_id 
-		where dir.device_id = $1`,
+		where dir.device_id = $1 order by id desc`,
 		deviceID,
 	)
 	if err != nil {
