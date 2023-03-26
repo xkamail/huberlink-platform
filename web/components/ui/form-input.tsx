@@ -5,10 +5,33 @@ interface IProps extends InputProps {
   name: string
   label?: string
   options?: RegisterOptions
+  noWrapper?: boolean
 }
-const FormInput = ({ name, label, options, ...rest }: IProps) => {
-  const { register, getFieldState } = useFormContext()
-  const { invalid, isDirty, error, isTouched } = getFieldState(name)
+const FormInput = ({ name, label, options, noWrapper, ...rest }: IProps) => {
+  const {
+    register,
+    formState: { errors, dirtyFields, isSubmitting },
+  } = useFormContext()
+  const invalid = !!errors[name]
+  if (noWrapper) {
+    return (
+      <>
+        {label && <Label htmlFor={name}>{label}</Label>}
+        <Input
+          id={name}
+          {...register(name, options)}
+          invalid={invalid}
+          {...rest}
+        />
+        {/* render form hook error by name */}
+        {invalid && errors[name]?.message && (
+          <span className="text-red-500 text-xs inline-block">
+            {`${errors[name]?.message}`}
+          </span>
+        )}
+      </>
+    )
+  }
   return (
     <div className="space-y-1">
       {label && <Label htmlFor={name}>{label}</Label>}
@@ -19,9 +42,9 @@ const FormInput = ({ name, label, options, ...rest }: IProps) => {
         {...rest}
       />
       {/* render form hook error by name */}
-      {invalid && (
+      {invalid && errors[name]?.message && (
         <span className="text-red-500 text-xs inline-block">
-          {error?.message}
+          {`${errors[name]?.message}`}
         </span>
       )}
     </div>

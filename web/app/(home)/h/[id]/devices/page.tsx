@@ -6,30 +6,36 @@ import { useHomeSelector } from '@/lib/contexts/HomeContext'
 import { IDeviceCard } from '@/lib/types'
 import DeviceService from '@/services/DeviceService'
 import { PlusIcon } from 'lucide-react'
-import { useCallback, useEffect, useState } from 'react'
+import Link from 'next/link'
+import { useEffect, useState } from 'react'
+import useSWR from 'swr'
 import DeviceSkeletons from './skeleton'
 
 const HomeDevicesPage = () => {
   const homeId = useHomeSelector((s) => s.homeId)
-
+  const { data, error, isLoading } = useSWR(`home-devices-${homeId}`, () =>
+    DeviceService.list(homeId)
+  )
   const [devices, setDevices] = useState<IDeviceCard[]>([])
   const [status, setStatus] = useState<'idle' | 'loading' | 'ok' | 'error'>(
     'idle'
   )
-  const fetchData = useCallback(async () => {
-    setStatus('loading')
-    const res = await DeviceService.list(homeId)
-    if (res.success) {
-      setDevices(res.data)
-      setStatus('ok')
-    } else {
+  useEffect(() => {
+    if (isLoading) {
+      setStatus('loading')
+    }
+    if (error) {
       setStatus('error')
     }
-  }, [homeId])
-
-  useEffect(() => {
-    fetchData()
-  }, [fetchData])
+    if (data && data.success) {
+      setDevices(data.data)
+      setStatus('ok')
+    }
+    if (data && !data.success) {
+      setStatus('error')
+    }
+    return () => {}
+  }, [data, error, isLoading])
 
   return (
     <div>
@@ -43,7 +49,8 @@ const HomeDevicesPage = () => {
         {status === 'loading' && <DeviceSkeletons />}
         {status === 'ok' &&
           devices.map((d, i) => (
-            <div
+            <Link
+              href={`/h/${homeId}/devices/${d.id}`}
               className="col-span-1 flex justify-between items-center rounded-lg p-4 bg-white shadow transition-all cursor-pointer hover:shadow-lg"
               key={i}
             >
@@ -60,11 +67,15 @@ const HomeDevicesPage = () => {
                   </span>
                 </Button>
               </div>
-            </div>
+            </Link>
           ))}
-        <div className="text-center col-span-full">
-          <Button variant="link">Load more</Button>
-        </div>
+        {status === 'ok' && devices.length === 0 && (
+          <div className="text-center col-span-full">
+            <p className="text-slate-500 dark:text-slate-400">
+              You {`don't`} have any devices yet. Create one!
+            </p>
+          </div>
+        )}
       </div>
     </div>
   )

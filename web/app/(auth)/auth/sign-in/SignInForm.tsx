@@ -4,13 +4,16 @@ import { Button } from '@/components/ui/button'
 import Form from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { useToast } from '@/hooks/use-toast'
+import { useUserDispatch } from '@/lib/contexts/UserContext'
 import { ISignInForm } from '@/lib/types'
-import { formError } from '@/lib/utils'
+import { formError, setAuthCookie } from '@/lib/utils'
 import AuthService from '@/services/AuthService'
 import { useRouter } from 'next/navigation'
-import nookies from 'nookies'
+import { parseCookies } from 'nookies'
 import { useForm } from 'react-hook-form'
 const SignInForm = () => {
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const userDispatch = useUserDispatch()
   const { toast } = useToast()
   const router = useRouter()
   const ctx = useForm({
@@ -26,11 +29,19 @@ const SignInForm = () => {
       formError(ctx, res)
       return
     }
-    //
-    toast.succes('Signed in successfully')
-    nookies.set(null, 'accessToken', res.data.token)
-    nookies.set(null, 'refreshToken', res.data.refreshToken)
-    router.push('/h')
+    setAuthCookie(res)
+    toast({
+      title: 'Sign in success',
+    })
+    // pre fetch user when login success
+    userDispatch({ type: 'fetch-user' }).then(() => {
+      const cookies = parseCookies(null)
+      if (cookies.currentHome) {
+        router.push(`/h/${cookies.currentHome}`)
+      } else {
+        router.push(`/h`)
+      }
+    })
   }
 
   return (

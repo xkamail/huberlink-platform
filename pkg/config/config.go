@@ -11,6 +11,9 @@ type Config struct {
 	DiscordClientID     string `envconfig:"DISCORD_CLIENT_ID"`
 	DiscordClientSecret string `envconfig:"DISCORD_CLIENT_SECRET"`
 	DiscordRedirectUri  string `envconfig:"DISCORD_CLIENT_REDIRECT_URI" required:"true"`
+	MQTTURI             string `envconfig:"MQTT_URI" required:"true"`
+	MQTTUsername        string `envconfig:"MQTT_USERNAME" required:"true"`
+	MQTTPassword        string `envconfig:"MQTT_PASSWORD" required:"true"`
 }
 
 var cfg Config

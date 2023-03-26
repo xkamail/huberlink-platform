@@ -15,13 +15,16 @@ const fetchData = async (id: string) => {
 }
 
 const HomePage = ({ params: { id: homeId } }: { params: { id: string } }) => {
-  const x = DeviceService.list(homeId)
-  const { data: devices, error, isLoading } = useSWR(`home-devices`, toSWR(x))
+  const {
+    data: devices,
+    error,
+    isLoading,
+  } = useSWR(['home', homeId], toSWR(DeviceService.list(homeId)))
 
   const { profile } = useUser()
   const renderDeviceCard = (d: IDeviceCard) => {
     if (d.kind === DeviceKindEnum.IRRemote) {
-      return <IRRemoteThingCard />
+      return <IRRemoteThingCard deviceId={d.id} />
     }
     return (
       <div className="col-span-6 md:col-span-4" key={d.id}>
@@ -43,9 +46,12 @@ const HomePage = ({ params: { id: homeId } }: { params: { id: string } }) => {
       </div>
     )
   }
+
   const loading = useHomeSelector((s) => s.isLoading)
 
   if (loading) return <SkeletonDisplay />
+
+  const deviceList = devices || []
 
   return (
     <div className="grid grid-cols-12 gap-4">
@@ -55,10 +61,8 @@ const HomePage = ({ params: { id: homeId } }: { params: { id: string } }) => {
       <div className="col-span-12">
         <HomeGreating />
       </div>
-      {!error &&
-        !isLoading &&
-        devices &&
-        devices.map((d) => renderDeviceCard(d))}
+
+      {!error && !isLoading && deviceList.map((d) => renderDeviceCard(d))}
     </div>
   )
 }

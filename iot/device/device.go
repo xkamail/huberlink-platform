@@ -2,13 +2,17 @@ package device
 
 import (
 	"context"
+	"errors"
 	"time"
+
+	"github.com/jackc/pgx/v5"
 
 	"github.com/xkamail/huberlink-platform/iot/account"
 	"github.com/xkamail/huberlink-platform/iot/home"
 	"github.com/xkamail/huberlink-platform/pkg/pgctx"
 	"github.com/xkamail/huberlink-platform/pkg/rand"
 	"github.com/xkamail/huberlink-platform/pkg/snowid"
+	"github.com/xkamail/huberlink-platform/pkg/uierr"
 )
 
 // Handler is a global interface for all device handler
@@ -45,7 +49,19 @@ func List(ctx context.Context, homeID snowid.ID) ([]*Device, error) {
 }
 
 func Find(ctx context.Context, deviceID snowid.ID) (*Device, error) {
-	panic("not implemented")
+	rows, err := pgctx.Query(ctx, `select id, name, icon, model, kind, home_id, user_id, token, ip_address, location, latest_heartbeat_at, created_at, updated_at from devices where id = $1`, deviceID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	d, err := pgx.CollectOneRow(rows, pgx.RowToAddrOfStructByPos[Device])
+	if errors.Is(err, pgx.ErrNoRows) {
+		return nil, ErrNotFound
+	}
+	if err != nil {
+		return nil, err
+	}
+	return d, nil
 }
 
 type CreateParam struct {
@@ -56,7 +72,20 @@ type CreateParam struct {
 	HomeID snowid.ID `json:"-"`
 }
 
+func (p *CreateParam) Valid() error {
+	if p.HomeID.Int() == 0 {
+		return uierr.Invalid("home_id", "home id is required")
+	}
+	if p.Name == "" {
+		return uierr.Invalid("name", "name is required")
+	}
+	return nil
+}
+
 func Create(ctx context.Context, p *CreateParam) (*snowid.ID, error) {
+	if err := p.Valid(); err != nil {
+		return nil, err
+	}
 	acc, err := account.FromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -124,6 +153,11 @@ func Create(ctx context.Context, p *CreateParam) (*snowid.ID, error) {
 	}
 
 	return &id, nil
+}
+
+func HeartBeat(ctx context.Context, deviceID snowid.ID) error {
+	_, err := pgctx.Exec(ctx, `update devices set latest_heartbeat_at = $1 where id = $2`, time.Now(), deviceID)
+	return err
 }
 
 func generateToken() (string, error) {

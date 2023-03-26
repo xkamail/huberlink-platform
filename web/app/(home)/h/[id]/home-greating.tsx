@@ -2,6 +2,7 @@ import { useUser } from '@/lib/hooks'
 
 const HomeGreating = () => {
   const { profile } = useUser()
+  return null
   return (
     <div className="rounded-lg shadow bg-indigo-600 text-slate-100 p-4">
       <div className="flex items-center">

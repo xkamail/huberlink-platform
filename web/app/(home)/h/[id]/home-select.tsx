@@ -14,9 +14,12 @@ import { IHome } from '@/lib/types'
 import HomeService from '@/services/HomeService'
 import { ListIcon, PlusIcon } from 'lucide-react'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { useCallback, useEffect, useState } from 'react'
 
 const HomeSelector = () => {
+  const pathname = usePathname()
+  const currentHomeId = useHomeSelector((s) => s.homeId)
   const [homeList, setHomeList] = useState<IHome[]>([])
   const fetchData = useCallback(async () => {
     const r = await HomeService.list()
@@ -32,6 +35,7 @@ const HomeSelector = () => {
 
   const homeTitle = useHomeSelector((s) => s.homeName)
   const loading = useHomeSelector((s) => s.isLoading)
+
   return (
     <TopNavigation
       leftContent={
@@ -43,7 +47,10 @@ const HomeSelector = () => {
             <DropdownMenuLabel>Select home</DropdownMenuLabel>
             <DropdownMenuSeparator />
             {homeList.map((home) => (
-              <Link href={`/h/${home.id}`} key={home.id}>
+              <Link
+                href={pathname.replace(currentHomeId, home.id)}
+                key={home.id}
+              >
                 <DropdownMenuItem>{home.name}</DropdownMenuItem>
               </Link>
             ))}

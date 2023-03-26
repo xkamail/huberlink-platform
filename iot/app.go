@@ -14,10 +14,12 @@ import (
 	"github.com/xkamail/huberlink-platform/iot/auth"
 	"github.com/xkamail/huberlink-platform/iot/device"
 	"github.com/xkamail/huberlink-platform/iot/home"
+	"github.com/xkamail/huberlink-platform/iot/irremote"
 	"github.com/xkamail/huberlink-platform/pkg/api"
 	"github.com/xkamail/huberlink-platform/pkg/config"
 	"github.com/xkamail/huberlink-platform/pkg/discord"
 	"github.com/xkamail/huberlink-platform/pkg/snowid"
+	"github.com/xkamail/huberlink-platform/pkg/thing"
 	"github.com/xkamail/huberlink-platform/pkg/uierr"
 )
 
@@ -57,6 +59,18 @@ func Handlers() http.Handler {
 			code := r.URL.Query().Get("refreshToken")
 			return auth.InvokeRefreshToken(ctx, code)
 		}))
+		authRouter.Put("/auth/set-password", h(
+			func(ctx context.Context, r *http.Request) (any, error) {
+				var p auth.SetPasswordParam
+				if err := mustBind(r, &p); err != nil {
+					return nil, err
+				}
+				if err := auth.SetPassword(ctx, &p); err != nil {
+					return nil, err
+				}
+				return true, nil
+			},
+		))
 		authRouter.Get("/auth/me", h(func(ctx context.Context, r *http.Request) (any, error) {
 
 			return account.FromContext(ctx)
@@ -147,15 +161,16 @@ func Handlers() http.Handler {
 			return device.List(ctx, h.ID)
 		}))
 		r.Post("/home/{home_id}/devices", h(func(ctx context.Context, r *http.Request) (any, error) {
-			h, err := homeFromCtx(ctx)
+			homeID, err := URLParamID(r, "home_id")
 			if err != nil {
 				return nil, err
 			}
 			var p device.CreateParam
+			p.HomeID = homeID
 			if err := mustBind(r, &p); err != nil {
 				return nil, err
 			}
-			p.HomeID = h.ID
+
 			return device.Create(ctx, &p)
 		}))
 		r.Get("/home/{home_id}/devices/{device_id}", h(func(ctx context.Context, r *http.Request) (any, error) {
@@ -165,69 +180,225 @@ func Handlers() http.Handler {
 			}
 			return device.Find(ctx, deviceID)
 		}))
-		r.Delete("/home/{home_id}/devices/{id}", nil)
-		r.Patch("/home/{home_id}/devices/{id}", nil)
-		// ir-remote service
-		r.Get("/home/{home_id}/devices/{devices_id}/ir-remote/{remote_id}", h(
+		r.Delete("/home/{home_id}/devices/{id}", h(
 			func(ctx context.Context, r *http.Request) (any, error) {
+				// TODO:
+				return nil, errors.New("no implemented")
+			},
+		))
+		r.Patch("/home/{home_id}/devices/{id}", h(
+			func(ctx context.Context, r *http.Request) (any, error) {
+				// TODO:
+				return nil, errors.New("no implemented")
+			},
+		))
+		// ir-remote service
+		r.Get("/home/{home_id}/devices/{device_id}/ir-remote", h(
+			func(ctx context.Context, r *http.Request) (any, error) {
+				deviceID, err := URLParamID(r, "device_id")
+				if err != nil {
+					return nil, err
+				}
 				// return list of virtual remote
-				return nil, errors.New("not implemented")
+				vs, err := irremote.ListVirtual(ctx, deviceID)
+				if err != nil {
+					return nil, err
+				}
+				remote, err := irremote.Find(ctx, deviceID)
+				if err != nil {
+					return nil, err
+				}
+				return struct {
+					Remote *irremote.IRRemote     `json:"remote"`
+					Vs     []*irremote.VirtualKey `json:"virtuals"`
+				}{
+					remote,
+					vs,
+				}, nil
 			},
 		))
 		// create virtual remote
-		r.Post("/home/{home_id}/devices/{devices_id}/ir-remote/{remote_id}/virtual", h(
+		r.Post("/home/{home_id}/devices/{device_id}/ir-remote/virtual", h(
 			func(ctx context.Context, r *http.Request) (any, error) {
-				// define a virtual remote
-				// kind
-				return nil, errors.New("not implemented")
+				var p irremote.CreateVirtualKeyParam
+				if err := mustBind(r, &p); err != nil {
+					return nil, err
+				}
+				var err error
+				p.DeviceID, err = URLParamID(r, "device_id")
+				if err != nil {
+					return nil, err
+				}
+				return irremote.CreateVirtual(ctx, &p)
 			},
 		))
-		r.Put("/home/{home_id}/devices/{devices_id}/ir-remote/{remote_id}/virtual/{virtual_id}", h(
+		r.Put("/home/{home_id}/devices/{device_id}/ir-remote/virtual/{virtual_id}", h(
 			func(ctx context.Context, r *http.Request) (any, error) {
+				virtualID, err := URLParamID(r, "virtual_id")
+				if err != nil {
+					return nil, err
+				}
 				// update virtual remote information and kind ?
 				//
-				return nil, errors.New("not implemented")
+				var p irremote.UpdateVirtualParam
+				if err := mustBind(r, &p); err != nil {
+					return nil, err
+				}
+				p.VirtualID = virtualID
+				err = irremote.UpdateVirtual(ctx, &p)
+				return nil, err
 			},
 		))
-		r.Delete("/home/{home_id}/devices/{devices_id}/ir-remote/{remote_id}/virtual/{virtual_id}", h(
+		r.Delete("/home/{home_id}/devices/{device_id}/ir-remote/virtual/{virtual_id}", h(
 			func(ctx context.Context, r *http.Request) (any, error) {
-				// delete cascade all button
-				// which in this virtual remote
-				return nil, errors.New("not implemented")
+				virtualID, err := URLParamID(r, "virtual_id")
+				if err != nil {
+					return nil, err
+				}
+				return irremote.DeleteVirtualKey(ctx, virtualID)
 			},
 		))
-		r.Get("/home/{home_id}/devices/{devices_id}/ir-remote/{remote_id}/virtual/{virtual_id}", h(
+		r.Get("/home/{home_id}/devices/{device_id}/ir-remote/virtual/{virtual_id}", h(
 			func(ctx context.Context, r *http.Request) (any, error) {
+				virtualID, err := URLParamID(r, "virtual_id")
+				if err != nil {
+					return nil, err
+				}
+				deviceID, err := URLParamID(r, "device_id")
+				if err != nil {
+					return nil, err
+				}
+				v, err := irremote.FindVirtual(ctx, deviceID, virtualID)
+				if err != nil {
+					return nil, err
+				}
+				type detail struct {
+					*irremote.VirtualKey
+					Buttons []*irremote.Command `json:"buttons"`
+				}
+				buttons, err := irremote.ListCommand(ctx, deviceID, v.ID)
+				if err != nil {
+					return nil, err
+				}
 				// return a list of button
-				return nil, errors.New("not implemented")
+				return detail{
+					v,
+					buttons,
+				}, nil
 			},
 		))
-		r.Post("/home/{home_id}/devices/{devices_id}/ir-remote/{remote_id}/virtual/{virtual_id}/start-learning", h(
+		r.Get("/home/{home_id}/devices/{device_id}/ir-remote/virtual/{virtual_id}/buttons", h(
 			func(ctx context.Context, r *http.Request) (any, error) {
-				// create a 30 seconds learning session
-				// when universal remote got an ir signal
-				// then will create a button
-				return nil, errors.New("not implemented")
+				virtualID, err := URLParamID(r, "virtual_id")
+				if err != nil {
+					return nil, err
+				}
+				deviceID, err := URLParamID(r, "device_id")
+				if err != nil {
+					return nil, err
+				}
+				return irremote.ListCommand(ctx, deviceID, virtualID)
 			},
 		))
-		r.Post("/home/{home_id}/devices/{devices_id}/ir-remote/{remote_id}/virtual/{virtual_id}/execute", h(
+		r.Post("/home/{home_id}/devices/{device_id}/ir-remote/virtual/{virtual_id}/start-learning", h(
 			func(ctx context.Context, r *http.Request) (any, error) {
-				// execute a button
-				return nil, errors.New("not implemented")
+				virtualID, err := URLParamID(r, "virtual_id")
+				if err != nil {
+					return nil, err
+				}
+				// start learning session
+				deviceID, err := URLParamID(r, "device_id")
+				if err != nil {
+					return nil, err
+				}
+				err = irremote.StartLearning(ctx, deviceID, virtualID)
+				if err != nil {
+					return nil, err
+				}
+				return true, nil
 			},
 		))
-		r.Put("/home/{home_id}/devices/{devices_id}/ir-remote/{remote_id}/virtual/{virtual_id}/button/{button_id}", h(
+		r.Post("/home/{home_id}/devices/{device_id}/ir-remote/virtual/{virtual_id}/stop-learning", h(
 			func(ctx context.Context, r *http.Request) (any, error) {
-				// if name is empty then it has to be a new remote button
-				// which come from learning session
-				// update a button name of a virtual remote
-				return nil, errors.New("not implemented")
+				virtualID, err := URLParamID(r, "virtual_id")
+				if err != nil {
+					return nil, err
+				}
+				// start learning session
+				deviceID, err := URLParamID(r, "device_id")
+				if err != nil {
+					return nil, err
+				}
+				err = irremote.StopLearning(ctx, deviceID, virtualID)
+				if err != nil {
+					return nil, err
+				}
+				return true, nil
 			},
 		))
-		r.Delete("/home/{home_id}/devices/{devices_id}/ir-remote/{remote_id}/virtual/{virtual_id}/button/{button_id}", h(func(ctx context.Context, r *http.Request) (any, error) {
-			// delete a button and codes is gone
-			return nil, errors.New("not implemented")
+		r.Post("/home/{home_id}/devices/{device_id}/ir-remote/virtual/{virtual_id}/execute", h(
+			func(ctx context.Context, r *http.Request) (any, error) {
+				deviceID, err := URLParamID(r, "device_id")
+				if err != nil {
+					return nil, err
+				}
+				virtualID, err := URLParamID(r, "virtual_id")
+				if err != nil {
+					return nil, err
+				}
+				var p irremote.ExecuteCommandParam
+				if err := mustBind(r, &p); err != nil {
+					return nil, err
+				}
+				return irremote.ExecuteCommand(ctx, deviceID, virtualID, &p)
+			},
+		))
+		r.Put("/home/{home_id}/devices/{device_id}/ir-remote/virtual/{virtual_id}/button/{button_id}", h(
+			func(ctx context.Context, r *http.Request) (any, error) {
+				deviceID, err := URLParamID(r, "device_id")
+				if err != nil {
+					return nil, err
+				}
+				virtualID, err := URLParamID(r, "virtual_id")
+				if err != nil {
+					return nil, err
+				}
+				commandID, err := URLParamID(r, "button_id")
+				if err != nil {
+					return nil, err
+				}
+				var p irremote.UpdateCommandParam
+				if err := mustBind(r, &p); err != nil {
+					return nil, err
+				}
+				return irremote.UpdateCommand(ctx, deviceID, virtualID, commandID, &p)
+			},
+		))
+		r.Delete("/home/{home_id}/devices/{device_id}/ir-remote/virtual/{virtual_id}/button/{button_id}", h(func(ctx context.Context, r *http.Request) (any, error) {
+			deviceID, err := URLParamID(r, "device_id")
+			if err != nil {
+				return nil, err
+			}
+			virtualID, err := URLParamID(r, "virtual_id")
+			if err != nil {
+				return nil, err
+			}
+			commandID, err := URLParamID(r, "button_id")
+			if err != nil {
+				return nil, err
+			}
+			return nil, irremote.DeleteCommand(ctx, deviceID, virtualID, commandID)
 		}))
+		r.Get("/home/{home_id}/devices/{device_id}/ping", h(
+			func(ctx context.Context, r *http.Request) (any, error) {
+				deviceID, err := URLParamID(r, "device_id")
+				if err != nil {
+					return nil, err
+				}
+				ok := thing.Ping(ctx, deviceID)
+				return ok, nil
+			},
+		))
 	}
 	return router
 }
@@ -261,7 +432,7 @@ func URLParamID(r *http.Request, key string) (snowid.ID, error) {
 	id := chi.URLParam(r, key)
 	i, err := snowflake.ParseString(id)
 	if err != nil {
-		return snowid.Zero, uierr.Invalid("id", "invalid id parameter")
+		return snowid.Zero, uierr.Invalid(key, err.Error())
 	}
 	return snowid.ID(i), nil
 }
@@ -276,7 +447,7 @@ func newHomeContext(ctx context.Context, h *home.Home) context.Context {
 
 func homeFromCtx(ctx context.Context) (*home.Home, error) {
 	h, ok := ctx.Value(homeDetailCtx{}).(*home.Home)
-	if !ok {
+	if !ok || h == nil {
 		return nil, uierr.UnAuthorization("home: home not found")
 	}
 	return h, nil

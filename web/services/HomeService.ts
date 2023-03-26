@@ -9,7 +9,7 @@ const HomeService = {
         IResponse<{
           id: string
         }>
-      >(`/homes`, data)
+      >(`/home`, data)
       .then((r) => r.data)
   },
   list() {

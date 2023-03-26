@@ -28,7 +28,7 @@ const KindCard = ({ kind, icon, label, description, onChange }: IProps) => {
     <div
       className={cn(
         'cursor-pointer flex flex-col items-center justify-center w-20 h-20 rounded-lg gap-1  transition-all',
-        active ? 'bg-slate-900 shadow' : 'bg-slate-100 hover:bg-slate-200'
+        active ? 'bg-indigo-500 shadow' : 'bg-slate-100 hover:bg-slate-200'
       )}
       onClick={onClick}
     >
@@ -36,7 +36,7 @@ const KindCard = ({ kind, icon, label, description, onChange }: IProps) => {
       <span
         className={cn(
           `block text-sm font-medium text-slate-900`,
-          active ? 'text-slate-100' : 'text-slate-900'
+          active ? 'text-slate-100' : 'text-slate-800'
         )}
       >
         {label}

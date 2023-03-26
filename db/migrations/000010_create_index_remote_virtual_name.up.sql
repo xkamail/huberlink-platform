@@ -1,0 +1,1 @@
+create unique index device_ir_remote_virtual_keys_remote_id_name_unique on device_ir_remote_virtual_keys (remote_id, name);

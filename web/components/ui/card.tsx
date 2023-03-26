@@ -1,33 +1,27 @@
-import { Button } from './button'
+import { cn } from '@/lib/utils'
+import React from 'react'
 
-const Card = () => {
+const Card = ({
+  children,
+  title,
+  className,
+  renderAs,
+}: {
+  title?: string
+  children: React.ReactNode
+  className?: string
+  renderAs?: React.ElementType
+}) => {
   return (
-    <div className="rounded-lg shadow bg-white p-4">
-      <div className="flex items-center">
-        <div className="flex-shrink-0">
-          <img
-            className="h-10 w-10 rounded-full"
-            src="https://via.placeholder.com/400"
-            alt=""
-          />
-        </div>
-      </div>
-      <div className="mt-4">
-        <div className="text-base font-medium text-gray-900">
-          Pakorn Sangpeth
-        </div>
+    <div className={cn('rounded-lg shadow bg-white p-4', className)}>
+      {title && (
         <div>
-          <p className="text-sm my-4">
-            Lorem Ipsum is simply dummy text of the printing and typesetting
-            industry.
-          </p>
+          <h2 className="mb-6 scroll-m-20 border-b border-b-slate-200 pb-2 text-2xl font-semibold tracking-tight first:mt-0 dark:border-b-slate-700">
+            {title}
+          </h2>
         </div>
-        <div className="flex justify-end">
-          <Button variant="primary" size="sm">
-            <span>Read more</span>
-          </Button>
-        </div>
-      </div>
+      )}
+      {children}
     </div>
   )
 }
