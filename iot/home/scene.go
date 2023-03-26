@@ -116,21 +116,76 @@ type CreateSceneParam struct {
 }
 
 func CreateScene(ctx context.Context, homeID snowid.ID, p *CreateSceneParam) (snowid.ID, error) {
-	panic("implement me")
+	var id snowid.ID
+	err := pgctx.QueryRow(ctx, `
+		insert into home_scenes 
+		    (id, home_id, name, run, schedule_repeat, schedule_time) 
+		values ($1,$2,$3,$4,$5,$6) returning id`,
+		snowid.New(),
+		homeID,
+		p.Name,
+		p.Run,
+		p.ScheduleRepeat,
+		p.ScheduleTime,
+	).Scan(&id)
+	if err != nil {
+		return 0, err
+	}
+	return id, nil
 }
 
 func ListScene(ctx context.Context, homeID snowid.ID) ([]*Scene, error) {
-	panic("implement me")
+	rows, err := pgctx.Query(ctx, `
+		select id, name, run, schedule_repeat, schedule_time, created_at, updated_at
+		from home_scenes
+		where home_id = $1
+		order by id desc`,
+		homeID,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var scenes []*Scene
+	for rows.Next() {
+		var s Scene
+		err = rows.Scan(
+			&s.ID,
+			&s.Name,
+			&s.Run,
+			&s.ScheduleRepeat,
+			&s.ScheduleTime,
+			&s.CreatedAt,
+			&s.UpdatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+		scenes = append(scenes, &s)
+	}
+	return scenes, nil
 }
 
 type UpdateSceneParam = CreateSceneParam
 
-func UpdateScene(ctx context.Context, homeID snowid.ID, p *UpdateSceneParam) error {
-	panic("implement me")
+func UpdateScene(ctx context.Context, homeID, sceneID snowid.ID, p *UpdateSceneParam) error {
+	_, err := pgctx.Exec(ctx, `
+		update home_scenes set 
+		    name = $1, run = $2, schedule_repeat = $3, schedule_time = $4
+		where id = $5 and home_id = $6`,
+		p.Name,
+		p.Run,
+		p.ScheduleRepeat,
+		p.ScheduleTime,
+		sceneID,
+		homeID,
+	)
+	return err
 }
 
 func DeleteScene(ctx context.Context, homeID, sceneID snowid.ID) error {
-	panic("implement me")
+	_, err := pgctx.Exec(ctx, `delete from home_scenes where id = $1 and home_id = $2`, sceneID, homeID)
+	return err
 }
 
 type CreateSceneActionParam struct {
