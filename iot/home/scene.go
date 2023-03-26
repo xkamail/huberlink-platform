@@ -214,13 +214,11 @@ func DeleteScene(ctx context.Context, homeID, sceneID snowid.ID) error {
 }
 
 type CreateSceneActionParam struct {
-	SceneID snowid.ID `json:"sceneId"`
-	// DeviceID in home id
 	DeviceID  snowid.ID `json:"deviceId"`
 	RawAction string    `json:"rawAction"`
 }
 
-func CreateSceneAction(ctx context.Context, homeID snowid.ID, p *CreateSceneActionParam) (snowid.ID, error) {
+func CreateSceneAction(ctx context.Context, homeID, sceneID snowid.ID, p *CreateSceneActionParam) (snowid.ID, error) {
 	err := pgctx.QueryRow(ctx, `select id from devices where id = $1 and home_id = $2`,
 		p.DeviceID,
 		homeID,
@@ -240,7 +238,7 @@ func CreateSceneAction(ctx context.Context, homeID snowid.ID, p *CreateSceneActi
 		values ($1,$2,$3) returning id`,
 		snowid.New(),
 		homeID,
-		p.SceneID,
+		sceneID,
 		p.DeviceID,
 		p.RawAction,
 	).Scan(&id)

@@ -434,7 +434,7 @@ func Handlers() http.Handler {
 					return &result{scene, actions}, nil
 				},
 			))
-			
+
 			r.Post("/", h(
 				func(ctx context.Context, r *http.Request) (any, error) {
 					homeID, err := URLParamID(r, "home_id")
@@ -462,7 +462,40 @@ func Handlers() http.Handler {
 				},
 			))
 			//
-
+			r.Post("/{scene_id}/actions", h(
+				func(ctx context.Context, r *http.Request) (any, error) {
+					homeID, err := URLParamID(r, "home_id")
+					if err != nil {
+						return nil, err
+					}
+					sceneID, err := URLParamID(r, "scene_id")
+					if err != nil {
+						return nil, err
+					}
+					var p home.CreateSceneActionParam
+					if err := mustBind(r, &p); err != nil {
+						return nil, err
+					}
+					return home.CreateSceneAction(ctx, homeID, sceneID, &p)
+				},
+			))
+			r.Delete("/{scene_id}/actions/{scene_action_id}", h(
+				func(ctx context.Context, r *http.Request) (any, error) {
+					homeID, err := URLParamID(r, "home_id")
+					if err != nil {
+						return nil, err
+					}
+					sceneID, err := URLParamID(r, "scene_id")
+					if err != nil {
+						return nil, err
+					}
+					sceneActionID, err := URLParamID(r, "scene_action_id")
+					if err != nil {
+						return nil, err
+					}
+					return nil, home.DeleteSceneAction(ctx, homeID, sceneID, sceneActionID)
+				},
+			))
 		})
 	}
 	return router
