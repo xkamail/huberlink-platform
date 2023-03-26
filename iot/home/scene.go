@@ -1,6 +1,7 @@
 package home
 
 import (
+	"context"
 	"encoding/json"
 	"strconv"
 	"time"
@@ -97,4 +98,45 @@ type SceneAction struct {
 	DeviceID snowid.ID `json:"deviceId"` // device id to execute
 	// action to execute
 	RawAction string `json:"rawAction"`
+}
+
+type CreateSceneParam struct {
+	HomeID snowid.ID `json:"homeId"`
+	Name   string    `json:"name"`
+	Run    SceneRun  `json:"run"`
+	// when no repeat is zero value
+	// multiple days can be set by bitwise or
+	ScheduleRepeat SceneScheduleRepeat `json:"schedule"`
+	// hh:mm format
+	ScheduleTime SceneScheduleTime `json:"scheduleTime"`
+}
+
+func CreateScene(ctx context.Context, p *CreateSceneParam) (snowid.ID, error) {
+	panic("implement me")
+}
+
+func ListScene(ctx context.Context, homeID snowid.ID) ([]*Scene, error) {
+	panic("implement me")
+}
+
+func UpdateScene() {
+
+}
+
+func DeleteScene() {
+
+}
+
+type CreateSceneActionParam struct {
+
+	// DeviceID in home id
+	DeviceID snowid.ID `json:"deviceId"`
+}
+
+func CreateSceneAction(ctx context.Context, homeID snowid.ID, p *CreateSceneActionParam) (snowid.ID, error) {
+	panic("implement me")
+}
+
+func DeleteSceneAction(ctx context.Context, homeID, sceneActionID snowid.ID) error {
+	panic("implement me")
 }
