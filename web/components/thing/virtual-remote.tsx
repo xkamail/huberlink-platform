@@ -50,7 +50,7 @@ const ThingVirtualRemote = ({
     <div className="col-span-6 md:col-span-4">
       <Dialog>
         <DialogTrigger asChild>
-          <a className="w-full rounded-lg shadow bg-white p-4  cursor-pointer hover:shadow-lg transition-all">
+          <div className="w-full rounded-lg shadow bg-white p-4  cursor-pointer hover:shadow-lg transition-all">
             <div className="flex items-center">
               <div className="flex-shrink-0 flex gap-2">
                 <BoxIcon className="w-6 h-6" /> {v.name}
@@ -68,7 +68,7 @@ const ThingVirtualRemote = ({
                 />
               ))}
             </div>
-          </a>
+          </div>
         </DialogTrigger>
         <DialogContent
           onOpenAutoFocus={(e) => {
