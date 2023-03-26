@@ -25,5 +25,5 @@ module.exports = {
       },
     },
   },
-  plugins: [require('tailwindcss-animate'), require('tailwindcss-safe-area')],
+  plugins: [require('tailwindcss-animate'), require('tailwindcss-safe-area'),require('postcss-100vh-fix')],
 }

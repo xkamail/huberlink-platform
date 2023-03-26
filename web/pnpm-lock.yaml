@@ -26,6 +26,7 @@ specifiers:
   next-pwa: ^5.6.0
   nookies: ^2.5.2
   postcss: ^8.4.21
+  postcss-100vh-fix: ^1.0.2
   react: 18.2.0
   react-dom: 18.2.0
   react-hook-form: ^7.43.3
@@ -60,6 +61,7 @@ dependencies:
   next: 13.2.4_biqbaboplfbrettd7655fr4n2y
   next-pwa: 5.6.0_next@13.2.4
   nookies: 2.5.2
+  postcss-100vh-fix: 1.0.2_postcss@8.4.21
   react: 18.2.0
   react-dom: 18.2.0_react@18.2.0
   react-hook-form: 7.43.3_react@18.2.0
@@ -4468,6 +4470,15 @@ packages:
     engines: {node: '>=8'}
     dependencies:
       find-up: 4.1.0
+    dev: false
+
+  /postcss-100vh-fix/1.0.2_postcss@8.4.21:
+    resolution: {integrity: sha512-t7vqk9AfjI4fXmWlQCEiMZFFhi1hro4WlECINI1TV6Qh1XapUJE++gCmNr95F5Hen/+bz1OmO+SiSB9TZmFmSg==}
+    engines: {node: '>=10.0'}
+    peerDependencies:
+      postcss: ^8.1.0
+    dependencies:
+      postcss: 8.4.21
     dev: false
 
   /postcss-import/14.1.0_postcss@8.4.21:
