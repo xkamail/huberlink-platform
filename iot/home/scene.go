@@ -3,9 +3,14 @@ package home
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"strconv"
 	"time"
 
+	"github.com/jackc/pgx/v5"
+
+	"github.com/xkamail/huberlink-platform/iot/device"
+	"github.com/xkamail/huberlink-platform/pkg/pgctx"
 	"github.com/xkamail/huberlink-platform/pkg/snowid"
 	"github.com/xkamail/huberlink-platform/pkg/uierr"
 )
@@ -101,9 +106,8 @@ type SceneAction struct {
 }
 
 type CreateSceneParam struct {
-	HomeID snowid.ID `json:"homeId"`
-	Name   string    `json:"name"`
-	Run    SceneRun  `json:"run"`
+	Name string   `json:"name"`
+	Run  SceneRun `json:"run"`
 	// when no repeat is zero value
 	// multiple days can be set by bitwise or
 	ScheduleRepeat SceneScheduleRepeat `json:"schedule"`
@@ -111,7 +115,7 @@ type CreateSceneParam struct {
 	ScheduleTime SceneScheduleTime `json:"scheduleTime"`
 }
 
-func CreateScene(ctx context.Context, p *CreateSceneParam) (snowid.ID, error) {
+func CreateScene(ctx context.Context, homeID snowid.ID, p *CreateSceneParam) (snowid.ID, error) {
 	panic("implement me")
 }
 
@@ -119,22 +123,51 @@ func ListScene(ctx context.Context, homeID snowid.ID) ([]*Scene, error) {
 	panic("implement me")
 }
 
-func UpdateScene() {
+type UpdateSceneParam = CreateSceneParam
 
+func UpdateScene(ctx context.Context, homeID snowid.ID, p *UpdateSceneParam) error {
+	panic("implement me")
 }
 
-func DeleteScene() {
-
+func DeleteScene(ctx context.Context, homeID, sceneID snowid.ID) error {
+	panic("implement me")
 }
 
 type CreateSceneActionParam struct {
-
+	SceneID snowid.ID `json:"sceneId"`
 	// DeviceID in home id
-	DeviceID snowid.ID `json:"deviceId"`
+	DeviceID  snowid.ID `json:"deviceId"`
+	RawAction string    `json:"rawAction"`
 }
 
 func CreateSceneAction(ctx context.Context, homeID snowid.ID, p *CreateSceneActionParam) (snowid.ID, error) {
-	panic("implement me")
+	err := pgctx.QueryRow(ctx, `select id from devices where id = $1 and home_id = $2`,
+		p.DeviceID,
+		homeID,
+	).Scan(
+		&p.DeviceID,
+	)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return 0, device.ErrNotFound
+	}
+	if err != nil {
+		return 0, err
+	}
+	var id snowid.ID
+	err = pgctx.QueryRow(ctx, `
+		insert into home_scenes_actions 
+		    (id, scene_id, device_id, action) 
+		values ($1,$2,$3) returning id`,
+		snowid.New(),
+		homeID,
+		p.SceneID,
+		p.DeviceID,
+		p.RawAction,
+	).Scan(&id)
+	if err != nil {
+		return 0, err
+	}
+	return id, nil
 }
 
 func DeleteSceneAction(ctx context.Context, homeID, sceneActionID snowid.ID) error {
