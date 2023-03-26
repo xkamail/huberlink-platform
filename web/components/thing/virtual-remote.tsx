@@ -1,12 +1,24 @@
+import { useToast } from '@/hooks/use-toast'
 import { useHomeSelector } from '@/lib/contexts/HomeContext'
-import { CommandFlagEnum, IIRRemoteVirtualDevice } from '@/lib/types'
+import {
+  CommandFlagEnum,
+  IIRRemoteVirtualDevice,
+  IIRRemoteVirtualDeviceCommand,
+} from '@/lib/types'
 import { toSWR } from '@/lib/utils'
 import DeviceService from '@/services/DeviceService'
-import { BoxIcon, PowerIcon } from 'lucide-react'
+import { BoxIcon } from 'lucide-react'
+import { useState } from 'react'
 import useSWR from 'swr'
 import { Button } from '../ui/button'
-import Card from '../ui/card'
-import { Dialog, DialogTrigger } from '../ui/dialog'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '../ui/dialog'
 const ThingVirtualRemote = ({
   deviceId,
   v,
@@ -14,6 +26,7 @@ const ThingVirtualRemote = ({
   v: IIRRemoteVirtualDevice
   deviceId: string
 }) => {
+  const { toast } = useToast()
   const homeId = useHomeSelector((s) => s.homeId)
   const { data, error, isLoading } = useSWR(
     ['home-virtual-device', v.id],
@@ -25,6 +38,7 @@ const ThingVirtualRemote = ({
       })
     )
   )
+
   const commands = data || []
 
   const homeCommands = commands.filter((x) => {
@@ -36,7 +50,7 @@ const ThingVirtualRemote = ({
     <div className="col-span-6 md:col-span-4">
       <Dialog>
         <DialogTrigger asChild>
-          <Card className="cursor-pointer hover:shadow-lg transition-all">
+          <a className="w-full rounded-lg shadow bg-white p-4  cursor-pointer hover:shadow-lg transition-all">
             <div className="flex items-center">
               <div className="flex-shrink-0 flex gap-2">
                 <BoxIcon className="w-6 h-6" /> {v.name}
@@ -44,24 +58,92 @@ const ThingVirtualRemote = ({
             </div>
             <div className="mt-4 flex flex-row items-center justify-between">
               <div></div>
+              {homeCommands.length === 0 && <div className="h-[40px]"></div>}
               {homeCommands.map((cmd) => (
-                <Button
+                <CommandButton
+                  deviceId={deviceId}
+                  virtualId={v.id}
+                  cmd={cmd}
                   key={cmd.id}
-                  variant="subtle"
-                  size="circle"
-                  className="flex items-center"
-                >
-                  <PowerIcon className="w-8 h-8 cursor-pointer text-indigo-600 " />
-                </Button>
+                />
               ))}
             </div>
-          </Card>
+          </a>
         </DialogTrigger>
+        <DialogContent
+          onOpenAutoFocus={(e) => {
+            // disable auto focus button
+            e.preventDefault()
+          }}
+          className=""
+        >
+          <DialogHeader>
+            <DialogTitle>{v.name}</DialogTitle>
+            <DialogDescription>
+              <div className="py-4">
+                {commands.map((cmd) => (
+                  <CommandButton
+                    deviceId={deviceId}
+                    virtualId={v.id}
+                    cmd={cmd}
+                    key={cmd.id}
+                  />
+                ))}
+              </div>
+            </DialogDescription>
+          </DialogHeader>
+        </DialogContent>
       </Dialog>
     </div>
   )
 }
 
+const CommandButton = ({
+  cmd,
+  deviceId,
+  virtualId,
+}: {
+  cmd: IIRRemoteVirtualDeviceCommand
+  deviceId: string
+  virtualId: string
+}) => {
+  const [isLoading, setIsLoading] = useState(false)
+  const { toast } = useToast()
+  const homeId = useHomeSelector((s) => s.homeId)
+
+  const runCommand = (cmd: IIRRemoteVirtualDeviceCommand) => {
+    return async (e: any) => {
+      e.preventDefault()
+      setIsLoading(true)
+      const res = await DeviceService.ir
+        .executeCommand(
+          {
+            deviceId,
+            homeId,
+            virtualId,
+          },
+          cmd.id
+        )
+        .finally(() => {
+          setIsLoading(false)
+        })
+      if (!res.success) {
+        toast.error(res.message)
+      }
+    }
+  }
+  return (
+    <Button
+      key={cmd.id}
+      variant="subtle"
+      onClick={runCommand(cmd)}
+      className="flex items-center"
+      disabled={isLoading}
+    >
+      {cmd.name}
+    </Button>
+  )
+}
 export default ThingVirtualRemote
 
 ThingVirtualRemote.displayName = 'ThingVirtualRemote'

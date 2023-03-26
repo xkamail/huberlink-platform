@@ -107,7 +107,7 @@ const DeviceService = {
       commandId: string
     ) {
       return fetcher
-        .post(
+        .post<IResponse<{}>>(
           `/home/${homeId}/devices/${deviceId}/ir-remote/virtual/${virtualId}/execute`,
           {
             commandId,

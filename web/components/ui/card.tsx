@@ -1,13 +1,16 @@
 import { cn } from '@/lib/utils'
+import React from 'react'
 
 const Card = ({
   children,
   title,
   className,
+  renderAs,
 }: {
   title?: string
   children: React.ReactNode
   className?: string
+  renderAs?: React.ElementType
 }) => {
   return (
     <div className={cn('rounded-lg shadow bg-white p-4', className)}>
