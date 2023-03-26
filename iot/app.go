@@ -399,6 +399,104 @@ func Handlers() http.Handler {
 				return ok, nil
 			},
 		))
+		r.Route("/home/{home_id}/scenes", func(r chi.Router) {
+			r.Get("/", h(
+				func(ctx context.Context, r *http.Request) (any, error) {
+					homeID, err := URLParamID(r, "home_id")
+					if err != nil {
+						return nil, err
+					}
+					return home.ListScene(ctx, homeID)
+				},
+			))
+			r.Get("/{scene_id}", h(
+				func(ctx context.Context, r *http.Request) (any, error) {
+					homeID, err := URLParamID(r, "home_id")
+					if err != nil {
+						return nil, err
+					}
+					sceneID, err := URLParamID(r, "scene_id")
+					if err != nil {
+						return nil, err
+					}
+					scene, err := home.FindScene(ctx, homeID, sceneID)
+					if err != nil {
+						return nil, err
+					}
+					actions, err := home.ListSceneAction(ctx, homeID, sceneID)
+					if err != nil {
+						return nil, err
+					}
+					type result struct {
+						*home.Scene
+						Actions []*home.SceneAction `json:"actions"`
+					}
+					return &result{scene, actions}, nil
+				},
+			))
+
+			r.Post("/", h(
+				func(ctx context.Context, r *http.Request) (any, error) {
+					homeID, err := URLParamID(r, "home_id")
+					if err != nil {
+						return nil, err
+					}
+					var p home.CreateSceneParam
+					if err := mustBind(r, &p); err != nil {
+						return nil, err
+					}
+					return home.CreateScene(ctx, homeID, &p)
+				},
+			))
+			r.Delete("/{scene_id}", h(
+				func(ctx context.Context, r *http.Request) (any, error) {
+					homeID, err := URLParamID(r, "home_id")
+					if err != nil {
+						return nil, err
+					}
+					sceneID, err := URLParamID(r, "scene_id")
+					if err != nil {
+						return nil, err
+					}
+					return nil, home.DeleteScene(ctx, homeID, sceneID)
+				},
+			))
+			//
+			r.Post("/{scene_id}/actions", h(
+				func(ctx context.Context, r *http.Request) (any, error) {
+					homeID, err := URLParamID(r, "home_id")
+					if err != nil {
+						return nil, err
+					}
+					sceneID, err := URLParamID(r, "scene_id")
+					if err != nil {
+						return nil, err
+					}
+					var p home.CreateSceneActionParam
+					if err := mustBind(r, &p); err != nil {
+						return nil, err
+					}
+					return home.CreateSceneAction(ctx, homeID, sceneID, &p)
+				},
+			))
+			r.Delete("/{scene_id}/actions/{scene_action_id}", h(
+				func(ctx context.Context, r *http.Request) (any, error) {
+					homeID, err := URLParamID(r, "home_id")
+					if err != nil {
+						return nil, err
+					}
+					sceneID, err := URLParamID(r, "scene_id")
+					if err != nil {
+						return nil, err
+					}
+					sceneActionID, err := URLParamID(r, "scene_action_id")
+					if err != nil {
+						return nil, err
+					}
+					return nil, home.DeleteSceneAction(ctx, homeID, sceneID, sceneActionID)
+				},
+			))
+		})
 	}
 	return router
 }
