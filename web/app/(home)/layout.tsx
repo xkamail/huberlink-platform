@@ -1,7 +1,6 @@
 'use client'
 import BottomNavigation from '@/components/navigation/BottomNavigation'
 import { useUserSelector } from '@/lib/contexts/UserContext'
-import { cn } from '@/lib/utils'
 import { usePathname, useRouter } from 'next/navigation'
 
 export default function HomeLayout({
@@ -47,9 +46,7 @@ const SkeletonAuth = () => {
           </div>
         </div>
       </div>
-      <div
-        className={cn`block fixed inset-x-0 bottom-0 z-10 bg-white shadow border-t mb-0 p-safe`}
-      ></div>
+      <BottomNavigation />
     </div>
   )
 }
