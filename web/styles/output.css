@@ -1714,6 +1714,10 @@ video {
   padding-left: env(safe-area-inset-left);
 }
 
+body {
+  min-height: -webki-fill-available;
+}
+
 @media (min-width: 768px) {
   .md\:container {
     width: 100%;
