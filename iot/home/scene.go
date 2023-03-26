@@ -2,6 +2,7 @@ package home
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"errors"
 	"strconv"
@@ -13,6 +14,11 @@ import (
 	"github.com/xkamail/huberlink-platform/pkg/pgctx"
 	"github.com/xkamail/huberlink-platform/pkg/snowid"
 	"github.com/xkamail/huberlink-platform/pkg/uierr"
+)
+
+var (
+	ErrSceneActionNotFound = uierr.NotFound("scene action not found")
+	ErrSceneNotFound       = uierr.NotFound("scene not found")
 )
 
 type SceneExecuter interface {
@@ -103,6 +109,25 @@ type SceneAction struct {
 	DeviceID snowid.ID `json:"deviceId"` // device id to execute
 	// action to execute
 	RawAction string `json:"rawAction"`
+}
+
+func FindScene(ctx context.Context, homeID, sceneID snowid.ID) (*Scene, error) {
+	rows, err := pgctx.Query(ctx, `select * from home_scenes where home_id = $1 and id = $2`,
+		homeID,
+		sceneID,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	s, err := pgx.CollectOneRow(rows, pgx.RowToAddrOfStructByPos[Scene])
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, ErrSceneNotFound
+	}
+	if err != nil {
+		return nil, err
+	}
+	return s, nil
 }
 
 type CreateSceneParam struct {
@@ -225,6 +250,42 @@ func CreateSceneAction(ctx context.Context, homeID snowid.ID, p *CreateSceneActi
 	return id, nil
 }
 
-func DeleteSceneAction(ctx context.Context, homeID, sceneActionID snowid.ID) error {
-	panic("implement me")
+func DeleteSceneAction(ctx context.Context, homeID, sceneID, sceneActionID snowid.ID) error {
+	var c int
+	err := pgctx.QueryRow(ctx, `select count(*) from home_scenes where home_id = $1 and id = $2`,
+		homeID,
+		sceneID,
+	).Scan(
+		&c,
+	)
+	if err != nil {
+		return err
+	}
+	if c == 0 {
+		return ErrSceneActionNotFound
+	}
+	_, err = pgctx.Exec(ctx, `delete from home_scenes_actions where id = $1 and scene_id = $2`,
+		sceneActionID,
+		sceneID,
+	)
+	return err
+}
+
+func ListSceneAction(ctx context.Context, homeID, sceneID snowid.ID) ([]*SceneAction, error) {
+	rows, err := pgctx.Query(ctx, `
+		select hsm.id, hsm.scene_id, hsm.device_id, hsm.action, hsm.created_at, hsm.updated_at, 
+		from home_scenes_actions hsm 
+		    inner join home_scenes hs on hs.id = hsm.scene_id 
+		where scene_id = $1 and hs.home_id = $2 order by hsm.id desc`,
+		sceneID,
+		homeID,
+	)
+	if err != nil {
+		return nil, err
+	}
+	actions, err := pgx.CollectRows(rows, pgx.RowToAddrOfStructByPos[SceneAction])
+	if err != nil {
+		return nil, err
+	}
+	return actions, nil
 }
