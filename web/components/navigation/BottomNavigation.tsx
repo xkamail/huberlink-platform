@@ -13,13 +13,15 @@ const menuClass = (active: boolean) =>
 
 const BottomNavigation = () => {
   const path = usePathname()
-
+  // if (window.matchMedia('(display-mode: standalone)').matches) {
+  //   console.log('This is running as standalone.')
+  // }
   const currentHome = path.startsWith(`/h/`)
     ? path.split('/')[2]
     : nookies.get(null)?.currentHome || null
   return (
     <div
-      className={cn`block fixed inset-x-0 bottom-0 z-10 bg-white shadow border-t mb-0 pb-safe`}
+      className={cn`block fixed inset-x-0 bottom-0 z-10 bg-white shadow border-t mb-0 pb-5`}
     >
       <div className="flex justify-between  container mx-auto">
         <Link
