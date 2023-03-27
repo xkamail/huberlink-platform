@@ -1714,6 +1714,10 @@ video {
   padding-left: env(safe-area-inset-left);
 }
 
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
 body {
   min-height: -webki-fill-available;
 }

@@ -19,7 +19,7 @@ const BottomNavigation = () => {
     : nookies.get(null)?.currentHome || null
   return (
     <div
-      className={cn`block fixed inset-x-0 bottom-0 z-10 bg-white shadow border-t mb-0 p-safe`}
+      className={cn`block fixed inset-x-0 bottom-0 z-10 bg-white shadow border-t mb-0 pb-safe`}
     >
       <div className="flex justify-between  container mx-auto">
         <Link
