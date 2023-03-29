@@ -1354,6 +1354,10 @@ video {
   padding-bottom: 0.5rem;
 }
 
+.pb-5 {
+  padding-bottom: 1.25rem;
+}
+
 .pb-\[48px\] {
   padding-bottom: 48px;
 }
@@ -1376,10 +1380,6 @@ video {
 
 .pt-4 {
   padding-top: 1rem;
-}
-
-.pb-5 {
-  padding-bottom: 1.25rem;
 }
 
 .text-left {
@@ -1713,10 +1713,6 @@ video {
 
 .running {
   animation-play-state: running;
-}
-
-.pb-safe {
-  padding-bottom: env(safe-area-inset-bottom);
 }
 
 body {
