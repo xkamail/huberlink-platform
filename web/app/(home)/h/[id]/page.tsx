@@ -40,7 +40,7 @@ const HomePage = ({ params: { id: homeId } }: { params: { id: string } }) => {
     return (
       <div>
         <div className="mb-4 py-20 flex justify-center items-center flex-col gap-2">
-          <p>
+          <p className="mb-4">
             You {`don't`} have any devices yet. Click the button below to create
             a
           </p>
