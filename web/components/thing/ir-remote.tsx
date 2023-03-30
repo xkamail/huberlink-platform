@@ -15,13 +15,6 @@ const IRRemoteThingCard = ({ deviceId }: IProps) => {
     toSWR(DeviceService.ir.findDetail({ deviceId, homeId }))
   )
   if (!data) return null
-
-  // fetch virtual device
-  // render virtual device first
-  // then append real device
-  const handlePower = (e: any) => {
-    e.preventDefault()
-  }
   //
   return (
     <>

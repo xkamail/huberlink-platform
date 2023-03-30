@@ -8,6 +8,7 @@ import {
 import { toSWR } from '@/lib/utils'
 import DeviceService from '@/services/DeviceService'
 import { BoxIcon } from 'lucide-react'
+import Link from 'next/link'
 import { useState } from 'react'
 import useSWR from 'swr'
 import { Button } from '../ui/button'
@@ -47,7 +48,7 @@ const ThingVirtualRemote = ({
 
   //
   return (
-    <div className="col-span-6 md:col-span-4">
+    <div className="col-span-12 ">
       <Dialog>
         <DialogTrigger asChild>
           <div className="w-full rounded-lg shadow bg-white p-4  cursor-pointer hover:shadow-lg transition-all">
@@ -56,7 +57,7 @@ const ThingVirtualRemote = ({
                 <BoxIcon className="w-6 h-6" /> {v.name}
               </div>
             </div>
-            <div className="mt-4 flex flex-row items-center justify-between">
+            <div className="mt-4 flex flex-row gap-2 justify-end">
               <div></div>
               {homeCommands.length === 0 && <div className="h-[40px]"></div>}
               {homeCommands.map((cmd) => (
@@ -80,7 +81,7 @@ const ThingVirtualRemote = ({
           <DialogHeader>
             <DialogTitle>{v.name}</DialogTitle>
             <DialogDescription>
-              <div className="py-4">
+              <div className="py-4 flex gap-2">
                 {commands.map((cmd) => (
                   <CommandButton
                     deviceId={deviceId}
@@ -89,6 +90,13 @@ const ThingVirtualRemote = ({
                     key={cmd.id}
                   />
                 ))}
+              </div>
+              <div className="mt-10 mx-auto w-full flex justify-center">
+                <Link
+                  href={`/h/${homeId}/devices/${deviceId}/ir-remote/${v.id}`}
+                >
+                  <Button variant="link">Setting</Button>
+                </Link>
               </div>
             </DialogDescription>
           </DialogHeader>
@@ -137,7 +145,7 @@ const CommandButton = ({
       key={cmd.id}
       variant="subtle"
       onClick={runCommand(cmd)}
-      className="flex items-center"
+      className="flex items-center capitalize"
       disabled={isLoading}
     >
       {cmd.name}

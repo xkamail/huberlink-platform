@@ -7,7 +7,6 @@ import { toSWR } from '@/lib/utils'
 import DeviceService from '@/services/DeviceService'
 import HomeService from '@/services/HomeService'
 import useSWR from 'swr'
-import HomeGreating from './home-greating'
 import HomeSenceList from './home-sence'
 import SkeletonDisplay from './skeleton'
 const fetchData = async (id: string) => {
@@ -57,9 +56,6 @@ const HomePage = ({ params: { id: homeId } }: { params: { id: string } }) => {
     <div className="grid grid-cols-12 gap-4">
       <div className="col-span-12">
         <HomeSenceList />
-      </div>
-      <div className="col-span-12">
-        <HomeGreating />
       </div>
 
       {!error && !isLoading && deviceList.map((d) => renderDeviceCard(d))}
