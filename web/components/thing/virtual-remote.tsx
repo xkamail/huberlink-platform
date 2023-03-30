@@ -7,10 +7,11 @@ import {
 } from '@/lib/types'
 import { toSWR } from '@/lib/utils'
 import DeviceService from '@/services/DeviceService'
-import { BoxIcon } from 'lucide-react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { useState } from 'react'
 import useSWR from 'swr'
+import { virtualIcon } from '../ir-remote/virtual-icon'
 import { Button } from '../ui/button'
 import {
   Dialog,
@@ -27,6 +28,8 @@ const ThingVirtualRemote = ({
   v: IIRRemoteVirtualDevice
   deviceId: string
 }) => {
+  let img = virtualIcon(v.category)
+
   const { toast } = useToast()
   const homeId = useHomeSelector((s) => s.homeId)
   const { data, error, isLoading } = useSWR(
@@ -54,7 +57,10 @@ const ThingVirtualRemote = ({
           <div className="w-full rounded-lg shadow bg-white p-4  cursor-pointer hover:shadow-lg transition-all">
             <div className="flex items-center">
               <div className="flex-shrink-0 flex gap-2">
-                <BoxIcon className="w-6 h-6" /> {v.name}
+                <Image src={img} width={25} height={25} alt="icon" />
+                <span className="capitalize font-semibold text-lg">
+                  {v.name}
+                </span>
               </div>
             </div>
             <div className="mt-4 flex flex-row gap-2 justify-end">

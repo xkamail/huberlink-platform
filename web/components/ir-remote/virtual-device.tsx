@@ -20,20 +20,10 @@ import Link from 'next/link'
 import { mutate } from 'swr'
 import { Button } from '../ui/button'
 import Card from '../ui/card'
+import { virtualIcon } from './virtual-icon'
+
 const renderCategory = (category: VirtualCategoryEnum) => {
-  let img = require(`@/assets/images/remote-control.png`)
-  if (category === VirtualCategoryEnum.AirConditioner) {
-    img = require(`@/assets/images/air-conditioner.png`)
-  }
-  if (category === VirtualCategoryEnum.TV) {
-    img = require(`@/assets/images/tv.png`)
-  }
-  if (category === VirtualCategoryEnum.Fan) {
-    img = require(`@/assets/images/fan.png`)
-  }
-  if (category === VirtualCategoryEnum.Speaker) {
-    img = require(`@/assets/images/speaker.png`)
-  }
+  let img = virtualIcon(category)
 
   return (
     <div className="mx-auto flex justify-center">
