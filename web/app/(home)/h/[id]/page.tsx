@@ -1,11 +1,13 @@
 'use client'
 import IRRemoteThingCard from '@/components/thing/ir-remote'
+import { Button } from '@/components/ui/button'
 import { useHomeSelector } from '@/lib/contexts/HomeContext'
 import { useUser } from '@/lib/hooks'
 import { DeviceKindEnum, IDeviceCard } from '@/lib/types'
 import { toSWR } from '@/lib/utils'
 import DeviceService from '@/services/DeviceService'
 import HomeService from '@/services/HomeService'
+import { PlusIcon } from 'lucide-react'
 import useSWR from 'swr'
 import HomeSenceList from './home-sence'
 import SkeletonDisplay from './skeleton'
@@ -34,7 +36,22 @@ const HomePage = ({ params: { id: homeId } }: { params: { id: string } }) => {
   if (loading) return <SkeletonDisplay />
 
   const deviceList = devices || []
-
+  if (deviceList.length === 0) {
+    return (
+      <div>
+        <div className="mb-4 py-20 flex justify-center items-center flex-col gap-2">
+          <p>
+            You {`don't`} have any devices yet. Click the button below to create
+            a
+          </p>
+          <Button to={`/h/${homeId}/devices/create`} variant="outline-primary">
+            <PlusIcon className="w-4 h-4 inline-block mr-1" /> Create a new
+            device
+          </Button>
+        </div>
+      </div>
+    )
+  }
   return (
     <div className="grid grid-cols-12 gap-4">
       {!hideScene && (
