@@ -181,3 +181,35 @@ export enum IRRemoteVirtualDeviceCommandFlagEnum {
   // Power = 4,
   // Mute = 8,
 }
+export enum SceneRunEnum {
+  Tap = 1,
+  Schedule = 2,
+}
+
+export enum SceneScheduleRepeatEnum {
+  Sun = 1,
+  Mon = 2,
+  Tue = 4,
+  Wed = 8,
+  Thu = 16,
+  Fri = 32,
+  Sat = 64,
+}
+
+export interface IScene {
+  id: string
+  homeId: string
+  name: string
+  run: SceneRunEnum
+  schedule: SceneScheduleRepeatEnum
+  scheduleTime: string
+  createdAt: Date
+  updatedAt: Date
+}
+export interface ISceneAction {
+  id: string
+  order: number
+  name: string
+  deviceId: string
+  rawAction: string
+}

@@ -10,7 +10,6 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
-	"github.com/xkamail/huberlink-platform/iot/device"
 	"github.com/xkamail/huberlink-platform/pkg/pgctx"
 	"github.com/xkamail/huberlink-platform/pkg/snowid"
 	"github.com/xkamail/huberlink-platform/pkg/uierr"
@@ -226,7 +225,7 @@ func CreateSceneAction(ctx context.Context, homeID, sceneID snowid.ID, p *Create
 		&p.DeviceID,
 	)
 	if errors.Is(err, pgx.ErrNoRows) {
-		return 0, device.ErrNotFound
+		return 0, uierr.NotFound("device not found")
 	}
 	if err != nil {
 		return 0, err
