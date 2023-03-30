@@ -25,27 +25,10 @@ const HomePage = ({ params: { id: homeId } }: { params: { id: string } }) => {
     if (d.kind === DeviceKindEnum.IRRemote) {
       return <IRRemoteThingCard deviceId={d.id} />
     }
-    return (
-      <div className="col-span-6 md:col-span-4" key={d.id}>
-        <div className="bg-white rounded-lg shadow p-4">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <img
-                className="h-10 w-10 rounded-full"
-                src="https://via.placeholder.com/400"
-                alt="x"
-              />
-            </div>
-          </div>
-          <div className="mt-4">
-            <div className="text-base font-medium ">{d.name}</div>
-            <div>x</div>
-          </div>
-        </div>
-      </div>
-    )
+    return null
   }
 
+  const hideScene = true
   const loading = useHomeSelector((s) => s.isLoading)
 
   if (loading) return <SkeletonDisplay />
@@ -54,9 +37,11 @@ const HomePage = ({ params: { id: homeId } }: { params: { id: string } }) => {
 
   return (
     <div className="grid grid-cols-12 gap-4">
-      <div className="col-span-12">
-        <HomeSenceList />
-      </div>
+      {!hideScene && (
+        <div className="col-span-12">
+          <HomeSenceList />
+        </div>
+      )}
 
       {!error && !isLoading && deviceList.map((d) => renderDeviceCard(d))}
     </div>

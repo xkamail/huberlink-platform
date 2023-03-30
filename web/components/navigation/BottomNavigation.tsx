@@ -13,6 +13,7 @@ const menuClass = (active: boolean) =>
 
 const BottomNavigation = () => {
   const path = usePathname()
+  const hideAutomation = true
   // if (window.matchMedia('(display-mode: standalone)').matches) {
   //   console.log('This is running as standalone.')
   // }
@@ -33,15 +34,19 @@ const BottomNavigation = () => {
             <span className="block text-xs">Home</span>
           </>
         </Link>
-        <Link
-          href={currentHome ? `/h/${currentHome}/automation` : `/h/create`}
-          className={menuClass(path.startsWith(`/h/${currentHome}/automation`))}
-        >
-          <>
-            <Icons.bot className="w-5 h-5 mx-auto" />
-            <span className="block text-xs">Automation</span>
-          </>
-        </Link>
+        {!hideAutomation && (
+          <Link
+            href={currentHome ? `/h/${currentHome}/automation` : `/h/create`}
+            className={menuClass(
+              path.startsWith(`/h/${currentHome}/automation`)
+            )}
+          >
+            <>
+              <Icons.bot className="w-5 h-5 mx-auto" />
+              <span className="block text-xs">Automation</span>
+            </>
+          </Link>
+        )}
         <Link
           href={currentHome ? `/h/${currentHome}/devices` : `/h/create`}
           className={menuClass(path.startsWith(`/h/${currentHome}/devices`))}
