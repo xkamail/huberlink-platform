@@ -138,7 +138,7 @@ const IRRemoteSettingPage = ({
           ))}
           <Dialog open={isLearning}>
             <DialogTrigger asChild>
-              <div className="p-4 bg-white shadow-sm rounded-lg flex items-center">
+              <div className="p-4 bg-white shadow-sm rounded-lg flex items-center col-span-full">
                 <Button
                   onClick={onStartLearning}
                   variant="link"
