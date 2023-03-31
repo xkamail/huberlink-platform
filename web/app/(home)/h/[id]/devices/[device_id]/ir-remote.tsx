@@ -16,13 +16,15 @@ import useSWR, { mutate } from 'swr'
 const IRRemoteSection = ({ device }: { device: IDeviceDetail }) => {
   const homeId = useHomeSelector((s) => s.homeId)
   const { data, isLoading, error } = useSWR(
-    `device-ir-remote-${device.id}`,
+    [`device-ir-remote`, device.id],
     () =>
       DeviceService.ir.findDetail({
         deviceId: device.id,
         homeId,
       }),
-    {}
+    {
+      //
+    }
   )
   const [open, setOpen] = useState(false)
   if (isLoading) return <div>Loading...</div>
@@ -60,7 +62,7 @@ const IRRemoteSection = ({ device }: { device: IDeviceDetail }) => {
             <CreateVirtualDeviceForm
               deviceId={device.id}
               onSuccess={() => {
-                mutate(`device-ir-remote`)
+                mutate([`device-ir-remote`, device.id])
                 setOpen(false)
               }}
             />

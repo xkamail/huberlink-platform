@@ -54,7 +54,7 @@ const VirtualDevice = ({
         deviceId,
       })
       .finally(() => {
-        mutate(`device-ir-remote`)
+        mutate([`device-ir-remote`, deviceId])
       })
   }
   //

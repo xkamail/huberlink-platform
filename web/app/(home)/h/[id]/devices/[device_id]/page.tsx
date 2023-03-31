@@ -22,7 +22,7 @@ const DeviceDetailPage = ({
     isLoading,
     error,
   } = useSWR(
-    'device-detail',
+    ['device-detail', deviceId],
     () =>
       DeviceService.findById({
         deviceId,
