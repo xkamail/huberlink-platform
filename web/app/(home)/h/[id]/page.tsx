@@ -6,13 +6,14 @@ import { useUser } from '@/lib/hooks'
 import { DeviceKindEnum, IDeviceCard } from '@/lib/types'
 import { toSWR } from '@/lib/utils'
 import DeviceService from '@/services/DeviceService'
-import HomeService from '@/services/HomeService'
 import { PlusIcon } from 'lucide-react'
+import { Metadata } from 'next'
 import useSWR from 'swr'
 import HomeSenceList from './home-sence'
 import SkeletonDisplay from './skeleton'
-const fetchData = async (id: string) => {
-  return await HomeService.findById(id)
+
+export const metadata: Metadata = {
+  title: 'Home',
 }
 
 const HomePage = ({ params: { id: homeId } }: { params: { id: string } }) => {
