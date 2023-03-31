@@ -7,14 +7,9 @@ import { DeviceKindEnum, IDeviceCard } from '@/lib/types'
 import { toSWR } from '@/lib/utils'
 import DeviceService from '@/services/DeviceService'
 import { PlusIcon } from 'lucide-react'
-import { Metadata } from 'next'
 import useSWR from 'swr'
 import HomeSenceList from './home-sence'
 import SkeletonDisplay from './skeleton'
-
-export const metadata: Metadata = {
-  title: 'Home',
-}
 
 const HomePage = ({ params: { id: homeId } }: { params: { id: string } }) => {
   const {

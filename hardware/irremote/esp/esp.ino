@@ -86,8 +86,6 @@ void listeningIR() {
     if (IrReceiver.decodedIRData.flags & IRDATA_FLAGS_WAS_OVERFLOW) {
       return;
     }
-  analogWrite();
-  digitalWrite();
     uint8_t raw[600] = {};
     int rawLength = IrReceiver.decodedIRData.rawDataPtr->rawlen - 1;
     IrReceiver.compensateAndStoreIRResultInArray(raw);
@@ -126,8 +124,6 @@ void handler(char *topic, byte *p, unsigned int length) {
     //
     for (int i = 0; i < _i; i++) {
       SPI.transfer(codes[i]);
-      Serial.print(codes[i]);
-      Serial.print(" ");
     }
     SPI.transfer(0);  // end
     Serial.println();
