@@ -22,6 +22,7 @@ export default function RootLayout({
       */}
       <head>
         <meta charSet="utf-8" />
+        <title>HuberLink</title>
       </head>
       <body
         className={cn`min-h-screen text-slate-900 antialiased dark:bg-slate-900 dark:text-slate-50 ${inter.className}`}

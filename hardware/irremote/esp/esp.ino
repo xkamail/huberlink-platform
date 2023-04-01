@@ -126,7 +126,6 @@ void handler(char *topic, byte *p, unsigned int length) {
       SPI.transfer(codes[i]);
     }
     SPI.transfer(0);  // end
-    Serial.println();
     //
     digitalWrite(SS, HIGH);
     return;
