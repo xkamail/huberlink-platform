@@ -63,7 +63,7 @@ const ThingVirtualRemote = ({
                 </span>
               </div>
             </div>
-            <div className="mt-4 flex flex-row gap-2 justify-end">
+            <div className="mt-4 flex flex-row gap-2 justify-end flex-wrap">
               <div></div>
               {homeCommands.length === 0 && <div className="h-[40px]"></div>}
               {homeCommands.map((cmd) => (
@@ -87,7 +87,7 @@ const ThingVirtualRemote = ({
           <DialogHeader>
             <DialogTitle>{v.name}</DialogTitle>
             <DialogDescription>
-              <div className="py-4 flex gap-2">
+              <div className="py-4 flex-wrap flex gap-2">
                 {commands.map((cmd) => (
                   <CommandButton
                     deviceId={deviceId}
