@@ -23,7 +23,7 @@ void setup() {
   SPI.attachInterrupt();
 }
 
-uint8_t irData[600];  // max buffer remote code is 300
+uint8_t irData[600];  // max buffer remote code
 volatile bool _success = false;
 volatile int _length = 0;  // true data length
 
@@ -32,20 +32,13 @@ void loop() {
     _success = false;
     int m = _length;
     _length = 0;
-    Serial.print(m);
-    Serial.println("OK");
-    for (int i = 0; i < m; i++) {
-      Serial.print(irData[i]);
-      Serial.print(" ");
-    }
-    Serial.println("===");
     sent(m);
   }
 }
 
 void sent(int _length) {
-  Serial.println("[INFO] sent");
   IrSender.sendRaw(irData, _length, 38);
+  Serial.println("[INFO] sent");
 }
 
 ISR(SPI_STC_vect) {

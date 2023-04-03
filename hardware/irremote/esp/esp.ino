@@ -62,6 +62,7 @@ void loop() {
   wm.process();
   listeningIR();
 }
+
 volatile bool feedbackResult = false;
 
 void listeningIR() {
@@ -98,8 +99,8 @@ void listeningIR() {
   }
 }
 
+// handler is a default callback
 void handler(char *topic, byte *p, unsigned int length) {
-
   String _topicStr = String(topic);
   String prefix = String("huberlink/") + String(device_id);
   if (!_topicStr.startsWith(prefix)) {
