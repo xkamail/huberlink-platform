@@ -10,7 +10,7 @@ HuberLink Platform IoT
 
 `huberlink/%s/thing/report` to save data which come from thing
 
-```
+```mermaid
 sequenceDiagram
   autonumber
   participant W as Web Application
