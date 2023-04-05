@@ -68,7 +68,7 @@ volatile bool feedbackResult = false;
 void listeningIR() {
   if (IrReceiver.decode() && !feedbackResult) {
     if (IrReceiver.decodedIRData.rawDataPtr->rawlen < 4) {
-      Serial.print(F("Ignore data with rawlen="));
+      // Serial.print(F("Ignore data with rawlen="));
       Serial.println(IrReceiver.decodedIRData.rawDataPtr->rawlen);
       return;
     }
@@ -89,7 +89,9 @@ void listeningIR() {
     }
     uint8_t raw[600] = {};
     int rawLength = IrReceiver.decodedIRData.rawDataPtr->rawlen - 1;
+    IrReceiver.printIRResultMinimal(&Serial);
     IrReceiver.compensateAndStoreIRResultInArray(raw);
+
     String result;
     for (int i = 0; i < rawLength; i++) {
       result += String(raw[i]) + String(",");
@@ -154,7 +156,7 @@ void onHeartbeat() {
   unsigned long currentMillis = millis();
   if (currentMillis - latestBeat >= 5000) {
     latestBeat = currentMillis;
-    char *payload = fmtString("hello %s", String("world").c_str());
+    char *payload = "hello";
     Publish(getHeartbeatTopic().c_str(), payload);
   }
 }
